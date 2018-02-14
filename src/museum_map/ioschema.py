@@ -6,7 +6,9 @@
 Items are the main organisational structure, with all other classes
 linked from within the individual items.
 """
-from marshmallow_jsonapi import Schema, fields
+from marshmallow import post_load, fields
+from compound_jsonapi.schema import Schema
+from compound_jsonapi.fields import Relationship
 
 
 class ItemSchema(Schema):
@@ -46,25 +48,26 @@ class ItemSchema(Schema):
     measurements = fields.Str()
     place_made = fields.Str()
     culture = fields.Str()
+    processed_culture = fields.Str()
     description = fields.Str()
     maker = fields.Str()
     category = fields.Str()
 
-    materials = fields.Relationship(schema='MaterialSchema',
-                                    type_='materials',
-                                    many=True)
-    images = fields.Relationship(schema='ImageSchema',
-                                 type_='images',
-                                 many=True)
-    owners = fields.Relationship(schema='OwnerSchema',
-                                 type_='owners',
-                                 many=True)
-    collected_in = fields.Relationship(schema='PlaceSchema',
-                                       type_='places',
-                                       many=True)
-    made_in = fields.Relationship(schema='PlaceSchema',
-                                  type_='places',
-                                  many=True)
+    materials = Relationship(schema='MaterialSchema',
+                             type_='materials',
+                             many=True)
+    images = Relationship(schema='ImageSchema',
+                          type_='images',
+                          many=True)
+    owners = Relationship(schema='OwnerSchema',
+                          type_='owners',
+                          many=True)
+    collected_in = Relationship(schema='PlaceSchema',
+                                type_='places',
+                                many=True)
+    made_in = Relationship(schema='PlaceSchema',
+                           type_='places',
+                           many=True)
 
     class Meta:
         type_ = 'items'
@@ -166,8 +169,8 @@ class OwnerSchema(Schema):
     name = fields.Str()
     friendly_name = fields.Str()
 
-    person = fields.Relationship(schema='PersonSchema',
-                                 type_='people')
+    person = Relationship(schema='PersonSchema',
+                          type_='people')
 
     class Meta:
         type_ = 'owners'
@@ -191,15 +194,16 @@ class PlaceSchema(Schema):
     """
     id = fields.Str()
     name = fields.Str()
-    start_lat = fields.Float()
-    start_lon = fields.Float()
-    end_lat = fields.Float()
-    end_lon = fields.Float()
-    collections_lat = fields.Float()
-    collections_lon = fields.Float()
+    start_lat = fields.Float(missing=None)
+    start_lon = fields.Float(missing=None)
+    end_lat = fields.Float(missing=None)
+    end_lon = fields.Float(missing=None)
+    collections_lat = fields.Float(missing=None)
+    collections_lon = fields.Float(missing=None)
 
-    broader = fields.Relationship(schema='PlaceSchema',
-                                  type_='places')
+    broader = Relationship(schema='PlaceSchema',
+                           type_='places',
+                           missing=None)
 
     class Meta:
         type_ = 'places'
