@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 REQUIRES = [
     'spacy',
-    'marshmallow-jsonapi'
+    'compound-jsonapi>=1.0.1',
 ]
 
 setup(

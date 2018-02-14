@@ -2,10 +2,11 @@ import itertools
 import json
 import re
 import spacy
+import sys
 
 from collections import Counter
 
-from museum_map.models import ItemSchema
+from museum_map.ioschema import (ItemSchema, MaterialSchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema)
 
 nlp = spacy.load('en')
 
@@ -13,27 +14,14 @@ with open('/home/hall/Documents/Data/NML_Egypt/dataset.json') as in_f:
     data = in_f.read()
 
 with open('/home/hall/Documents/Data/NML_Egypt/dataset.json', 'w') as out_f:
-    data = data.replace('Hyksos or New Kingdom', 'Hyksos - New Kingdom')
+    data = data.replace('Music/sound', 'Music/Sound')
     out_f.write(data)
 
 
 print('Loading')
 
-with open('/home/hall/Documents/Data/NML_Egypt/dataset.json') as in_f:
-    schema = ItemSchema(include_data=('materials', 'images', 'owners', 'owners.person',
-                                      'made_in', 'made_in.broader', 'made_in.broader.broader',
-                                      'made_in.broader.broader.broader',
-                                      'made_in.broader.broader.broader.broader',
-                                      'made_in.broader.broader.broader.broader.broader',
-                                      'made_in.broader.broader.broader.broader.broader.broader',
-                                      'made_in.broader.broader.broader.broader.broader.broader.broader',
-                                      'collected_in', 'collected_in.broader',
-                                      'collected_in.broader.broader',
-                                      'collected_in.broader.broader.broader',
-                                      'collected_in.broader.broader.broader.broader',
-                                      'collected_in.broader.broader.broader.broader.broader',
-                                      'collected_in.broader.broader.broader.broader.broader.broader',
-                                      'collected_in.broader.broader.broader.broader.broader.broader.broader'))
+with open('%s/dataset.json' % sys.argv[1]) as in_f:
+    schema = ItemSchema(include_schemas=(MaterialSchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema))
     raw = json.load(in_f)
     data = schema.load(raw, many=True)
 
@@ -49,7 +37,7 @@ def extract_dynasty(date):
 
 print('Extracting Dynasties')
 
-for obj in data.data:
+for obj in data:
     dynasty = extract_dynasty(obj['date_made'])
     if dynasty:
         obj['dynasty'] = tuple(dynasty)
@@ -63,7 +51,7 @@ KEYS = [('maker', None),
         ('category', None),
         #('measurements', None),
         ('place_made', None),
-        ('culture', None),
+        ('processed_culture', None),
         #('date_made', None),
         ('made_in', 'name'),
         ('dynasty', None)]
@@ -124,38 +112,58 @@ def dynasty_ordering(value):
 def culture_ordering(value):
     if isinstance(value, dict):
         value = value['values'][0]
-    return ['Predynastic ?',
-            'Predynastic Period (Naqada I)',
-            'Predyndastic Period (Naqada II) or Early Dynastic Period',
-            'Predynastic Period (Naqada II)',
-            'Early Dynastic - early Old Kingdom',
+    return ['Chalcolithic; Late Neolithic',
+            'Predynastic Period',
+            'Predynastic Period; Early Dynastic Period',
+            'Early Dynastic Period',
+            'Early Dynastic Period; Old Kingdom',
             'Old Kingdom',
+            'Old Kingdom; First Intermediate Period',
+            'Old Kingdom; Middle Kingdom',
             'First Intermediate Period',
-            'First Intermediate Period - Middle Kingdom',
+            'First Intermediate Period; Middle Kingdom',
             'Middle Kingdom',
-            'Middle Kingdom - Second Intermediate Period',
-            'Middle Kingdom or New Kingdom',
-            'Middle Kingdom or later',
+            'Middle Kingdom; New Kingdom',
+            'Middle Kingdom; Second Intermediate Period',
             'Hyksos',
-            'Hyksos - New Kingdom',
+            'Nubian',
+            'Napatan; Meroitic',
+            'Meroitic',
+            'Hyksos; Second Intermediate Period',
+            'Hyksos; New Kingdom',
             'Second Intermediate Period',
-            'Second Intermediate Period - Hyksos',
-            'Second Intermediate Period - Early New Kingdom',
-            'Second Intermediate Period - New Kingdom',
-            'Early New Kingdom',
+            'Second Intermediate Period; New Kingdom',
+            'Second Intermediate Period; Hyksos',
             'New Kingdom',
-            'New Kingdom (Ramesside Period)',
-            'New Kingdom (Ramesside Period) - Third Intermediate Period',
-            'New Kingdom - Late Period',
+            'New Kingdom; Third Intermediate Period',
+            'New Kingdom; Late Period',
+            'Late Bronze Age',
             'Third Intermediate Period',
-            'Third Intermediate Period - Late Period',
+            'Third Intermediate Period; Late Period',
             'Late Period',
-            'Late Period (Saite)',
-            'Late Period or later',
-            'Late Period/Phoenician or Ptolemaic',
-            'Late Period - Romano-Egyptian',
+            'Late Period; Phoenician',
+            'Late Period; Phoenician; Ptolemaic',
+            'Late Period; Roman',
+            'Later Period; Modern',
+            'Late Cypriot I; Late Cypriot II',
+            'Late Period; Ptolemaic',
             'Ptolemaic',
-            'Roman Period'].index(value)
+            'Ptolemaic; Roman',
+            'Roman',
+            'Phoenician',
+            'Byzantine',
+            'French',
+            'Egyptian',
+            'Modern',
+            'Cypriot',
+            'Mycenaen',
+            'Unknown'].index(value)
+
+
+def location_ordering(value):
+    if isinstance(value, dict):
+        value = value['values'][0]
+    return [loc.strip() for loc in value.split(':')]
 
 
 def ordered_bins(values, target_size, ordering, single_value=True):
@@ -234,25 +242,34 @@ def split_data(data, filter_keys=[], indent=0):
     # These need to be binned into at most 10 bins, to aim for a room size of about 20 items
     if best_key[0] == 'dynasty':
         bins = ordered_bins(best_values, round(sum([v[1] for v in best_values]) / min(10, int(len(data) / 20))), dynasty_ordering, False)
-    elif best_key[0] == 'culture':
+    elif best_key[0] == 'processed_culture':
         bins = ordered_bins(best_values, round(sum([v[1] for v in best_values]) / min(10, int(len(data) / 20))), culture_ordering)
+    elif best_key[0] == 'place_made':
+        bins = ordered_bins(best_values, round(sum([v[1] for v in best_values]) / min(10, int(len(data) / 20))), location_ordering)
     else:
         bins = best_effort_bins(best_values, min(10, int(len(data) / 20)))
-    for data_bin in bins:
-        if data_bin['total'] > 0:
-            filtered_data = filter_data(data, [(best_key, v) for v in data_bin['values']])
-            if best_key[0] == 'dynasty':
-                labels = data_bin['values']
-                labels.sort(key=dynasty_ordering)
-                labels = [str(d) for d in labels]
-            elif best_key[0] == 'culture':
-                labels = data_bin['values']
-                labels.sort(key=culture_ordering)
-                labels = [str(d) for d in labels]
-            else:
-                labels = data_bin['values']
-            print('%s|- %s [%i]' % (' ' * indent, ', '.join(labels), len(filtered_data)))
-            split_data(filtered_data, filter_keys + [best_key[0]], indent + 3)
+    if len(bins) == 1:
+        split_data(bins[0]['values'], filter_keys + [best_key[0]], indent)
+    else:
+        for data_bin in bins:
+            if data_bin['total'] > 0:
+                filtered_data = filter_data(data, [(best_key, v) for v in data_bin['values']])
+                if best_key[0] == 'dynasty':
+                    labels = data_bin['values']
+                    labels.sort(key=dynasty_ordering)
+                    labels = [str(d) for d in labels]
+                elif best_key[0] == 'processed_culture':
+                    labels = data_bin['values']
+                    labels.sort(key=culture_ordering)
+                    labels = [str(d) for d in labels]
+                elif best_key[0] == 'place_made':
+                    labels = data_bin['values']
+                    labels.sort(key=location_ordering)
+                    labels = [str(d) for d in labels]
+                else:
+                    labels = data_bin['values']
+                print('%s|- %s [%i]' % (' ' * indent, ', '.join(labels), len(filtered_data)))
+                split_data(filtered_data, filter_keys + [best_key[0]], indent + 3)
 
 print('Hierarchy')
-split_data(data.data, [], 0)
+split_data(data, [], 0)
