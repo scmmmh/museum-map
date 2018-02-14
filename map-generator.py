@@ -13,9 +13,7 @@ with open('/home/hall/Documents/Data/NML_Egypt/dataset.json') as in_f:
     data = in_f.read()
 
 with open('/home/hall/Documents/Data/NML_Egypt/dataset.json', 'w') as out_f:
-    data.replace('Third Intermediate Period  - Late Period', 'Third Intermediate Period - Late Period')
-    data.replace('Third Intermediate Period or Late Period', 'Third Intermediate Period - Late Period')
-    data.replace('Late Period or after', 'Late Period or later')
+    data = data.replace('Hyksos or New Kingdom', 'Hyksos - New Kingdom')
     out_f.write(data)
 
 
@@ -117,10 +115,15 @@ def best_effort_bins(values, target_bin_count):
 
 
 def dynasty_ordering(value):
-    return value['values'][0]
+    if isinstance(value, dict):
+        return value['values'][0]
+    else:
+        return value
 
 
 def culture_ordering(value):
+    if isinstance(value, dict):
+        value = value['values'][0]
     return ['Predynastic ?',
             'Predynastic Period (Naqada I)',
             'Predyndastic Period (Naqada II) or Early Dynastic Period',
@@ -131,24 +134,31 @@ def culture_ordering(value):
             'First Intermediate Period - Middle Kingdom',
             'Middle Kingdom',
             'Middle Kingdom - Second Intermediate Period',
-            'Second Intermediate Period',
-            'Second Intermediate Period: Hyksos',
             'Middle Kingdom or New Kingdom',
+            'Middle Kingdom or later',
+            'Hyksos',
+            'Hyksos - New Kingdom',
+            'Second Intermediate Period',
+            'Second Intermediate Period - Hyksos',
+            'Second Intermediate Period - Early New Kingdom',
+            'Second Intermediate Period - New Kingdom',
+            'Early New Kingdom',
             'New Kingdom',
             'New Kingdom (Ramesside Period)',
+            'New Kingdom (Ramesside Period) - Third Intermediate Period',
             'New Kingdom - Late Period',
-            'Hyksos',
             'Third Intermediate Period',
-            'Third Intermediate Period  - Late Period',
+            'Third Intermediate Period - Late Period',
             'Late Period',
             'Late Period (Saite)',
             'Late Period or later',
             'Late Period/Phoenician or Ptolemaic',
-            'Ptolemaic'].index(value['values'])
+            'Late Period - Romano-Egyptian',
+            'Ptolemaic',
+            'Roman Period'].index(value)
 
 
 def ordered_bins(values, target_size, ordering, single_value=True):
-    print(values)
     bins = set()
     for value, _ in values:
         if single_value:
@@ -170,7 +180,9 @@ def ordered_bins(values, target_size, ordering, single_value=True):
         merged = False
         for idx in range(0, len(bins) - 1):
             if bins[idx]['total'] + bins[idx + 1]['total'] <= target_size:
-                bins[idx]['values'].extend(bins[idx]['values'])
+                for v in bins[idx + 1]['values']:
+                    if v not in bins[idx]['values']:
+                        bins[idx]['values'].append(v)
                 bins[idx]['total'] = bins[idx + 1]['total']
                 del bins[idx + 1]
                 merged = True
@@ -230,8 +242,12 @@ def split_data(data, filter_keys=[], indent=0):
         if data_bin['total'] > 0:
             filtered_data = filter_data(data, [(best_key, v) for v in data_bin['values']])
             if best_key[0] == 'dynasty':
-                labels = list(set([int(d) for v in data_bin['values'] for d in v]))
-                labels.sort()
+                labels = data_bin['values']
+                labels.sort(key=dynasty_ordering)
+                labels = [str(d) for d in labels]
+            elif best_key[0] == 'culture':
+                labels = data_bin['values']
+                labels.sort(key=culture_ordering)
                 labels = [str(d) for d in labels]
             else:
                 labels = data_bin['values']
