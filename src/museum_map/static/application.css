@@ -5000,3 +5000,92 @@ a.thumbnail {
     flex-direction: column; }
   .large-flex-dir-column-reverse {
     flex-direction: column-reverse; } }
+
+.justify-items-center {
+  justify-content: center; }
+
+.cell.max-height {
+  max-height: 100%; }
+
+.gallery {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  margin: 0 0.9375rem 0.9375rem 1.25rem;
+  position: relative; }
+  .gallery li.item {
+    flex: 0 0 auto;
+    width: auto;
+    margin-right: 0.3125rem;
+    margin-left: 0.3125rem;
+    list-style-type: none;
+    margin-top: 1.25rem; }
+    .gallery li.item a {
+      display: block;
+      box-sizing: border-box;
+      max-width: 300px;
+      height: 168px;
+      line-height: 168px;
+      position: relative; }
+      .gallery li.item a:hover span.title {
+        opacity: 0.8; }
+    .gallery li.item.selected span.title {
+      opacity: 0.8; }
+    .gallery li.item img {
+      max-height: 160px;
+      max-width: 300px;
+      display: inline;
+      vertical-align: middle; }
+    .gallery li.item span.title {
+      color: #ddd;
+      background: #222;
+      z-index: 1;
+      width: 100%;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      font-size: 80%;
+      padding: 0 0.3125rem;
+      height: 1.5625rem;
+      line-height: 1.5625rem;
+      opacity: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap; }
+  .gallery li.details {
+    width: 100%;
+    margin-top: 0;
+    list-style-type: none; }
+    .gallery li.details .marker::before {
+      display: block;
+      width: 0;
+      height: 0;
+      border: inset 0.625rem;
+      content: '';
+      border-top-width: 0;
+      border-bottom-style: solid;
+      border-color: transparent transparent #222; }
+    .gallery li.details .content {
+      height: calc(50vh);
+      background: #222;
+      color: #d6d6d6;
+      padding: 1.875rem;
+      align-items: center; }
+      .gallery li.details .content h2 {
+        font-size: 1.5rem; }
+      .gallery li.details .content .description, .gallery li.details .content .note {
+        font-size: 0.9375rem;
+        color: #bbb; }
+      .gallery li.details .content .metadata {
+        color: #aaa;
+        margin-top: 3.125rem; }
+        .gallery li.details .content .metadata h3 {
+          font-size: 1.125rem;
+          font-variant: small-caps; }
+        .gallery li.details .content .metadata p {
+          font-size: 0.8125rem; }
+        .gallery li.details .content .metadata div {
+          padding-right: 1rem; }
+      .gallery li.details .content img {
+        max-height: 100%;
+        vertical-align: middle; }

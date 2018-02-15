@@ -198,7 +198,7 @@ def split_data(dbsession, group, filter_keys=None, progress=''):
         filter_keys = []
     keys = [k for k in KEYS if k[0] not in filter_keys]
     data = dbsession.query(Item).filter(Item.groups.contains(group))
-    if data.count() <= 50 or len(keys) == 0:
+    if data.count() <= 70 or len(keys) == 0:
         return
     best = (0.0, 10000)
     best_key = None
@@ -236,11 +236,11 @@ def split_data(dbsession, group, filter_keys=None, progress=''):
             best_values = counter.most_common()
     # Bin the values
     if best_key[0] == 'dynasty':
-        bins = ordered_bins(best_values, round(sum([v[1] for v in best_values]) / min(10, int(data.count() / 20))), dynasty_ordering, lambda a, b: True, False)
+        bins = ordered_bins(best_values, 70, dynasty_ordering, lambda a, b: True, False)
     elif best_key[0] == 'processed_culture':
-        bins = ordered_bins(best_values, round(sum([v[1] for v in best_values]) / min(10, int(data.count() / 20))), culture_ordering, culture_merge)
+        bins = ordered_bins(best_values, 70, culture_ordering, culture_merge)
     elif best_key[0] == 'processed_place_made':
-        bins = ordered_bins(best_values, round(sum([v[1] for v in best_values]) / min(10, int(data.count() / 20))), location_ordering, location_merge)
+        bins = ordered_bins(best_values, 70, location_ordering, location_merge)
     else:
         bins = best_effort_bins(best_values, min(10, int(data.count() / 20)))
         bins.sort(key=lambda b: ', '.join([str(v) for v in b['values']]))

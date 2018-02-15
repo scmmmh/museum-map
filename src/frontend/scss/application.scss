@@ -1,3 +1,117 @@
 @import 'foundation_init';
 
 @include foundation-everything;
+
+.justify-items-center {
+    justify-content: center;
+}
+
+.cell.max-height {
+    max-height: 100%;
+}
+
+.gallery {
+    @include xy-grid('horizontal', true);
+    justify-content: space-between;
+    margin: 0 rem-calc(15) rem-calc(15) rem-calc(20);
+    position: relative;
+
+    li.item {
+        @include xy-cell('shrink', true, 10);
+
+        list-style-type: none;
+        margin-top: rem-calc(20);
+
+        a {
+            display: block;
+            box-sizing: border-box;
+            max-width: 300px;
+            height: 168px;
+            line-height: 168px;
+            position: relative;
+
+            &:hover span.title {
+                opacity: 0.8;
+            }
+        }
+
+        &.selected span.title {
+            opacity: 0.8;
+        }
+
+        img {
+            max-height: 160px;
+            max-width: 300px;
+            display: inline;
+            vertical-align: middle;
+        }
+
+        span.title {
+            color: #ddd;
+            background: #222;
+            z-index: 1;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            font-size: 80%;
+            padding: 0 rem-calc(5);
+            height: rem-calc(25);
+            line-height: rem-calc(25);
+            opacity: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    li.details {
+        width: 100%;
+        margin-top: 0;
+        list-style-type: none;
+
+        .marker::before {
+            @include css-triangle(rem-calc(10), #222, 'up');
+        }
+
+        .content {
+            height: calc(50vh);
+            background: #222;
+            color: #d6d6d6;
+            padding: rem-calc(30);
+            align-items: center;
+
+            h2 {
+                font-size: rem-calc(24);
+            }
+
+            .description, .note {
+                font-size: rem-calc(15);
+                color: #bbb;
+            }
+
+            .metadata {
+                color: #aaa;
+                margin-top: rem-calc(50);
+
+                h3 {
+                    font-size: rem-calc(18);
+                    font-variant: small-caps;
+                }
+
+                p {
+                    font-size: rem-calc(13);
+                }
+
+                div {
+                    padding-right: $global-padding;
+                }
+            }
+
+            img {
+                max-height: 100%;
+                vertical-align: middle;
+            }
+        }
+    }
+}

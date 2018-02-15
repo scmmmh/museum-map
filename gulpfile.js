@@ -22,4 +22,5 @@ gulp.task('scss', function(cb) {
 
 // Task to watch the SCSS/JS files and re-build when needed
 gulp.task('watch', function() {
+    gulp.watch('src/frontend/scss/**/*.scss', ['scss']);
 });
