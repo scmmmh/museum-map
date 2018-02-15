@@ -8,12 +8,32 @@
     </ul>
   </py:def>
   <head>
+    <meta charset="utf-8"/>
     <title>Test</title>
+    <link rel="stylesheet" href="${request.static_url('museum_map:static/application.css')}"/>
   </head>
   <body>
-    <h1>Test</h1>
-    <py:if test="root">
-      ${tree(root)}
-    </py:if>
+    <div class="grid-y grid-frame">
+      <header class="cell shrink">
+        The header goes in here
+      </header>
+      <article class="cell auto cell-block-container">
+        <div class="grid-x cell-block-y">
+          <aside class="cell large-4">
+            <div class="grid-y cell-block-y">
+              <div class="cell large-8 cell-block-y">
+                ${tree(root)}
+              </div>
+              <div class="cell large-4">
+                Part 2
+              </div>
+            </div>
+          </aside>
+          <section class="cell large-8 cell-block-y">
+            Main
+          </section>
+        </div>
+      </article>
+    </div>
   </body>
 </html>
