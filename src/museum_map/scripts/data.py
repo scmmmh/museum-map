@@ -46,6 +46,7 @@ KEYS = [('maker', None),
         ('dynasties', 'dynasty')]
 
 def best_effort_bins(values, target_bin_count):
+    """Bin values to generate as even a distribution as possible, ignoring the actual values"""
     target = int(sum([v[1] for v in values]) / target_bin_count)
     bins = [{'values': [], 'total': 0} for _ in range(0, target_bin_count)]
     for value, count in values:
@@ -69,6 +70,7 @@ def best_effort_bins(values, target_bin_count):
 
 
 def dynasty_ordering(value):
+    """Order dynasties numerically"""
     if isinstance(value, dict):
         return value['values'][0]
     else:
@@ -76,6 +78,7 @@ def dynasty_ordering(value):
 
 
 def culture_ordering(value):
+    """Order cultures by the given ordering"""
     if isinstance(value, dict):
         value = value['values'][0]
     return ['Chalcolithic',
@@ -137,12 +140,14 @@ def culture_merge(culture1, culture2):
 
 
 def location_ordering(value):
+    """Order locations by depth and alphabetically."""
     if isinstance(value, dict):
         value = value['values'][0]
     return [loc.strip() for loc in value.split(':')]
 
 
 def location_merge(location1, location2):
+    """Don't merge locations if they are at different levels or if the parent levels differ."""
     location1 = location1[-1].split(':')
     location2 = location2[0].split(':')
     if len(location1) != len(location2):
@@ -153,6 +158,7 @@ def location_merge(location1, location2):
         return True
 
 def ordered_bins(values, target_size, ordering, allow_merge, single_value=True):
+    """Bin the values based on the ordering and merge the bins where merging is allowed."""
     bins = set()
     for value, _ in values:
         if single_value:
@@ -187,6 +193,7 @@ def ordered_bins(values, target_size, ordering, allow_merge, single_value=True):
 
 
 def split_data(dbsession, group, filter_keys=None, progress=''):
+    """Recursively split the data."""
     if filter_keys is None:
         filter_keys = []
     keys = [k for k in KEYS if k[0] not in filter_keys]
@@ -227,7 +234,7 @@ def split_data(dbsession, group, filter_keys=None, progress=''):
             best = (len(ids) / data.count(), len(counter))
             best_key = (key, access)
             best_values = counter.most_common()
-    # These need to be binned into at most 10 bins, to aim for a room size of about 20 items
+    # Bin the values
     if best_key[0] == 'dynasty':
         bins = ordered_bins(best_values, round(sum([v[1] for v in best_values]) / min(10, int(data.count() / 20))), dynasty_ordering, lambda a, b: True, False)
     elif best_key[0] == 'processed_culture':
@@ -239,12 +246,13 @@ def split_data(dbsession, group, filter_keys=None, progress=''):
         bins.sort(key=lambda b: ', '.join([str(v) for v in b['values']]))
     bin_length = len([b for b in bins if b['total'] > 0])
     idx = 0
+    # If there is only one bin, then ignore this key
     if bin_length == 1:
         split_data(dbsession, group, filter_keys + [best_key[0]], progress)
     else:
         for data_bin in bins:
             if data_bin['total'] > 0:
-                #filtered_data = filter_data(data, [(best_key, v) for v in data_bin['values']])
+                # Generate labels
                 if best_key[0] == 'dynasty':
                     label = data_bin['values']
                     label.sort(key=dynasty_ordering)
@@ -271,6 +279,7 @@ def split_data(dbsession, group, filter_keys=None, progress=''):
                         label = ', '.join([str(d) for d in label])
                 else:
                     label = ', '.join([str(v) for v in data_bin['values']])
+                # Generate the group and assign items to it
                 child_group = Group(title=label, parent=group, order=idx)
                 dbsession.add(child_group)
                 for item in data:
