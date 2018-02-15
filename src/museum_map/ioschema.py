@@ -47,6 +47,7 @@ class ItemSchema(Schema):
     note = fields.Str()
     measurements = fields.Str()
     place_made = fields.Str()
+    processed_place_made = fields.Str()
     culture = fields.Str()
     processed_culture = fields.Str()
     description = fields.Str()
@@ -56,6 +57,10 @@ class ItemSchema(Schema):
     materials = Relationship(schema='MaterialSchema',
                              type_='materials',
                              many=True)
+    dynasties = Relationship(schema='DynastySchema',
+                             type_='dynasties',
+                             many=True,
+                             allow_none=True)
     images = Relationship(schema='ImageSchema',
                           type_='images',
                           many=True)
@@ -86,6 +91,19 @@ class MaterialSchema(Schema):
 
     class Meta:
         type_ = 'materials'
+
+
+class DynastySchema(Schema):
+    """Dynasties have the following fields:
+
+    * id (string): unique id
+    * dynasty (integer): the dynasty's number
+    """
+    id = fields.Str()
+    dynasty = fields.Int()
+
+    class Meta:
+        type_ = 'dynasties'
 
 
 class ImageSchema(Schema):

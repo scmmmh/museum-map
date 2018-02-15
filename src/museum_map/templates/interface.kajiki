@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <py:def function="tree(node)">
+    <ul>
+      <li py:for="child in node.children">${child.title} [${len(child.items)}]
+        ${tree(child)}
+      </li>
+    </ul>
+  </py:def>
+  <head>
+    <title>Test</title>
+  </head>
+  <body>
+    <h1>Test</h1>
+    <py:if test="root">
+      ${tree(root)}
+    </py:if>
+  </body>
+</html>

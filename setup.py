@@ -21,6 +21,8 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
+    'kajiki',
+    'pywebtools>=1.1.3',
 ]
 
 tests_require = [
@@ -42,10 +44,21 @@ setup(
     ],
     author='Mark Hall',
     author_email='mark.hall@edgehill.ac.uk',
+    license='MIT',
+    zip_safe=False,
     packages=find_packages('src'),
     package_dir={'': 'src'},
     include_package_data=True,
+    extras_require={
+        'testing': tests_require,
+    },
     install_requires=requires,
-    license='MIT',
-    zip_safe=False
+    entry_points={
+        'paste.app_factory': [
+            'main = museum_map:main',
+        ],
+        'console_scripts': [
+            'MuseumMap = museum_map.scripts.main:cli'
+        ],
+    },
 )

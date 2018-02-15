@@ -6,7 +6,7 @@ import sys
 
 from collections import Counter
 
-from museum_map.ioschema import (ItemSchema, MaterialSchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema)
+from museum_map.ioschema import (ItemSchema, MaterialSchema, DynastySchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema)
 
 nlp = spacy.load('en')
 
@@ -21,7 +21,7 @@ with open('/home/hall/Documents/Data/NML_Egypt/dataset.json', 'w') as out_f:
 print('Loading')
 
 with open('%s/dataset.json' % sys.argv[1]) as in_f:
-    schema = ItemSchema(include_schemas=(MaterialSchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema))
+    schema = ItemSchema(include_schemas=(MaterialSchema, DynastySchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema))
     raw = json.load(in_f)
     data = schema.load(raw, many=True)
 
@@ -35,16 +35,16 @@ def extract_dynasty(date):
         return [int(match.group(1))]
     return None
 
-print('Extracting Dynasties')
-
-for obj in data:
-    dynasty = extract_dynasty(obj['date_made'])
-    if dynasty:
-        obj['dynasty'] = tuple(dynasty)
-    else:
-        obj['dynasty'] = None
-    #print(nlp(obj['title']))
-    #print(obj.keys())
+#print('Extracting Dynasties')
+#
+#for obj in data:
+#    dynasty = extract_dynasty(obj['date_made'])
+#    if dynasty:
+#        obj['dynasty'] = tuple(dynasty)
+#    else:
+#        obj['dynasty'] = None
+#    #print(nlp(obj['title']))
+#    #print(obj.keys())
 
 KEYS = [('maker', None),
         ('materials', 'term'),
@@ -54,7 +54,7 @@ KEYS = [('maker', None),
         ('processed_culture', None),
         #('date_made', None),
         ('made_in', 'name'),
-        ('dynasty', None)]
+        ('dynasties', 'dynasty')]
 
 
 def filter_data(data, filters):
@@ -268,7 +268,7 @@ def split_data(data, filter_keys=[], indent=0):
                     labels = [str(d) for d in labels]
                 else:
                     labels = data_bin['values']
-                print('%s|- %s [%i]' % (' ' * indent, ', '.join(labels), len(filtered_data)))
+                print('%s|- %s [%i]' % (' ' * indent, ', '.join([str(l) for l in labels]), len(filtered_data)))
                 split_data(filtered_data, filter_keys + [best_key[0]], indent + 3)
 
 print('Hierarchy')

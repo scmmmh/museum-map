@@ -1,9 +1,10 @@
 import json
+import re
 import sys
 
 from csv import DictReader
 
-from museum_map.ioschema import (ItemSchema, MaterialSchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema)
+from museum_map.ioschema import (ItemSchema, MaterialSchema, DynastySchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema)
 
 BASEPATH = sys.argv[1]
 
@@ -144,7 +145,7 @@ def process_culture(culture):
     elif culture == 'Predyndastic Period (Naqada II) or Early Dynastic Period':
         return 'Predynastic Period; Early Dynastic Period'
     elif culture == 'Late Period or Modern':
-        return 'Later Period; Modern'
+        return 'Late Period; Modern'
     elif culture == 'Ptolemaic Period':
         return 'Ptolemaic'
     elif culture == 'Old Kingdom':
@@ -353,6 +354,25 @@ def process_culture(culture):
         unknown.add(culture)
     return culture
 
+
+def process_place_made(place):
+    """Strip the Sinai and any details past the place"""
+    place = [p.strip() for p in place.split(':')]
+    if len(place) > 2 and place[-2] == 'Sinai':
+        return ': '.join(place[:-2] + place[-1:])
+    else:
+        return ': '.join(place[:4])
+
+def extract_dynasty(date):
+    match = re.search('Dynasty ([0-9]{1,2})(?: BC)? - (?:Dynasty )?([0-9]{1,2})(?: BC)?', date)
+    if match:
+        return tuple([{'id': str(d), 'dynasty': d} for d in range(int(match.group(1)), int(match.group(2)) + 1)])
+    match = re.search('Dynasty ([0-9]{1,2})', date)
+    if match:
+        return ({'id': match.group(1), 'dynasty': int(match.group(1))}, )
+    return None
+
+
 # Load the actual items
 print('Loading items')
 items = []
@@ -369,6 +389,7 @@ with open('%s/CollectionItems.csv' % BASEPATH) as in_f:
                 'title': line['Title'],
                 'measurements': line['Measurements'],
                 'place_made': line['PlaceMade'],
+                'processed_place_made': process_place_made(line['PlaceMade']),
                 'culture': line['Culture'],
                 'processed_culture': process_culture(line['Culture']),
                 'description': line['Description'],
@@ -378,6 +399,7 @@ with open('%s/CollectionItems.csv' % BASEPATH) as in_f:
                                                line['MimsyKey'],
                                                materials,
                                                'MaterialId'),
+                'dynasties': extract_dynasty(line['DateMade']),
                 'images': load_relationship('CollectionItemImages.csv',
                                             line['MimsyKey'],
                                             images,
@@ -397,6 +419,6 @@ with open('%s/CollectionItems.csv' % BASEPATH) as in_f:
         items.append(item)
 
 # Serialise result
-schema = ItemSchema(include_schemas=(MaterialSchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema))
+schema = ItemSchema(include_schemas=(MaterialSchema, DynastySchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema))
 with open('%s/dataset.json' % BASEPATH, 'w') as out_f:
     print(json.dumps(schema.dump(items, many=True)), file=out_f)
