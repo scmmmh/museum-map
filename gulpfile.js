@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var sass = require('gulp-sass');
 var babel = require('gulp-babel');
 var pump = require('pump');
+var concat = require('gulp-concat');
 
 gulp.task('default', ['scss']);
 
@@ -20,7 +21,19 @@ gulp.task('scss', function(cb) {
     ], cb);
 });
 
+gulp.task('js', function(cb) {
+    pump([
+        gulp.src([
+            'node_modules/jquery/dist/jquery.js',
+            'src/frontend/js/*.js'
+        ]),
+        concat('application.js'),
+        gulp.dest('src/museum_map/static')
+    ], cb);
+});
+
 // Task to watch the SCSS/JS files and re-build when needed
 gulp.task('watch', function() {
     gulp.watch('src/frontend/scss/**/*.scss', ['scss']);
+    gulp.watch('src/frontend/js/**/*.js', ['js']);
 });

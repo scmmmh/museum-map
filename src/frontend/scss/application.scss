@@ -69,6 +69,18 @@
         width: 100%;
         margin-top: 0;
         list-style-type: none;
+        position: relative;
+
+        .close {
+            position: absolute;
+            top: rem-calc(20);
+            right: rem-calc(20);
+
+            a {
+                font-size: rem-calc(25);
+                color: #888;
+            }
+        }
 
         .marker::before {
             @include css-triangle(rem-calc(10), #222, 'up');

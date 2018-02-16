@@ -5055,7 +5055,15 @@ a.thumbnail {
   .gallery li.details {
     width: 100%;
     margin-top: 0;
-    list-style-type: none; }
+    list-style-type: none;
+    position: relative; }
+    .gallery li.details .close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem; }
+      .gallery li.details .close a {
+        font-size: 1.5625rem;
+        color: #888; }
     .gallery li.details .marker::before {
       display: block;
       width: 0;

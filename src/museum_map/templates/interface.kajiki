@@ -32,146 +32,56 @@
           </aside>
           <section class="cell large-8 cell-block-y">
             <ul py:if="current" class="gallery">
-              <li py:for="item in current.items" py:if="item['images']" class="item" data-attributes="${json.dumps(item.attributes)}"><a href="#">
-                <img src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_medium.jpg" alt="${item['title']}"/>
-                <span class="title">${item['title']}</span>
-              </a></li>
-              <li class="details">
-                <div class="marker"></div>
-                <div class="grid-x grid-padding-x content">
-                  <div class="cell large-6 cell-block-y text-center content-image">
-                    <div class="grid-y cell-block-y justify-items-center">
-                      <div class="cell shrink max-height">
-                        <img src="" alt=""/>
+              <py:for each="item in current.items">
+                <py:if test="item['images']">
+                  <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
+                    <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_medium.jpg" class="pre-load">
+                      <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt="${item['title']}"/>
+                    </picture>
+                    <span class="title">${item['title']}</span>
+                  </a></li>
+                  <li id="details-${item.id}" style="display:none;" class="details">
+                    <div class="marker"></div>
+                    <div class="grid-x grid-padding-x content">
+                      <div class="close"><a href="#">🞨</a></div>
+                      <div class="cell large-6 cell-block-y text-center">
+                        <div class="grid-y cell-block-y justify-items-center">
+                          <div class="cell shrink max-height">
+                            <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_large.jpg" class="pre-load">
+                              <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt=""/>
+                            </picture>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="cell large-6 cell-block-y content-text">
-                    <div class="grid-y">
-                      <div class="cell shrink">
-                        <h2>Item</h2>
-                      </div>
-                      <div class="cell auto">
-                        <p class="description"></p>
-                        <p class="note"></p>
-                        <div class="grid-x large-up-4 metadata">
-                          <div py:for="category in ['category', 'culture', 'date_made', 'collector', 'date_collected', 'measurements', 'place_made', 'maker', 'accession_no']" class="cell" data-attribute="${category}">
-                            <h3>${category}</h3>
-                            <p></p>
+                      <div class="cell large-6 cell-block-y content-text">
+                        <div class="grid-y">
+                          <div class="cell shrink">
+                            <h2>${item['title']}</h2>
+                          </div>
+                          <div class="cell auto">
+                            <p py:if="item['description']" class="description">${item['description']}</p>
+                            <p py:if="item['note']" class="note">${item['note']}</p>
+                            <div class="grid-x large-up-4 metadata">
+                              <div py:for="category, label in [('category', 'Type'), ('culture', 'Culture'), ('date_made', 'Date made'), ('collector', 'Collector'), ('date_collected', 'Date collected'), ('measurements', 'Measurements'), ('place_made', 'Made in'), ('maker', 'Made by'), ('accession_no', 'Accession No')]" py:if="item[category]" class="cell" data-attribute="${category}">
+                                <h3>${category}</h3>
+                                <p>${item[category]}</p>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </li>
+                  </li>
+                </py:if>
+              </py:for>
             </ul>
           </section>
         </div>
       </article>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="${request.static_url('museum_map:static/application.js')}"></script>
     <script>
-    <![CDATA[
-    (function($) {
-        /**
-         * The toggle_question_help jQuery plugin handles the showing/hiding of
-         * the question help text.
-         */
-        var methods = {
-            init : function(options) {
-                return this.each(function() {
-                    var component = $(this);
-                    var y = undefined;
-                    var previous = undefined;
-                    component.children('li').each(function() {
-                        var top = this.getBoundingClientRect().top;
-                        if (y !== top) {
-                            if (previous) {
-                                $(previous).addClass('last');
-                            }
-                            y = top;
-                        } else {
-                            $(previous).removeClass('last');
-                        }
-                        previous = this;
-                    });
-                    component.find('li.item img').on('load', function() {
-                        component.children('li').each(function() {
-                            var top = this.getBoundingClientRect().top;
-                            if (y !== top) {
-                                if (previous) {
-                                    $(previous).addClass('last');
-                                }
-                                y = top;
-                            } else {
-                                $(previous).removeClass('last');
-                            }
-                            previous = this;
-                        });
-                    })
-                    var details = component.children('li.details');
-                    //details.slideUp(0);
-                    component.children('li:last-child').addClass('last');
-                    component.on('click', 'a', function(ev) {
-                        ev.preventDefault();
-                        var item = $(this).parent();
-                        if (item.hasClass('selected')) {
-                            component.find('.selected').removeClass('selected');
-                            details.slideUp();
-                        } else {
-                            details.find('img').attr('src', '${request.static_url('museum_map:static/images/loading-black.svg')}');
-                            component.find('.selected').removeClass('selected');
-                            item.addClass('selected');
-                            var left = item[0].offsetLeft + item[0].offsetWidth / 2 - 15;
-                            if (item.hasClass('last')) {
-                                var marker = item;
-                            } else {
-                                var marker = item.nextAll('.last').first();
-                            }
-                            details.children('.marker').css('padding-left', left + 'px');
-                            var attributes = item.data('attributes');
-                            details.find('h2').html(attributes['title']);
-                            if (attributes['description'] !== '') {
-                                details.find('.description').html(attributes['description']).show();
-                            } else {
-                                details.find('.description').html('').hide();
-                            }
-                            if (attributes['note'] !== '') {
-                                details.find('.note').html(attributes['note']).show();
-                            } else {
-                                details.find('.note').html('').hide();
-                            }
-                            details.find('img').attr('src', item.find('img').attr('src').replace('_medium', '_large'));
-                            details.find('.metadata div').each(function() {
-                                var metadata = $(this);
-                                if (attributes[metadata.data('attribute')] !== '') {
-                                    metadata.show();
-                                    metadata.find('p').html(attributes[metadata.data('attribute')]);
-                                } else {
-                                    metadata.hide();
-                                }
-                            });
-                            marker.after(details);
-                            details.slideDown();
-                        }
-                    });
-                })
-            }
-        };
-
-        $.fn.gallery = function(method) {
-            if (methods[method]) {
-                return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-            } else if (typeof method === 'object' || !method) {
-                return methods.init.apply(this, arguments);
-            } else {
-                $.error('Method ' + method + ' does not exist on jQuery.gallery');
-            }
-        };
-    }(jQuery));
     $('.gallery').gallery();
-  ]]>
-  </script>
+    </script>
   </body>
 </html>
