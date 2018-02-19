@@ -25,6 +25,7 @@ gulp.task('js', function(cb) {
     pump([
         gulp.src([
             'node_modules/jquery/dist/jquery.js',
+            'node_modules/easeljs/lib/easeljs.js',
             'src/frontend/js/*.js'
         ]),
         concat('application.js'),

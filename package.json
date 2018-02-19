@@ -11,6 +11,7 @@
   "dependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
+    "easeljs": "^1.0.2",
     "foundation-sites": "^6.4.4-rc1",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",

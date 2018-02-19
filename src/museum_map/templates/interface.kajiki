@@ -22,11 +22,34 @@
         <div class="grid-x cell-block-y">
           <aside class="cell large-4">
             <div class="grid-y cell-block-y">
-              <div class="cell large-8 cell-block-y">
-                ${tree(root)}
+              <div id="overview" class="cell large-8 cell-block-y">
+                <ul>
+                  <li py:for="floor in root.children" data-title="${floor.title}">${floor.title}
+                    <ul>
+                      <li py:for="sector in floor.children" data-title="${sector.title}" data-size="${len(sector.items)}">${sector.title}
+                        <ul>
+                          <li py:if="not sector.children">${sector.title}</li>
+                          <li py:for="room in sector.children">${room.title}</li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+                <canvas></canvas>
               </div>
-              <div class="cell large-4">
-                Part 2
+              <div class="cell large-4 cell-block-y">
+                <ul>
+                  <li py:for="floor in root.children">${floor.title} [${len(floor.items)}]
+                    <ul>
+                      <li py:for="group in floor.children">${group.title} [${len(group.items)}]
+                        <ul>
+                          <li py:if="not group.children">${group.title} [${len(group.items)}]</li>
+                          <li py:for="room in group.children">${room.title} [${len(room.items)}]</li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
               </div>
             </div>
           </aside>
@@ -81,6 +104,7 @@
     </div>
     <script src="${request.static_url('museum_map:static/application.js')}"></script>
     <script>
+    $('#overview').overview();
     $('.gallery').gallery();
     </script>
   </body>

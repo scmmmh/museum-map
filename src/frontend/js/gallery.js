@@ -94,7 +94,7 @@
                         currentMarker = marker.attr('id');
                     }
                 });
-            })
+            });
         }
     };
 
