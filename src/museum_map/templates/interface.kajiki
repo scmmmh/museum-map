@@ -10,7 +10,7 @@
   </py:def>
   <head>
     <meta charset="utf-8"/>
-    <title>Test</title>
+    <title>${current.title}</title>
     <link rel="stylesheet" href="${request.static_url('museum_map:static/application.css')}"/>
   </head>
   <body>
@@ -41,7 +41,7 @@
                     <span class="title">${item['title']}</span>
                   </a></li>
                   <li id="details-${item.id}" style="display:none;" class="details">
-                    <div class="marker"></div>
+                    <div class="marker"> </div>
                     <div class="grid-x grid-padding-x content">
                       <div class="close"><a href="#">🞨</a></div>
                       <div class="cell large-6 cell-block-y text-center">

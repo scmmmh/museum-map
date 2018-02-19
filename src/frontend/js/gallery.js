@@ -13,15 +13,15 @@
                 $(previous).removeClass('last');
             }
             previous = this;
-        });
+        }).last().addClass('last');
     }
     function dynamicLoad(component) {
         var top = component.parent()[0].scrollTop;
-        var bottom = top + component.parent()[0].offsetHeight;
+        var bottom = top + component.parent()[0].offsetHeight + 200;
         component.find('li.item picture.pre-load').each(function() {
             var picture = $(this);
             var itemTop = picture.parents('li.item')[0].offsetTop;
-            if (top <= itemTop && itemTop <= bottom) {
+            if (top <= itemTop + 200 && itemTop <= bottom) {
                 picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
             }
         });
@@ -41,7 +41,6 @@
                 component.parent().on('scroll', function() {
                     dynamicLoad(component);
                 });
-                component.children('li:last-child').addClass('last');
                 var currentDetails = null;
                 var currentMarker = null;
                 component.on('click', '.close a', function(ev) {
@@ -57,7 +56,7 @@
                     var details = component.find('#' + item.data('details'));
                     if (currentDetails == details.attr('id')) {
                         item.removeClass('selected');
-                        details.slideUp();
+                        details.slideUp({done: function() {dynamicLoad(component);}});
                         currentDetails = null;
                         currentMarker = null;
                     } else {
@@ -78,9 +77,18 @@
                             details.slideDown(0);
                         } else {
                             if (currentDetails) {
-                                $('#' + currentDetails).slideUp();
+                                $('#' + currentDetails).slideUp({done: function() {dynamicLoad(component);}});
                             }
                             details.slideDown();
+                            if (marker[0].offsetTop < component.parent()[0].scrollTop) {
+                                component.parent().animate({scrollTop: marker[0].offsetTop - 50});
+                            } else if (marker[0].offsetTop > component.parent()[0].scrollTop + component.parent()[0].offsetHeight / 2 - 200) {
+                                if (currentDetails) {
+                                    component.parent().animate({scrollTop: marker[0].offsetTop - component.parent()[0].offsetHeight / 2 - 50});
+                                } else {
+                                    component.parent().animate({scrollTop: marker[0].offsetTop - 50});
+                                }
+                            }
                         }
                         currentDetails = details.attr('id');
                         currentMarker = marker.attr('id');
