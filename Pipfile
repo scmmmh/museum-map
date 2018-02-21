@@ -1,0 +1,33 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+spacy = "*"
+compound-jsonapi = ">=1.0.1"
+plaster-pastedeploy = "*"
+pyramid = ">=1.9a"
+pyramid-debugtoolbar = "*"
+pyramid-retry = "*"
+pyramid-tm = "*"
+sqlalchemy = "*"
+transaction = "*"
+"zope.sqlalchemy" = "*"
+waitress = "*"
+kajiki = "*"
+pywebtools = ">=1.1.3"
+click = "*"
+requests = "*"
+requests-toolbelt = "*"
+
+
+[dev-packages]
+
+webtest = ">= 1.3.1"
+pytest = "*"
+pytest-cov = "*"
+"e1839a8" = {path = ".", editable = true}
