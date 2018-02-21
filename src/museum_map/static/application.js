@@ -27014,6 +27014,38 @@ this.createjs = this.createjs || {};
 
 })();
 (function($) {
+    /**
+     * The app jQuery plugin handles the main interaction
+     */
+    var methods = {
+        init: function(options) {
+            return this.each(function() {
+                var component = $(this);
+            });
+        },
+        load: function(url) {
+            var promise = $.ajax(url);
+            promise.then(function(data) {
+                data = $(data);
+                var gallery = data.find('#gallery');
+                $('#gallery').replaceWith(gallery);
+                setTimeout(function() { gallery.gallery(); }, 50);
+            });
+        }
+    };
+
+    $.fn.app = function(method) {
+        if (methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof method === 'object' || !method) {
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error('Method ' + method + ' does not exist on jQuery.app');
+        }
+    };
+}(jQuery));
+
+(function($) {
     function setLastMarkers(component) {
         var y = undefined;
         var previous = undefined;
@@ -27030,16 +27062,19 @@ this.createjs = this.createjs || {};
             previous = this;
         }).last().addClass('last');
     }
+
     function dynamicLoad(component) {
-        var top = component.parent()[0].scrollTop;
-        var bottom = top + component.parent()[0].offsetHeight + 200;
-        component.find('li.item picture.pre-load').each(function() {
-            var picture = $(this);
-            var itemTop = picture.parents('li.item')[0].offsetTop;
-            if (top <= itemTop + 200 && itemTop <= bottom) {
-                picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
-            }
-        });
+        if (component.parent().length > 0) {
+            var top = component.parent()[0].scrollTop;
+            var bottom = top + component.parent()[0].offsetHeight + 200;
+            component.find('li.item picture.pre-load').each(function() {
+                var picture = $(this);
+                var itemTop = picture.parents('li.item')[0].offsetTop;
+                if (top <= itemTop + 200 && itemTop <= bottom) {
+                    picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
+                }
+            });
+        }
     }
     /**
      * The gallery jQuery plugin handles interaction with the gallery interface
@@ -27128,6 +27163,10 @@ this.createjs = this.createjs || {};
     var CORRIDOR_SIZE = 5;
     var COLOURS = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd'];
 
+    function click(ev) {
+        $('article').app('load', ev.target._url);
+    }
+
     function cmpItems(a, b) {
         return b.data('size') - a.data('size');
     }
@@ -27141,16 +27180,68 @@ this.createjs = this.createjs || {};
         }
     }
 
-    function addShape(stage, x, y, width, height, colour, title) {
+    function addShape(stage, x, y, width, height, item, colour) {
         var shape = new createjs.Shape();
         shape.graphics.beginStroke('black').beginFill(colour).drawRect(0, 0, width, height);
         shape.x = x;
         shape.y = y;
+        shape.cursor = 'pointer';
+        shape._url = item.children('a').attr('href');
         stage.addChild(shape);
-        var text = new createjs.Text(title);
+        shape.addEventListener('click', click);
+    }
+
+    function addLabel(stage, x, y, width, height, item, fontSize, fontColour) {
+        var text = new createjs.Text(item.children('a').html(), fontSize + "px 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif", fontColour);
+        if (text.getMetrics().width >= width - 20) {
+            var tokens = item.children('a').html().split(' ');
+            var splitText = tokens[0];
+            for (var idx = 1; idx < tokens.length; idx++) {
+                text = new createjs.Text(splitText + ' ' + tokens[idx], fontSize + "px 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif", fontColour);
+                if (text.getMetrics().width >= width - 20) {
+                    splitText = splitText + '\n' + tokens[idx];
+                } else {
+                    splitText = splitText + ' ' + tokens[idx];
+                }
+            }
+            text = new createjs.Text(splitText, fontSize + "px 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif", fontColour);
+        }
         text.x = x + width / 2 - text.getMetrics().width / 2;
         text.y = y + height / 2 - text.getMetrics().height / 2;
         stage.addChild(text);
+    }
+
+    function renderRoom(stage, item, x, y, width, height, colour) {
+        var items = item.children('ul').children('li').get().map(function(item) { return $(item); });
+        items.sort(cmpItems);
+        var rect = {x: x, y: y, width: width, height: height};
+        var split_direction = 1;
+        while (items.length > 1) {
+            var head = items[0].data('size');
+            var rest = items.slice(1).reduce(function(accumulator, current) {
+                if (typeof accumulator === 'number') {
+                    return accumulator + current.data('size');
+                } else {
+                    return accumulator.data('size') + current.data('size');
+                }});
+            if (typeof rest !== 'number') {
+                rest = rest.data('size');
+            }
+            if (split_direction === 1) {
+                addShape(stage, rect.x, rect.y, rect.width / (head + rest) * head, rect.height, items[0], colour);
+                addLabel(stage, rect.x, rect.y, rect.width / (head + rest) * head, rect.height, items[0], 12, '#222');
+                rect = {x: rect.x + rect.width / (head + rest) * head, y: rect.y, width: rect.width / (head + rest) * rest, height: rect.height}
+                split_direction = 2;
+            } else {
+                addShape(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head, items[0], colour);
+                addLabel(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head, items[0], 12, '#222');
+                rect = {x: rect.x, y: rect.y + rect.height / (head + rest) * head, width: rect.width, height: rect.height / (head + rest) * rest}
+                split_direction = 1;
+            }
+            items = items.slice(1);
+        }
+        addShape(stage, rect.x, rect.y, rect.width, rect.height, items[0], colour);
+        addLabel(stage, rect.x, rect.y, rect.width, rect.height, items[0], 12, '#222');
     }
 
     function renderFloor(stage, item, y, width) {
@@ -27177,30 +27268,30 @@ this.createjs = this.createjs || {};
                 rest = rest.data('size');
             }
             if (split_direction === 1) {
-                var sector = new createjs.Shape();
-                addShape(stage, rect.x, rect.y, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height, colours[0], items[0].data('title'));
-                /*sector.graphics.beginStroke('black').beginFill(colours[0]).drawRect(0, 0, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height);
-                sector.x = rect.x;
-                sector.y = rect.y;
-                sector.cursor = 'hand';
-                stage.addChild(sector);*/
+                addShape(stage, rect.x, rect.y, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height, items[0], colours[0]);
+                if (items[0].find('> ul > li').length > 0) {
+                    renderRoom(stage, items[0], rect.x, rect.y, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height, colours[0]);
+                }
+                addLabel(stage, rect.x, rect.y, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height, items[0], 14, '#222');
                 rect = {x: rect.x + rect.width / (head + rest) * head + CORRIDOR_SIZE, y: rect.y, width: rect.width / (head + rest) * rest - CORRIDOR_SIZE, height: rect.height}
                 split_direction = 2;
             } else {
-                addShape(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head - CORRIDOR_SIZE, colours[0], items[0].data('title'));
-                /*var sector = new createjs.Shape();
-                sector.graphics.beginStroke('black').beginFill(colours[0]).drawRect(0, 0, );
-                sector.x = rect.x;
-                sector.y = rect.y;
-                stage.addChild(sector);*/
+                addShape(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head - CORRIDOR_SIZE, items[0], colours[0]);
+                if (items[0].find('> ul > li').length > 0) {
+                    renderRoom(stage, items[0], rect.x, rect.y, rect.width, rect.height / (head + rest) * head - CORRIDOR_SIZE, colours[0]);
+                }
+                addLabel(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head - CORRIDOR_SIZE, items[0], 14, '#222');
                 rect = {x: rect.x, y: rect.y + rect.height / (head + rest) * head + CORRIDOR_SIZE, width: rect.width, height: rect.height / (head + rest) * rest - CORRIDOR_SIZE}
                 split_direction = 1;
             }
             items = items.slice(1);
             colours = colours.slice(1);
         }
-        var sector = new createjs.Shape();
-        addShape(stage, rect.x, rect.y, rect.width, rect.height, colours[0], items[0].data('title'));
+        addShape(stage, rect.x, rect.y, rect.width, rect.height, items[0], colours[0]);
+        if (items[0].find('> ul > li').length > 0) {
+            renderRoom(stage, items[0], rect.x, rect.y, rect.width, rect.height, colours[0]);
+        }
+        addLabel(stage, rect.x, rect.y, rect.width, rect.height, items[0], 14, '#222');
     }
     /**
      * The overview jQuery plugin handles the overview map
@@ -27213,6 +27304,7 @@ this.createjs = this.createjs || {};
                 var clientWidth = component[0].clientWidth - 30;
                 var clientHeight = component[0].clientHeight;
                 var stage = new createjs.Stage(component.children('canvas')[0]);
+                stage.enableMouseOver(10);
                 stage.canvas.width = clientWidth;
                 var y = 10;
                 component.children('ul').children('li').each(function(idx) {

@@ -10,7 +10,7 @@
     max-height: 100%;
 }
 
-.gallery {
+#gallery {
     @include xy-grid('horizontal', true);
     justify-content: space-between;
     margin: 0 rem-calc(15) rem-calc(15) rem-calc(20);

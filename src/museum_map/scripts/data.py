@@ -183,7 +183,7 @@ def ordered_bins(values, target_size, ordering, allow_merge, single_value=True):
                 for v in bins[idx + 1]['values']:
                     if v not in bins[idx]['values']:
                         bins[idx]['values'].append(v)
-                bins[idx]['total'] = bins[idx + 1]['total']
+                bins[idx]['total'] = bins[idx]['total'] + bins[idx + 1]['total']
                 del bins[idx + 1]
                 merged = True
                 break

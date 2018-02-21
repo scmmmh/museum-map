@@ -24,12 +24,11 @@
             <div class="grid-y cell-block-y">
               <div id="overview" class="cell large-8 cell-block-y">
                 <ul>
-                  <li py:for="floor in root.children" data-title="${floor.title}">${floor.title}
+                  <li py:for="floor in root.children" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
                     <ul>
-                      <li py:for="sector in floor.children" data-title="${sector.title}" data-size="${len(sector.items)}">${sector.title}
+                      <li py:for="sector in floor.children" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title}</a>
                         <ul>
-                          <li py:if="not sector.children">${sector.title}</li>
-                          <li py:for="room in sector.children">${room.title}</li>
+                          <li py:for="room in sector.children" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title}</a></li>
                         </ul>
                       </li>
                     </ul>
@@ -39,12 +38,11 @@
               </div>
               <div class="cell large-4 cell-block-y">
                 <ul>
-                  <li py:for="floor in root.children">${floor.title} [${len(floor.items)}]
+                  <li py:for="floor in root.children" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title} [${len(floor.items)}]</a>
                     <ul>
-                      <li py:for="group in floor.children">${group.title} [${len(group.items)}]
+                      <li py:for="sector in floor.children" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title} [${len(sector.items)}]</a>
                         <ul>
-                          <li py:if="not group.children">${group.title} [${len(group.items)}]</li>
-                          <li py:for="room in group.children">${room.title} [${len(room.items)}]</li>
+                          <li py:for="room in sector.children" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title} [${len(room.items)}]</a></li>
                         </ul>
                       </li>
                     </ul>
@@ -54,7 +52,7 @@
             </div>
           </aside>
           <section class="cell large-8 cell-block-y">
-            <ul py:if="current" class="gallery">
+            <ul id="gallery" py:if="current">
               <py:for each="item in current.items">
                 <py:if test="item['images']">
                   <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
@@ -104,8 +102,9 @@
     </div>
     <script src="${request.static_url('museum_map:static/application.js')}"></script>
     <script>
+    $('article').app();
     $('#overview').overview();
-    $('.gallery').gallery();
+    $('#gallery').gallery();
     </script>
   </body>
 </html>

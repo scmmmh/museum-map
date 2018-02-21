@@ -15,16 +15,19 @@
             previous = this;
         }).last().addClass('last');
     }
+
     function dynamicLoad(component) {
-        var top = component.parent()[0].scrollTop;
-        var bottom = top + component.parent()[0].offsetHeight + 200;
-        component.find('li.item picture.pre-load').each(function() {
-            var picture = $(this);
-            var itemTop = picture.parents('li.item')[0].offsetTop;
-            if (top <= itemTop + 200 && itemTop <= bottom) {
-                picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
-            }
-        });
+        if (component.parent().length > 0) {
+            var top = component.parent()[0].scrollTop;
+            var bottom = top + component.parent()[0].offsetHeight + 200;
+            component.find('li.item picture.pre-load').each(function() {
+                var picture = $(this);
+                var itemTop = picture.parents('li.item')[0].offsetTop;
+                if (top <= itemTop + 200 && itemTop <= bottom) {
+                    picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
+                }
+            });
+        }
     }
     /**
      * The gallery jQuery plugin handles interaction with the gallery interface
