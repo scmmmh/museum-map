@@ -14,6 +14,8 @@
                 data = $(data);
                 var gallery = data.find('#gallery');
                 $('#gallery').replaceWith(gallery);
+                var infoblock = data.find('#infoblock');
+                $('#infoblock').replaceWith(infoblock);
                 setTimeout(function() { gallery.gallery(); }, 50);
             });
         }

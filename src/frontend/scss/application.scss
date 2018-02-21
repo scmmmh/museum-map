@@ -10,11 +10,25 @@
     max-height: 100%;
 }
 
+.always-scroll {
+    overflow: scroll;
+}
+
 #gallery {
     @include xy-grid('horizontal', true);
     justify-content: space-between;
     margin: 0 rem-calc(15) rem-calc(15) rem-calc(20);
     position: relative;
+
+    li.title {
+        list-style-type: none;
+        border-bottom: 2px solid #222;
+        width: 100%;
+
+        h1 {
+            font-size: rem-calc(24);
+        }
+    }
 
     li.item {
         @include xy-cell('shrink', true, 10);
@@ -123,6 +137,34 @@
             img {
                 max-height: 100%;
                 vertical-align: middle;
+            }
+        }
+    }
+}
+
+#infoblock {
+    font-size: 80%;
+    padding: $global-padding 0 0 $global-padding;
+
+    li {
+        padding: 0 $global-padding $global-padding 0;
+
+        .title {
+            font-variant: small-caps;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding-bottom: $global-padding / 3;
+        }
+
+        .summary {
+            max-height: rem-calc(150);
+            overflow: hidden;
+            padding-right: $global-padding;
+
+            &:hover {
+                overflow: auto;
+                padding-right: 0;
             }
         }
     }

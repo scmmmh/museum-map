@@ -84,14 +84,19 @@
     }
 
     function renderFloor(stage, item, y, width) {
+        var title = new createjs.Text(item.children('a').html(), "16px 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif");
+        title.x = 20;
+        title.y = y;
+        stage.addChild(title);
+        y = y + title.getMetrics().height + 5;
         var floor = new createjs.Shape();
         floor.graphics.beginStroke("black").drawRect(0, 0, width, width / 3);
-        floor.x = 50;
+        floor.x = 20;
         floor.y = y;
         stage.addChild(floor);
         var items = item.children('ul').children('li').get().map(function(item) { return $(item); });
         items.sort(cmpItems);
-        var rect = {x: 50, y: y, width: width, height: width / 3};
+        var rect = {x: 20, y: y, width: width, height: width / 3};
         var split_direction = 1;
         var colours = COLOURS.slice(0);
         shuffleArray(colours);
@@ -131,6 +136,7 @@
             renderRoom(stage, items[0], rect.x, rect.y, rect.width, rect.height, colours[0]);
         }
         addLabel(stage, rect.x, rect.y, rect.width, rect.height, items[0], 14, '#222');
+        return y + width / 3;
     }
     /**
      * The overview jQuery plugin handles the overview map
@@ -147,8 +153,7 @@
                 stage.canvas.width = clientWidth;
                 var y = 10;
                 component.children('ul').children('li').each(function(idx) {
-                    renderFloor(stage, $(this), y, clientWidth - 100);
-                    y = y + (clientWidth - 100) / 3 + 20;
+                    y = renderFloor(stage, $(this), y, clientWidth - 100) + 20;
                 });
                 stage.canvas.height = y;
                 /*var floor = new createjs.Shape();

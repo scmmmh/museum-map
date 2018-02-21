@@ -1,8 +1,11 @@
 import click
 import json
+import requests
+import spacy
 import transaction
 
 from collections import Counter
+from lxml import html
 from pyramid.paster import (get_appsettings, setup_logging, )
 from pyramid.scripts.common import parse_vars
 
@@ -322,3 +325,43 @@ def generate_hierarchy(config_uri):
         click.echo('Generating group assignments', nl=False)
         split_data(dbsession, group)
         echo_line('\rGenerating group assignments %s' % click.style('✓', fg='green'))
+
+
+@click.command()
+@click.argument('config_uri')
+def link_wikipedia(config_uri):
+    """Link groups and items to Wikipedia articles."""
+    settings = get_appsettings(config_uri)
+    session_factory = get_session_factory(get_engine(settings))
+    nlp = spacy.load('en')
+    cache = {}
+    with transaction.manager:
+        dbsession = get_tm_session(session_factory, transaction.manager)
+        query = dbsession.query(Group)
+        with click.progressbar(query, length=query.count(), label='Processing Groups', fill_char='=') as result:
+            for group in result:
+                group['wikipedia'] = []
+                for token in nlp(group.title.replace(' - ', ' to ')).noun_chunks:
+                    response = requests.post('https://en.wikipedia.org/w/api.php', {'action': 'opensearch', 'format': 'json', 'limit': 30, 'search': str(token)})
+                    data = response.json()
+                    page_title = None
+                    for idx, desc in enumerate(data[2]):
+                        if 'Ancient' in desc and 'Egypt' in desc:
+                            page_title = data[1][idx]
+                    if page_title is None:
+                        for idx, desc in enumerate(data[2]):
+                            if 'Egypt' in desc:
+                                page_title = data[1][idx]
+                    if page_title is None and data[1]:
+                        page_title = data[1][0]
+                    if page_title:
+                        if page_title in cache:
+                            group['wikipedia'].append(cache[page_title])
+                        else:
+                            response = requests.post('https://en.wikipedia.org/w/api.php', {'action': 'query', 'format': 'json', 'prop': 'extracts', 'titles': page_title, 'redirects': ''})
+                            data = response.json()
+                            page = list(data['query']['pages'].values())[0]
+                            extract = {'title': page['title'],
+                                       'blocks': [html.tostring(elem).decode('utf-8').strip() for elem in html.fragments_fromstring(page['extract']) if elem.text_content() != '']}
+                            group['wikipedia'].append(extract)
+                            cache[page_title] = extract

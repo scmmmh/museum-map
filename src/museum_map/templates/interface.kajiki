@@ -36,23 +36,27 @@
                 </ul>
                 <canvas></canvas>
               </div>
-              <div class="cell large-4 cell-block-y">
-                <ul>
-                  <li py:for="floor in root.children" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title} [${len(floor.items)}]</a>
-                    <ul>
-                      <li py:for="sector in floor.children" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title} [${len(sector.items)}]</a>
-                        <ul>
-                          <li py:for="room in sector.children" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title} [${len(room.items)}]</a></li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
+              <div id="infoblock" class="cell large-4 cell-block-y">
+                <div class="cell-block-y">
+                  <ul py:if="'wikipedia' in current" class="grid-x no-bullet">
+                    <li py:for="article in current['wikipedia']" class="cell large-4">
+                      <div class="grid-y">
+                        <div class="cell shrink title">
+                          <a href="https://en.wikipedia.org/wiki/${article['title']}" target="_blank">${article['title']}</a>
+                        </div>
+                        <div class="cell summary">
+                          ${literal(article['blocks'][0])}
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </aside>
-          <section class="cell large-8 cell-block-y">
+          <section class="cell large-8 cell-block-y always-scroll">
             <ul id="gallery" py:if="current">
+              <li class="title"><h1>${current.title}</h1></li>
               <py:for each="item in current.items">
                 <py:if test="item['images']">
                   <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
@@ -83,9 +87,9 @@
                             <p py:if="item['description']" class="description">${item['description']}</p>
                             <p py:if="item['note']" class="note">${item['note']}</p>
                             <div class="grid-x large-up-4 metadata">
-                              <div py:for="category, label in [('category', 'Type'), ('culture', 'Culture'), ('date_made', 'Date made'), ('collector', 'Collector'), ('date_collected', 'Date collected'), ('measurements', 'Measurements'), ('place_made', 'Made in'), ('maker', 'Made by'), ('accession_no', 'Accession No')]" py:if="item[category]" class="cell" data-attribute="${category}">
+                              <div py:for="category, label in [('category', 'Type'), ('culture', 'Culture'), ('materials', 'Materials'), ('measurements', 'Measurements'), ('date_made', 'Date made'), ('place_made', 'Made in'), ('maker', 'Made by'), ('collector', 'Collector'), ('date_collected', 'Date collected'), ('accession_no', 'Accession No')]" py:if="item[category]" class="cell" data-attribute="${category}">
                                 <h3>${category}</h3>
-                                <p>${item[category]}</p>
+                                <p><py:if test="isinstance(item[category], list)">${', '.join([c['term'] for c in item[category]])}</py:if><py:else>${item[category]}</py:else></p>
                               </div>
                             </div>
                           </div>

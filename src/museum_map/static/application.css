@@ -5007,12 +5007,21 @@ a.thumbnail {
 .cell.max-height {
   max-height: 100%; }
 
+.always-scroll {
+  overflow: scroll; }
+
 #gallery {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
   margin: 0 0.9375rem 0.9375rem 1.25rem;
   position: relative; }
+  #gallery li.title {
+    list-style-type: none;
+    border-bottom: 2px solid #222;
+    width: 100%; }
+    #gallery li.title h1 {
+      font-size: 1.5rem; }
   #gallery li.item {
     flex: 0 0 auto;
     width: auto;
@@ -5097,3 +5106,22 @@ a.thumbnail {
       #gallery li.details .content img {
         max-height: 100%;
         vertical-align: middle; }
+
+#infoblock {
+  font-size: 80%;
+  padding: 1rem 0 0 1rem; }
+  #infoblock li {
+    padding: 0 1rem 1rem 0; }
+    #infoblock li .title {
+      font-variant: small-caps;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      padding-bottom: 0.33333rem; }
+    #infoblock li .summary {
+      max-height: 9.375rem;
+      overflow: hidden;
+      padding-right: 1rem; }
+      #infoblock li .summary:hover {
+        overflow: auto;
+        padding-right: 0; }

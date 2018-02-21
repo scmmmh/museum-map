@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1a1d41366efd3849a6a0a9799e01df65b3a1af6adedf769212f5d18105820388"
+            "sha256": "fdeb6011c44ba0737e4ba20a688ce8e4fe76be2129802c60b8f20bb486871600"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -82,6 +82,10 @@
         "kajiki": {
             "hashes": [],
             "version": "==0.7.1"
+        },
+        "lxml": {
+            "hashes": [],
+            "version": "==4.1.1"
         },
         "mako": {
             "hashes": [],
