@@ -20,6 +20,8 @@
                 var infoblock = data.find('#infoblock');
                 $('#infoblock').replaceWith(infoblock);
                 infoblock.foundation();
+                var breadcrumbs = data.find('#breadcrumbs');
+                $('#breadcrumbs').replaceWith(breadcrumbs);
                 setTimeout(function() { gallery.gallery(); }, 50);
             });
         }

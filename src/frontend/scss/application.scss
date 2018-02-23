@@ -90,10 +90,12 @@ header {
             top: rem-calc(-15);
         }
     }
-    nav.breadcrumbs {
+
+    #breadcrumbs {
         background: #f0f0f0;
         border-top: 3px solid #273d0e;
         margin: 0;
+        padding: $global-margin / 2 0;
 
         ul.breadcrumbs {
             font-weight: 900;

@@ -2871,7 +2871,7 @@ a.button:hover, a.button:focus {
     color: #fefefe; }
 
 .breadcrumbs {
-  margin: 0.5rem 0 0.5rem 0;
+  margin: 0;
   list-style: none; }
   .breadcrumbs::before, .breadcrumbs::after {
     display: table;
@@ -5062,11 +5062,12 @@ header .main-banner {
     position: relative;
     top: -0.9375rem; }
 
-header nav.breadcrumbs {
+header #breadcrumbs {
   background: #f0f0f0;
   border-top: 3px solid #273d0e;
-  margin: 0; }
-  header nav.breadcrumbs ul.breadcrumbs {
+  margin: 0;
+  padding: 0.5rem 0; }
+  header #breadcrumbs ul.breadcrumbs {
     font-weight: 900; }
 
 #gallery {
