@@ -79,7 +79,7 @@
                       <h2>Notes</h2>
                     </div>
                     <div class="cell auto cell-block-y">
-                      <ul class="accordion" data-accordion="" data-allow-all-closed="true">
+                      <ul py:if="'wikipedia' in current" class="accordion" data-accordion="" data-allow-all-closed="true">
                         <li py:for="article in current['wikipedia']" class="accordion-item" data-accordion-item="">
                           <a href="#" class="accordion-title">${article['title']}</a>
                           <div class="accordion-content" data-tab-content="">
