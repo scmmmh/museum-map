@@ -15,135 +15,141 @@
     <link rel="stylesheet" href="${request.static_url('museum_map:static/application.css')}"/>
   </head>
   <body>
-    <div class="grid-y grid-frame">
-      <header class="cell shrink">
-        <div class="world-museum-return">
-          <div class="grid-container">
-            <div class="grid-x">
-              <div class="cell">
-                <a href="http://www.liverpoolmuseums.org.uk/wml/collections/antiquities/ancient-egypt/index.aspx">&lt;&nbsp;&nbsp;Back to the World Museum</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="main-banner">
-          <div class="grid-container">
-            <div class="grid-x">
-              <div class="cell shrink">
-                <a href="http://www.liverpoolmuseums.org.uk" class="nml-logo"><img src="http://www.liverpoolmuseums.org.uk/redesign/images/logo-nml-white.png"/></a>
-              </div>
-              <div class="cell shrink">
-                <a href="http://www.liverpoolmuseums.org.uk/wml" class="wml-logo"> </a>
-              </div>
-              <div class="cell auto">
-                <a href="${request.route_url('explore')}" class="explore-logo">Explore the Ancient Egypt Collection
-                <span class="label warning">Beta</span></a>
-              </div>
-              <div class="cell shrink text-right">
-                <a href="http://informatik.uni-halle.de" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <nav id="breadcrumbs">
-          <div class="grid-container">
-            <ul class="breadcrumbs">
-              <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="">${parent.title}</a></li>
-              <li title="${parent.title}"><span class="show-for-sr">Current: </span> ${hierarchy[-1].title}</li>
-            </ul>
-          </div>
-        </nav>
-      </header>
-      <article class="cell auto cell-block-container">
-        <div class="grid-x cell-block-y">
-          <aside class="cell large-4">
-            <div class="grid-y cell-block-y">
-              <div id="overview" class="cell large-8 cell-block-y">
-                <ul>
-                  <li py:for="floor in root.children" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
-                    <ul>
-                      <li py:for="sector in floor.children" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title}</a>
-                        <ul>
-                          <li py:for="room in sector.children" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title}</a></li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-                <canvas></canvas>
-              </div>
-              <div id="infoblock" class="cell large-4 cell-block-y">
-                <div class="grid-y cell-block-y">
-                  <div class="cell shrink">
-                    <h2>Notes</h2>
-                  </div>
-                  <div class="cell auto cell-block-y">
-                    <ul class="accordion" data-accordion="" data-allow-all-closed="true">
-                      <li py:for="article in current['wikipedia']" class="accordion-item" data-accordion-item="">
-                        <a href="#" class="accordion-title">${article['title']}</a>
-                        <div class="accordion-content" data-tab-content="">
-                          ${literal(article['blocks'][0])}
-                          <p><a href="https://en.wikipedia.org/wiki/${article['title']}" target="_blank">Read more</a></p>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
+    <div id="app">
+      <div class="grid-y grid-frame">
+        <header class="cell shrink">
+          <div class="world-museum-return">
+            <div class="grid-container">
+              <div class="grid-x">
+                <div class="cell">
+                  <a href="http://www.liverpoolmuseums.org.uk/wml/collections/antiquities/ancient-egypt/index.aspx">&lt;&nbsp;&nbsp;Back to the World Museum</a>
                 </div>
               </div>
             </div>
-          </aside>
-          <section class="cell large-8 cell-block-y always-scroll">
-            <ul id="gallery" py:if="current">
-              <py:for each="item in current.items">
-                <py:if test="item['images']">
-                  <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
-                    <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_medium.jpg" class="pre-load">
-                      <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt="${item['title']}"/>
-                    </picture>
-                    <span class="title">${item['title']}</span>
-                  </a></li>
-                  <li id="details-${item.id}" style="display:none;" class="details">
-                    <div class="marker"> </div>
-                    <div class="grid-x grid-padding-x content">
-                      <div class="close"><a href="#">🞨</a></div>
-                      <div class="cell large-6 cell-block-y text-center">
-                        <div class="grid-y cell-block-y justify-items-center">
-                          <div class="cell shrink max-height">
-                            <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_large.jpg" class="pre-load">
-                              <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt=""/>
-                            </picture>
+          </div>
+          <div class="main-banner">
+            <div class="grid-container">
+              <div class="grid-x">
+                <div class="cell shrink">
+                  <a href="http://www.liverpoolmuseums.org.uk" class="nml-logo"><img src="http://www.liverpoolmuseums.org.uk/redesign/images/logo-nml-white.png"/></a>
+                </div>
+                <div class="cell shrink">
+                  <a href="http://www.liverpoolmuseums.org.uk/wml" class="wml-logo"> </a>
+                </div>
+                <div class="cell auto">
+                  <a href="${request.route_url('explore')}" class="explore-logo">Explore the Ancient Egypt Collection
+                  <span class="label warning">Beta</span></a>
+                </div>
+                <div class="cell shrink text-right">
+                  <a href="http://informatik.uni-halle.de" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <nav id="breadcrumbs">
+            <div class="grid-container">
+              <ul class="breadcrumbs">
+                <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore.group', gid=parent.id)}">${parent.title}</a></li>
+                <li title="${hierarchy[-1].title}"><span class="show-for-sr">Current: </span> ${hierarchy[-1].title}</li>
+              </ul>
+            </div>
+          </nav>
+        </header>
+        <article class="cell auto cell-block-container">
+          <div class="grid-x cell-block-y">
+            <aside class="cell large-4">
+              <div class="grid-y cell-block-y">
+                <div id="overview" class="cell large-8 cell-block-y">
+                  <ul>
+                    <li py:for="floor in root.children" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
+                      <ul>
+                        <li py:for="sector in floor.children" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title}</a>
+                          <ul>
+                            <li py:for="room in sector.children" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title}</a></li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <canvas></canvas>
+                </div>
+                <div id="infoblock" class="cell large-4 cell-block-y">
+                  <div class="grid-y cell-block-y">
+                    <div class="cell shrink">
+                      <h2>Notes</h2>
+                    </div>
+                    <div class="cell auto cell-block-y">
+                      <ul class="accordion" data-accordion="" data-allow-all-closed="true">
+                        <li py:for="article in current['wikipedia']" class="accordion-item" data-accordion-item="">
+                          <a href="#" class="accordion-title">${article['title']}</a>
+                          <div class="accordion-content" data-tab-content="">
+                            ${literal(article['blocks'][0])}
+                            <p><a href="https://en.wikipedia.org/wiki/${article['title']}" target="_blank">Read more</a></p>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+            <section class="cell large-8 cell-block-y always-scroll">
+              <ul id="gallery" py:if="current">
+                <py:for each="item in current.items">
+                  <py:if test="item['images']">
+                    <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
+                      <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_medium.jpg" class="pre-load">
+                        <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt="${item['title']}"/>
+                      </picture>
+                      <span class="title">${item['title']}</span>
+                    </a></li>
+                    <li id="details-${item.id}" style="display:none;" class="details">
+                      <div class="marker"> </div>
+                      <div class="grid-x grid-padding-x content">
+                        <div class="close"><a href="#">🞨</a></div>
+                        <div class="cell large-6 cell-block-y text-center">
+                          <div class="grid-y cell-block-y justify-items-center">
+                            <div class="cell shrink max-height">
+                              <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_large.jpg" class="pre-load">
+                                <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt=""/>
+                              </picture>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="cell large-6 cell-block-y content-text">
-                        <div class="grid-y">
-                          <div class="cell shrink">
-                            <h2>${item['title']}</h2>
-                          </div>
-                          <div class="cell auto">
-                            <p py:if="item['description']" class="description">${item['description']}</p>
-                            <p py:if="item['note']" class="note">${item['note']}</p>
-                            <div class="grid-x large-up-4 metadata">
-                              <div py:for="category, label in [('category', 'Type'), ('culture', 'Culture'), ('materials', 'Materials'), ('measurements', 'Measurements'), ('date_made', 'Date made'), ('place_made', 'Made in'), ('maker', 'Made by'), ('collector', 'Collector'), ('date_collected', 'Date collected'), ('accession_no', 'Accession No')]" py:if="item[category]" class="cell" data-attribute="${category}">
-                                <h3>${category}</h3>
-                                <p><py:if test="isinstance(item[category], list)">${', '.join([c['term'] for c in item[category]])}</py:if><py:else>${item[category]}</py:else></p>
+                        <div class="cell large-6 cell-block-y content-text">
+                          <div class="grid-y">
+                            <div class="cell shrink">
+                              <h2>${item['title']}</h2>
+                            </div>
+                            <div class="cell auto">
+                              <p py:if="item['description']" class="description">${item['description']}</p>
+                              <p py:if="item['note']" class="note">${item['note']}</p>
+                              <div class="grid-x large-up-4 metadata">
+                                <div py:for="category, label in [('category', 'Type'), ('culture', 'Culture'), ('materials', 'Materials'), ('measurements', 'Measurements'), ('date_made', 'Date made'), ('place_made', 'Made in'), ('maker', 'Made by'), ('collector', 'Collector'), ('date_collected', 'Date collected'), ('accession_no', 'Accession No')]" py:if="item[category]" class="cell" data-attribute="${category}">
+                                  <h3>${category}</h3>
+                                  <p><py:if test="isinstance(item[category], list)">${', '.join([c['term'] for c in item[category]])}</py:if><py:else>${item[category]}</py:else></p>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </li>
-                </py:if>
-              </py:for>
-            </ul>
-          </section>
-        </div>
-      </article>
+                    </li>
+                  </py:if>
+                </py:for>
+              </ul>
+            </section>
+          </div>
+        </article>
+      </div>
+      <div id="overlay">
+        <div class="background"></div>
+        <div class="spinner"><img src="${request.static_url('museum_map:static/images/loading-black.svg')}"/></div>
+      </div>
     </div>
     <script src="${request.static_url('museum_map:static/application.js')}"></script>
     <script>
-    $('article').app();
+    $('#app').app();
     </script>
   </body>
 </html>

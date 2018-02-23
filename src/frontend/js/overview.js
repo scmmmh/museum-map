@@ -3,7 +3,7 @@
     var COLOURS = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd'];
 
     function click(ev) {
-        $('article').app('load', ev.target._url);
+        $('#app').app('load', ev.target._url);
     }
 
     function cmpItems(a, b) {
@@ -151,7 +151,7 @@
                 var stage = new createjs.Stage(component.children('canvas')[0]);
                 stage.enableMouseOver(10);
                 stage.canvas.width = clientWidth;
-                var y = 10;
+                var y = 25;
                 component.children('ul').children('li').each(function(idx) {
                     y = renderFloor(stage, $(this), y, clientWidth - 100) + 20;
                 });

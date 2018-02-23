@@ -44,6 +44,9 @@
                 component.parent().on('scroll', function() {
                     dynamicLoad(component);
                 });
+                $(window).on('resize', function() {
+                    dynamicLoad(component);
+                })
                 var currentDetails = null;
                 var currentMarker = null;
                 component.on('click', '.close a', function(ev) {
