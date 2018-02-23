@@ -98,7 +98,7 @@
                 <py:for each="item in current.items">
                   <py:if test="item['images']">
                     <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
-                      <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_medium.jpg" class="pre-load">
+                      <picture data-src="${request.route_url('image.cache', path='%s/v0_medium.jpg' % item['images'][0]['path'].replace('\\', '/'))}" class="pre-load">
                         <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt="${item['title']}"/>
                       </picture>
                       <span class="title">${item['title']}</span>
@@ -110,7 +110,7 @@
                         <div class="cell large-6 cell-block-y text-center">
                           <div class="grid-y cell-block-y justify-items-center">
                             <div class="cell shrink max-height">
-                              <picture data-src="http://www.liverpoolmuseums.org.uk/collections2015/images/${item['images'][0]['path'].replace('\\', '/')}/v0_large.jpg" class="pre-load">
+                              <picture data-src="${request.route_url('image.cache', path='%s/v0_large.jpg' % item['images'][0]['path'].replace('\\', '/'))}" class="pre-load">
                                 <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt=""/>
                               </picture>
                             </div>
