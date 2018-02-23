@@ -103,9 +103,6 @@ header {
     }
 }
 
-article {
-}
-
 #gallery {
     @include xy-grid('horizontal', true);
     justify-content: space-between;
