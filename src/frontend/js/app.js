@@ -16,6 +16,10 @@
                 $(window).on('popstate', function(ev) {
                     component.app('fetch', window.location.href, false);
                 });
+                var path = document.location.href.split('/');
+                if (path[path.length - 1].match(/[0-9]+/)) {
+                    component.find('#overview').overview('highlight', path[path.length - 1]);
+                }
             });
         },
         load: function(url) {
@@ -43,6 +47,10 @@
                     setTimeout(function() { overlay.hide(); }, 500);
                     if (updateHistory) {
                         history.pushState(null, document.title, url);
+                    }
+                    var path = document.location.href.split('/');
+                    if (path[path.length - 1].match(/[0-9]+/)) {
+                        component.find('#overview').overview('highlight', path[path.length - 1]);
                     }
                 });
             });

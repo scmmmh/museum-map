@@ -38938,6 +38938,10 @@ this.createjs = this.createjs || {};
                 $(window).on('popstate', function(ev) {
                     component.app('fetch', window.location.href, false);
                 });
+                var path = document.location.href.split('/');
+                if (path[path.length - 1].match(/[0-9]+/)) {
+                    component.find('#overview').overview('highlight', path[path.length - 1]);
+                }
             });
         },
         load: function(url) {
@@ -38965,6 +38969,10 @@ this.createjs = this.createjs || {};
                     setTimeout(function() { overlay.hide(); }, 500);
                     if (updateHistory) {
                         history.pushState(null, document.title, url);
+                    }
+                    var path = document.location.href.split('/');
+                    if (path[path.length - 1].match(/[0-9]+/)) {
+                        component.find('#overview').overview('highlight', path[path.length - 1]);
                     }
                 });
             });
@@ -39129,6 +39137,7 @@ this.createjs = this.createjs || {};
         shape._url = item.children('a').attr('href');
         stage.addChild(shape);
         shape.addEventListener('click', click);
+        return shape;
     }
 
     function addLabel(stage, x, y, width, height, item, fontSize, fontColour) {
@@ -39149,6 +39158,7 @@ this.createjs = this.createjs || {};
         text.x = x + width / 2 - text.getMetrics().width / 2;
         text.y = y + height / 2 - text.getMetrics().height / 2;
         stage.addChild(text);
+        return text;
     }
 
     function renderRoom(stage, item, x, y, width, height, colour) {
@@ -39169,19 +39179,19 @@ this.createjs = this.createjs || {};
             }
             if (split_direction === 1) {
                 addShape(stage, rect.x, rect.y, rect.width / (head + rest) * head, rect.height, items[0], colour);
-                addLabel(stage, rect.x, rect.y, rect.width / (head + rest) * head, rect.height, items[0], 12, '#222');
+                stage._id_map[items[0].data('id')] = addLabel(stage, rect.x, rect.y, rect.width / (head + rest) * head, rect.height, items[0], 12, '#222');
                 rect = {x: rect.x + rect.width / (head + rest) * head, y: rect.y, width: rect.width / (head + rest) * rest, height: rect.height}
                 split_direction = 2;
             } else {
                 addShape(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head, items[0], colour);
-                addLabel(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head, items[0], 12, '#222');
+                stage._id_map[items[0].data('id')] = addLabel(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head, items[0], 12, '#222');
                 rect = {x: rect.x, y: rect.y + rect.height / (head + rest) * head, width: rect.width, height: rect.height / (head + rest) * rest}
                 split_direction = 1;
             }
             items = items.slice(1);
         }
         addShape(stage, rect.x, rect.y, rect.width, rect.height, items[0], colour);
-        addLabel(stage, rect.x, rect.y, rect.width, rect.height, items[0], 12, '#222');
+        stage._id_map[items[0].data('id')] = addLabel(stage, rect.x, rect.y, rect.width, rect.height, items[0], 12, '#222');
     }
 
     function renderFloor(stage, item, y, width) {
@@ -39217,7 +39227,7 @@ this.createjs = this.createjs || {};
                 if (items[0].find('> ul > li').length > 0) {
                     renderRoom(stage, items[0], rect.x, rect.y, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height, colours[0]);
                 }
-                addLabel(stage, rect.x, rect.y, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height, items[0], 14, '#222');
+                stage._id_map[items[0].data('id')] = addLabel(stage, rect.x, rect.y, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height, items[0], 14, '#222');
                 rect = {x: rect.x + rect.width / (head + rest) * head + CORRIDOR_SIZE, y: rect.y, width: rect.width / (head + rest) * rest - CORRIDOR_SIZE, height: rect.height}
                 split_direction = 2;
             } else {
@@ -39225,7 +39235,7 @@ this.createjs = this.createjs || {};
                 if (items[0].find('> ul > li').length > 0) {
                     renderRoom(stage, items[0], rect.x, rect.y, rect.width, rect.height / (head + rest) * head - CORRIDOR_SIZE, colours[0]);
                 }
-                addLabel(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head - CORRIDOR_SIZE, items[0], 14, '#222');
+                stage._id_map[items[0].data('id')] = addLabel(stage, rect.x, rect.y, rect.width, rect.height / (head + rest) * head - CORRIDOR_SIZE, items[0], 14, '#222');
                 rect = {x: rect.x, y: rect.y + rect.height / (head + rest) * head + CORRIDOR_SIZE, width: rect.width, height: rect.height / (head + rest) * rest - CORRIDOR_SIZE}
                 split_direction = 1;
             }
@@ -39236,7 +39246,7 @@ this.createjs = this.createjs || {};
         if (items[0].find('> ul > li').length > 0) {
             renderRoom(stage, items[0], rect.x, rect.y, rect.width, rect.height, colours[0]);
         }
-        addLabel(stage, rect.x, rect.y, rect.width, rect.height, items[0], 14, '#222');
+        stage._id_map[items[0].data('id')] = addLabel(stage, rect.x, rect.y, rect.width, rect.height, items[0], 14, '#222');
         return y + width / 3;
     }
     /**
@@ -39250,6 +39260,8 @@ this.createjs = this.createjs || {};
                 var clientWidth = component[0].clientWidth - 30;
                 var clientHeight = component[0].clientHeight;
                 var stage = new createjs.Stage(component.children('canvas')[0]);
+                component.data('stage', stage);
+                stage._id_map = {}
                 stage.enableMouseOver(10);
                 stage.canvas.width = clientWidth;
                 var y = 25;
@@ -39257,43 +39269,17 @@ this.createjs = this.createjs || {};
                     y = renderFloor(stage, $(this), y, clientWidth - 100) + 20;
                 });
                 stage.canvas.height = y;
-                /*var floor = new createjs.Shape();
-                floor.graphics.beginStroke("black").drawRect(0, 0, clientWidth - 100, (clientWidth - 100) / 3);
-                floor.x = 50;
-                floor.y = 100;
-                stage.addChild(floor);
-                var sizes = [88, 90, 12, 6];
-                var rect = {x: 50, y: 100, width: clientWidth - 100, height: (clientWidth - 100) / 3};
-                var split_direction = 1;
-                var CORRIDOR_SIZE = 5;
-                while (sizes.length > 1) {
-                    var head = sizes[0];
-                    var rest = sizes.slice(1).reduce(function(accumulator, current) { return accumulator + current });
-                    console.log(head + ' / ' + rest);
-                    if (split_direction === 1) {
-                        var sector = new createjs.Shape();
-                        sector.graphics.beginStroke('black').drawRect(0, 0, rect.width / (head + rest) * head - CORRIDOR_SIZE, rect.height);
-                        sector.x = rect.x;
-                        sector.y = rect.y;
-                        stage.addChild(sector);
-                        rect = {x: rect.x + rect.width / (head + rest) * head + CORRIDOR_SIZE, y: rect.y, width: rect.width / (head + rest) * rest - CORRIDOR_SIZE, height: rect.height}
-                        split_direction = 2;
-                    } else {
-                        var sector = new createjs.Shape();
-                        sector.graphics.beginStroke('black').drawRect(0, 0, rect.width, rect.height / (head + rest) * head - 5);
-                        sector.x = rect.x;
-                        sector.y = rect.y;
-                        stage.addChild(sector);
-                        rect = {x: rect.x, y: rect.y + rect.height / (head + rest) * head + CORRIDOR_SIZE, width: rect.width, height: rect.height / (head + rest) * rest - CORRIDOR_SIZE}
-                        split_direction = 1;
-                    }
-                    sizes = sizes.slice(1);
+                stage.update();
+            });
+        }, highlight(iid) {
+            return this.each(function() {
+                var component = $(this);
+                var stage = component.data('stage');
+                if (stage._last_highlighted) {
+                    stage._last_highlighted.shadow = null;
                 }
-                var sector = new createjs.Shape();
-                sector.graphics.beginStroke('black').drawRect(0, 0, rect.width, rect.height);
-                sector.x = rect.x;
-                sector.y = rect.y;
-                stage.addChild(sector);*/
+                stage._last_highlighted = stage._id_map[iid]
+                stage._id_map[iid].shadow = new createjs.Shadow('#000', 0, 0, 10);
                 stage.update();
             });
         }

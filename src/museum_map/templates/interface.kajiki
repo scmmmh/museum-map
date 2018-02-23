@@ -61,11 +61,11 @@
               <div class="grid-y cell-block-y">
                 <div id="overview" class="cell large-8 cell-block-y">
                   <ul>
-                    <li py:for="floor in root.children" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
+                    <li py:for="floor in root.children" data-id="${floor.id}" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
                       <ul>
-                        <li py:for="sector in floor.children" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title}</a>
+                        <li py:for="sector in floor.children" data-id="${sector.id}" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title}</a>
                           <ul>
-                            <li py:for="room in sector.children" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title}</a></li>
+                            <li py:for="room in sector.children" data-id="${room.id}" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title}</a></li>
                           </ul>
                         </li>
                       </ul>
