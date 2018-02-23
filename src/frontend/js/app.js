@@ -6,6 +6,9 @@
         init: function(options) {
             return this.each(function() {
                 var component = $(this);
+                component.find('#infoblock .accordion').foundation()
+                component.find('#overview').overview();
+                component.find('#gallery').gallery();
             });
         },
         load: function(url) {
@@ -16,6 +19,7 @@
                 $('#gallery').replaceWith(gallery);
                 var infoblock = data.find('#infoblock');
                 $('#infoblock').replaceWith(infoblock);
+                infoblock.foundation();
                 setTimeout(function() { gallery.gallery(); }, 50);
             });
         }

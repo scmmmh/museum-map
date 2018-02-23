@@ -31,19 +31,19 @@
     }
 
     function addLabel(stage, x, y, width, height, item, fontSize, fontColour) {
-        var text = new createjs.Text(item.children('a').html(), fontSize + "px 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif", fontColour);
+        var text = new createjs.Text(item.children('a').html(), fontSize + "px 'Lato', sans-serif", fontColour);
         if (text.getMetrics().width >= width - 20) {
             var tokens = item.children('a').html().split(' ');
             var splitText = tokens[0];
             for (var idx = 1; idx < tokens.length; idx++) {
-                text = new createjs.Text(splitText + ' ' + tokens[idx], fontSize + "px 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif", fontColour);
+                text = new createjs.Text(splitText + ' ' + tokens[idx], fontSize + "px 'Lato', sans-serif", fontColour);
                 if (text.getMetrics().width >= width - 20) {
                     splitText = splitText + '\n' + tokens[idx];
                 } else {
                     splitText = splitText + ' ' + tokens[idx];
                 }
             }
-            text = new createjs.Text(splitText, fontSize + "px 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif", fontColour);
+            text = new createjs.Text(splitText, fontSize + "px 'Lato', sans-serif", fontColour);
         }
         text.x = x + width / 2 - text.getMetrics().width / 2;
         text.y = y + height / 2 - text.getMetrics().height / 2;

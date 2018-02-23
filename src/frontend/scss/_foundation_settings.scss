@@ -69,7 +69,7 @@ $global-font-size: 100%;
 $global-width: rem-calc(1200);
 $global-lineheight: 1.5;
 $foundation-palette: (
-  primary: #1779ba,
+  primary: #5b8f22,
   secondary: #767676,
   success: #3adb76,
   warning: #ffae00,
@@ -82,7 +82,7 @@ $black: #0a0a0a;
 $white: #fefefe;
 $body-background: $white;
 $body-font-color: $black;
-$body-font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;
+$body-font-family: 'Lato', sans-serif;
 $body-antialiased: true;
 $global-margin: 1rem;
 $global-padding: 1rem;
@@ -224,14 +224,14 @@ $input-error-font-weight: $global-weight-bold;
 
 $accordion-background: $white;
 $accordion-plusminus: true;
-$accordion-title-font-size: rem-calc(12);
-$accordion-item-color: $primary-color;
-$accordion-item-background-hover: $light-gray;
-$accordion-item-padding: 1.25rem 1rem;
+$accordion-title-font-size: rem-calc(14);
+$accordion-item-color: #626262;
+$accordion-item-background-hover: $white;
+$accordion-item-padding: 0.75rem 0;
 $accordion-content-background: $white;
-$accordion-content-border: 1px solid $light-gray;
+$accordion-content-border: none;
 $accordion-content-color: $body-font-color;
-$accordion-content-padding: 1rem;
+$accordion-content-padding: 0 0 0.25rem 0.75rem;
 
 // 8. Accordion Menu
 // -----------------
@@ -263,16 +263,16 @@ $badge-font-size: 0.6rem;
 // 10. Breadcrumbs
 // ---------------
 
-$breadcrumbs-margin: 0 0 $global-margin 0;
-$breadcrumbs-item-font-size: rem-calc(11);
-$breadcrumbs-item-color: $primary-color;
-$breadcrumbs-item-color-current: $black;
+$breadcrumbs-margin: $global-margin/2 0 $global-margin/2 0;
+$breadcrumbs-item-font-size: rem-calc(13);
+$breadcrumbs-item-color: #626262;
+$breadcrumbs-item-color-current: #5b8f22;
 $breadcrumbs-item-color-disabled: $medium-gray;
 $breadcrumbs-item-margin: 0.75rem;
-$breadcrumbs-item-uppercase: true;
+$breadcrumbs-item-uppercase: false;
 $breadcrumbs-item-separator: true;
-$breadcrumbs-item-separator-item: '/';
-$breadcrumbs-item-separator-item-rtl: '\\';
+$breadcrumbs-item-separator-item: '>';
+$breadcrumbs-item-separator-item-rtl: '<';
 $breadcrumbs-item-separator-color: $medium-gray;
 
 // 11. Button

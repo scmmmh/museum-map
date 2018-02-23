@@ -11,12 +11,48 @@
   <head>
     <meta charset="utf-8"/>
     <title>${current.title}</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900&amp;subset=latin-ext" rel="stylesheet"/>
     <link rel="stylesheet" href="${request.static_url('museum_map:static/application.css')}"/>
   </head>
   <body>
     <div class="grid-y grid-frame">
       <header class="cell shrink">
-        The header goes in here
+        <div class="world-museum-return">
+          <div class="grid-container">
+            <div class="grid-x">
+              <div class="cell">
+                <a href="http://www.liverpoolmuseums.org.uk/wml/collections/antiquities/ancient-egypt/index.aspx">&lt;&nbsp;&nbsp;Back to the World Museum</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="main-banner">
+          <div class="grid-container">
+            <div class="grid-x">
+              <div class="cell shrink">
+                <a href="http://www.liverpoolmuseums.org.uk" class="nml-logo"><img src="http://www.liverpoolmuseums.org.uk/redesign/images/logo-nml-white.png"/></a>
+              </div>
+              <div class="cell shrink">
+                <a href="http://www.liverpoolmuseums.org.uk/wml" class="wml-logo"> </a>
+              </div>
+              <div class="cell auto">
+                <a href="${request.route_url('explore')}" class="explore-logo">Explore the Ancient Egypt Collection
+                <span class="label warning">Beta</span></a>
+              </div>
+              <div class="cell shrink text-right">
+                <a href="http://informatik.uni-halle.de" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <nav class="breadcrumbs">
+          <div class="grid-container">
+            <ul class="breadcrumbs">
+              <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="">${parent.title}</a></li>
+              <li title="${parent.title}"><span class="show-for-sr">Current: </span> ${hierarchy[-1].title}</li>
+            </ul>
+          </div>
+        </nav>
       </header>
       <article class="cell auto cell-block-container">
         <div class="grid-x cell-block-y">
@@ -37,26 +73,27 @@
                 <canvas></canvas>
               </div>
               <div id="infoblock" class="cell large-4 cell-block-y">
-                <div class="cell-block-y">
-                  <ul py:if="'wikipedia' in current" class="grid-x no-bullet">
-                    <li py:for="article in current['wikipedia']" class="cell large-4">
-                      <div class="grid-y">
-                        <div class="cell shrink title">
-                          <a href="https://en.wikipedia.org/wiki/${article['title']}" target="_blank">${article['title']}</a>
-                        </div>
-                        <div class="cell summary">
+                <div class="grid-y cell-block-y">
+                  <div class="cell shrink">
+                    <h2>Notes</h2>
+                  </div>
+                  <div class="cell auto cell-block-y">
+                    <ul class="accordion" data-accordion="" data-allow-all-closed="true">
+                      <li py:for="article in current['wikipedia']" class="accordion-item" data-accordion-item="">
+                        <a href="#" class="accordion-title">${article['title']}</a>
+                        <div class="accordion-content" data-tab-content="">
                           ${literal(article['blocks'][0])}
+                          <p><a href="https://en.wikipedia.org/wiki/${article['title']}" target="_blank">Read more</a></p>
                         </div>
-                      </div>
-                    </li>
-                  </ul>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
           </aside>
           <section class="cell large-8 cell-block-y always-scroll">
             <ul id="gallery" py:if="current">
-              <li class="title"><h1>${current.title}</h1></li>
               <py:for each="item in current.items">
                 <py:if test="item['images']">
                   <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
@@ -107,8 +144,6 @@
     <script src="${request.static_url('museum_map:static/application.js')}"></script>
     <script>
     $('article').app();
-    $('#overview').overview();
-    $('#gallery').gallery();
     </script>
   </body>
 </html>

@@ -14,6 +14,96 @@
     overflow: scroll;
 }
 
+.accordion-title::before {
+    content: '\25bc';
+    font-family: sans-serif;
+    font-weight: 400;
+    font-size: rem-calc(12);
+}
+.is-active > .accordion-title::before {
+    content: '\25b2';
+}
+
+header {
+    .world-museum-return {
+        background: #222;
+        padding: 0.2rem 0;
+
+        .cell {
+            padding-left: rem-calc(150);
+        }
+
+        a:link, a:visited, a:hover {
+            color: #d6d6d6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+    .main-banner {
+        background: linear-gradient(to bottom, #639b25, #49721b);
+        height: rem-calc(100);
+
+        div {
+            height: 100%;
+        }
+
+        .cell:first-of-type {
+            width: rem-calc(150);
+        }
+
+        .nml-logo {
+            img {
+                height: 110%;
+                position: relative;
+                top: rem-calc(-30);
+            }
+        }
+
+        .wml-logo {
+            background-image: url('http://www.liverpoolmuseums.org.uk/images/site-wide/venues/logos/wml.png');
+            background-repeat: no-repeat;
+            background-position: 0 -210px;
+            display: inline-block;
+            width: 300px;
+            height: 100%;
+        }
+
+        .explore-logo {
+            display: inline-block;
+            color: #fff;
+            font-size: 18pt;
+            padding-top: 2rem;
+        }
+
+        .halle-logo {
+            display: inline-block;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 0.5rem;
+            background: #fff;
+        }
+
+        .label.warning {
+            position: relative;
+            top: rem-calc(-15);
+        }
+    }
+    nav.breadcrumbs {
+        background: #f0f0f0;
+        border-top: 3px solid #273d0e;
+        margin: 0;
+
+        ul.breadcrumbs {
+            font-weight: 900;
+        }
+    }
+}
+
+article {
+}
+
 #gallery {
     @include xy-grid('horizontal', true);
     justify-content: space-between;
@@ -112,21 +202,24 @@
             }
 
             .description, .note {
-                font-size: rem-calc(15);
-                color: #bbb;
+                font-size: rem-calc(17);
+                font-weight: 300;
+                color: #d6d6d6;
             }
 
             .metadata {
-                color: #aaa;
+                color: #d6d6d6;
                 margin-top: rem-calc(50);
 
                 h3 {
-                    font-size: rem-calc(18);
+                    color: #aaaaaa;
+                    font-size: rem-calc(15);
                     font-variant: small-caps;
                 }
 
                 p {
-                    font-size: rem-calc(13);
+                    font-size: rem-calc(16);
+                    font-weight: 300;
                 }
 
                 div {
@@ -143,29 +236,18 @@
 }
 
 #infoblock {
-    font-size: 80%;
-    padding: $global-padding 0 0 $global-padding;
+    padding: $global-margin;
 
-    li {
-        padding: 0 $global-padding $global-padding 0;
+    h2 {
+        font-size: rem-calc(16);
+        font-weight: 900;
+    }
 
-        .title {
-            font-variant: small-caps;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            padding-bottom: $global-padding / 3;
-        }
+    .accordion-title {
+        font-weight: 900;
+    }
 
-        .summary {
-            max-height: rem-calc(150);
-            overflow: hidden;
-            padding-right: $global-padding;
-
-            &:hover {
-                overflow: auto;
-                padding-right: 0;
-            }
-        }
+    .accordion-content {
+        font-weight: 300;
     }
 }

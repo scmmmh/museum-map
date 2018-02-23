@@ -9,5 +9,10 @@ def root(request):
     if 'gid' in request.matchdict:
         current = request.dbsession.query(Group).filter(Group.id == request.matchdict['gid']).first()
     else:
-        current = None
-    return {'root': root, 'current': current}
+        current = root
+    hierarchy = []
+    parent = current
+    while parent is not None:
+        hierarchy.insert(0, parent)
+        parent = parent.parent
+    return {'root': root, 'current': current, 'hierarchy': hierarchy}
