@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
   <?py import json ?>
-  <py:def function="tree(node)">
-    <ul>
-      <li py:for="child in node.children"><a href="${request.route_url('explore.group', gid=child.id)}">${child.title} [${len(child.items)}]</a>
-        ${tree(child)}
-      </li>
-    </ul>
+  <py:def function="head_area_style(split_point, horizontal, corridor_width)">${'width:' if horizontal else 'height:'}calc(${split_point}% - ${corridor_width}px);</py:def>
+  <py:def function="tail_area_style(split_point, horizontal, corridor_width)">${'left:' if horizontal else 'top:'}calc(${split_point}% + ${corridor_width if corridor_width != 0 else -1}px);${'width:' if horizontal else 'height:'}calc(${100-split_point}% - ${corridor_width if corridor_width != 0 else -1}px);</py:def>
+  <py:def function="clickable_outline(area)"><a id="room-${area.id}" class="outline" href="${request.route_url('explore.group', gid=area.id)}" data-title="${area.title}"><span class="title">${area.title}</span></a></py:def>
+  <py:def function="recursive_split(head, tail, horizontal=True, show_children=True, corridor_width=5)">
+    <?py split_point = max(25, 100 / (len(head.items) + sum([len(t.items) for t in tail])) * len(head.items)) ?>
+    <div class="area ${'horizontal' if horizontal else 'vertical'} ${'room' if corridor_width == 0 else 'theme'}" style="${head_area_style(split_point, horizontal, corridor_width)}"><py:if test="show_children and len(head.children) > 0">${recursive_split(head.children[0], head.children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(head)}</py:else></div>
+    <div class="area ${'horizontal' if horizontal else 'vertical'} ${'' if len(tail) != 1 else 'room' if corridor_width == 0 else 'theme'}" style="${tail_area_style(split_point, horizontal, corridor_width)}"><py:if test="len(tail) > 1">${recursive_split(tail[0], tail[1:], not horizontal, show_children, corridor_width)}</py:if><py:else><py:if test="show_children and len(tail[0].children) > 0">${recursive_split(tail[0].children[0], tail[0].children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(tail[0])}</py:else></py:else></div>
   </py:def>
   <head>
     <meta charset="utf-8"/>
@@ -49,31 +50,23 @@
           <nav id="breadcrumbs">
             <div class="grid-container">
               <ul class="breadcrumbs">
-                <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore.group', gid=parent.id)}">${parent.title}</a></li>
-                <li title="${hierarchy[-1].title}"><span class="show-for-sr">Current: </span> ${hierarchy[-1].title}</li>
+                <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore.group', gid=parent.id)}"><span class="ellipsis" title="${parent.title}">${parent.title}</span></a></li>
+                <li title="${hierarchy[-1].title}"><span class="show-for-sr">Current: </span> <span class="ellipsis">${hierarchy[-1].title}</span></li>
               </ul>
             </div>
           </nav>
         </header>
         <article class="cell auto cell-block-container">
           <div class="grid-x cell-block-y">
-            <aside class="cell large-4">
+            <aside class="cell medium-5 large-4 xlarge-3">
               <div class="grid-y cell-block-y">
-                <div id="overview" class="cell large-8 cell-block-y">
-                  <ul>
-                    <li py:for="floor in root.children" data-id="${floor.id}" data-size="${len(floor.items)}"><a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
-                      <ul>
-                        <li py:for="sector in floor.children" data-id="${sector.id}" data-size="${len(sector.items)}"><a href="${request.route_url('explore.group', gid=sector.id)}">${sector.title}</a>
-                          <ul>
-                            <li py:for="room in sector.children" data-id="${room.id}" data-size="${len(room.items)}"><a href="${request.route_url('explore.group', gid=room.id)}">${room.title}</a></li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                  <canvas></canvas>
+                <div id="overview" class="cell medium-7 large-8 cell-block-y">
+                  <div py:for="floor in root.children" class="floor">
+                    <a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
+                    <div class="outline"> </div>${recursive_split(floor.children[0], floor.children[1:])}
+                  </div>
                 </div>
-                <div id="infoblock" class="cell large-4 cell-block-y">
+                <div id="infoblock" class="cell medium-5 large-4 cell-block-y">
                   <div class="grid-y cell-block-y">
                     <div class="cell shrink">
                       <h2>Notes</h2>
@@ -93,7 +86,7 @@
                 </div>
               </div>
             </aside>
-            <section class="cell large-8 cell-block-y always-scroll">
+            <section class="cell medium-7 large-8 xlarge-9 cell-block-y always-scroll">
               <ul id="gallery" py:if="current">
                 <py:for each="item in current.items">
                   <py:if test="item['images']">
@@ -107,7 +100,7 @@
                       <div class="marker"> </div>
                       <div class="grid-x grid-padding-x content">
                         <div class="close"><a href="#">🞨</a></div>
-                        <div class="cell large-6 cell-block-y text-center">
+                        <div class="cell medium-6 cell-block-y text-center">
                           <div class="grid-y cell-block-y justify-items-center">
                             <div class="cell shrink max-height">
                               <picture data-src="${request.route_url('image.cache', path='%s/v0_large.jpg' % item['images'][0]['path'].replace('\\', '/'))}" class="pre-load">
@@ -116,15 +109,15 @@
                             </div>
                           </div>
                         </div>
-                        <div class="cell large-6 cell-block-y content-text">
-                          <div class="grid-y">
+                        <div class="cell medium-6 cell-block-y content-text">
+                          <div class="grid-y cell-block-y">
                             <div class="cell shrink">
                               <h2>${item['title']}</h2>
                             </div>
-                            <div class="cell auto">
+                            <div class="cell auto cell-block-y">
                               <p py:if="item['description']" class="description">${item['description']}</p>
                               <p py:if="item['note']" class="note">${item['note']}</p>
-                              <div class="grid-x large-up-4 metadata">
+                              <div class="grid-x medium-1 large-up-2 xlarge-up-4 metadata">
                                 <div py:for="category, label in [('category', 'Type'), ('culture', 'Culture'), ('materials', 'Materials'), ('measurements', 'Measurements'), ('date_made', 'Date made'), ('place_made', 'Made in'), ('maker', 'Made by'), ('collector', 'Collector'), ('date_collected', 'Date collected'), ('accession_no', 'Accession No')]" py:if="item[category]" class="cell" data-attribute="${category}">
                                   <h3>${category}</h3>
                                   <p><py:if test="isinstance(item[category], list)">${', '.join([c['term'] for c in item[category]])}</py:if><py:else>${item[category]}</py:else></p>

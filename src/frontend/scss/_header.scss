@@ -1,0 +1,103 @@
+header {
+    .world-museum-return {
+        background: #222;
+        padding: 0.2rem 0;
+
+        .cell {
+            padding-left: rem-calc(150);
+        }
+
+        a:link, a:visited, a:hover {
+            color: #d6d6d6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+    .main-banner {
+        background: linear-gradient(to bottom, #639b25, #49721b);
+        height: rem-calc(100);
+
+        div {
+            height: 100%;
+        }
+
+        .cell:first-of-type {
+            width: rem-calc(150);
+        }
+
+        .nml-logo {
+            img {
+                height: 110%;
+                position: relative;
+                top: rem-calc(-30);
+            }
+        }
+
+        .wml-logo {
+            background-image: url('http://www.liverpoolmuseums.org.uk/images/site-wide/venues/logos/wml.png');
+            background-repeat: no-repeat;
+            background-position: 0 -210px;
+            display: inline-block;
+            width: 200px;
+            height: 100%;
+
+            @include breakpoint(large) {
+                width: 300px;
+            }
+
+        }
+
+        .explore-logo {
+            display: inline-block;
+            color: #fff;
+            font-size: 18pt;
+            padding-top: 2rem;
+        }
+
+        .halle-logo {
+            display: inline-block;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 0.5rem;
+            background: #fff;
+        }
+
+        .label.warning {
+            position: relative;
+            top: rem-calc(-15);
+        }
+    }
+
+    #breadcrumbs {
+        background: #f0f0f0;
+        border-top: 3px solid #273d0e;
+        margin: 0;
+        padding: $global-margin / 2 0;
+
+        ul.breadcrumbs {
+            font-weight: 900;
+
+            li {
+                position: relative;
+
+            }
+            li::after {
+                vertical-align: top;
+            }
+
+            .ellipsis {
+                display: inline-block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: rem-calc(250);
+
+                &:hover {
+                    max-width: rem-calc(500);
+                }
+            }
+        }
+    }
+}
