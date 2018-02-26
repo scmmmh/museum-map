@@ -1,0 +1,38 @@
+<header class="cell shrink">
+  <div class="world-museum-return">
+    <div class="grid-container">
+      <div class="grid-x">
+        <div class="cell">
+          <a href="http://www.liverpoolmuseums.org.uk/wml/collections/antiquities/ancient-egypt/index.aspx">&lt;&nbsp;&nbsp;Back to the World Museum</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main-banner">
+    <div class="grid-container">
+      <div class="grid-x">
+        <div class="cell shrink">
+          <a href="http://www.liverpoolmuseums.org.uk" class="nml-logo"><img src="http://www.liverpoolmuseums.org.uk/redesign/images/logo-nml-white.png"/></a>
+        </div>
+        <div class="cell shrink">
+          <a href="http://www.liverpoolmuseums.org.uk/wml" class="wml-logo"> </a>
+        </div>
+        <div class="cell auto">
+          <a href="${request.route_url('explore')}" class="explore-logo">Explore the Ancient Egypt Collection
+          <span class="label warning">Beta</span></a>
+        </div>
+        <div class="cell shrink text-right">
+          <a href="http://informatik.uni-halle.de" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav id="breadcrumbs">
+    <div class="grid-container">
+      <ul class="breadcrumbs">
+        <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore.group', gid=parent.id)}"><span class="ellipsis" title="${parent.title}">${parent.title}</span></a></li>
+        <li title="${hierarchy[-1].title}"><span class="show-for-sr">Current: </span> <span class="ellipsis">${hierarchy[-1].title}</span></li>
+      </ul>
+    </div>
+  </nav>
+</header>

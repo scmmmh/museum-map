@@ -5989,3 +5989,15 @@ header #breadcrumbs {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%); }
+
+footer {
+  background: #273d0e;
+  color: #f0f0f0;
+  font-weight: 300;
+  padding: 0.5rem 1rem; }
+  footer a {
+    color: #f0f0f0;
+    font-weight: 400; }
+    footer a:hover {
+      color: #fff;
+      text-decoration: underline; }

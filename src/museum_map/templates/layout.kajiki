@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><py:block name="title"></py:block></title>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900&amp;subset=latin-ext" rel="stylesheet"/>
+    <link rel="stylesheet" href="${request.static_url('museum_map:static/application.css')}"/>
+  </head>
+  <body>
+    <py:block name="content"></py:block>
+    <script src="${request.static_url('museum_map:static/application.js')}"></script>
+    <py:block name="body_script"></py:block>
+  </body>
+</html>

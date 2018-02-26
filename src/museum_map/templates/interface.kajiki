@@ -1,61 +1,18 @@
-<!DOCTYPE html>
-<html>
-  <?py import json ?>
-  <py:def function="head_area_style(split_point, horizontal, corridor_width)">${'width:' if horizontal else 'height:'}calc(${split_point}% - ${corridor_width}px);</py:def>
-  <py:def function="tail_area_style(split_point, horizontal, corridor_width)">${'left:' if horizontal else 'top:'}calc(${split_point}% + ${corridor_width if corridor_width != 0 else -1}px);${'width:' if horizontal else 'height:'}calc(${100-split_point}% - ${corridor_width if corridor_width != 0 else -1}px);</py:def>
-  <py:def function="clickable_outline(area)"><a id="room-${area.id}" class="outline" href="${request.route_url('explore.group', gid=area.id)}" data-title="${area.title}"><span class="title">${area.title}</span></a></py:def>
-  <py:def function="recursive_split(head, tail, horizontal=True, show_children=True, corridor_width=5)">
-    <?py split_point = max(25, 100 / (len(head.items) + sum([len(t.items) for t in tail])) * len(head.items)) ?>
-    <div class="area ${'horizontal' if horizontal else 'vertical'} ${'room' if corridor_width == 0 else 'theme'}" style="${head_area_style(split_point, horizontal, corridor_width)}"><py:if test="show_children and len(head.children) > 0">${recursive_split(head.children[0], head.children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(head)}</py:else></div>
-    <div class="area ${'horizontal' if horizontal else 'vertical'} ${'' if len(tail) != 1 else 'room' if corridor_width == 0 else 'theme'}" style="${tail_area_style(split_point, horizontal, corridor_width)}"><py:if test="len(tail) > 1">${recursive_split(tail[0], tail[1:], not horizontal, show_children, corridor_width)}</py:if><py:else><py:if test="show_children and len(tail[0].children) > 0">${recursive_split(tail[0].children[0], tail[0].children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(tail[0])}</py:else></py:else></div>
-  </py:def>
-  <head>
-    <meta charset="utf-8"/>
-    <title>${current.title}</title>
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900&amp;subset=latin-ext" rel="stylesheet"/>
-    <link rel="stylesheet" href="${request.static_url('museum_map:static/application.css')}"/>
-  </head>
-  <body>
+<py:extends href="museum_map:templates/layout.kajiki">
+  <py:block name="title">${current.title}</py:block>
+  <py:block name="content">
+    <?py import json ?>
+    <py:def function="head_area_style(split_point, horizontal, corridor_width)">${'width:' if horizontal else 'height:'}calc(${split_point}% - ${corridor_width}px);</py:def>
+    <py:def function="tail_area_style(split_point, horizontal, corridor_width)">${'left:' if horizontal else 'top:'}calc(${split_point}% + ${corridor_width if corridor_width != 0 else -1}px);${'width:' if horizontal else 'height:'}calc(${100-split_point}% - ${corridor_width if corridor_width != 0 else -1}px);</py:def>
+    <py:def function="clickable_outline(area)"><a id="room-${area.id}" class="outline" href="${request.route_url('explore.group', gid=area.id)}" data-title="${area.title}"><span class="title">${area.title}</span></a></py:def>
+    <py:def function="recursive_split(head, tail, horizontal=True, show_children=True, corridor_width=5)">
+      <?py split_point = max(25, 100 / (len(head.items) + sum([len(t.items) for t in tail])) * len(head.items)) ?>
+      <div class="area ${'horizontal' if horizontal else 'vertical'} ${'room' if corridor_width == 0 else 'theme'}" style="${head_area_style(split_point, horizontal, corridor_width)}"><py:if test="show_children and len(head.children) > 0">${recursive_split(head.children[0], head.children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(head)}</py:else></div>
+      <div class="area ${'horizontal' if horizontal else 'vertical'} ${'' if len(tail) != 1 else 'room' if corridor_width == 0 else 'theme'}" style="${tail_area_style(split_point, horizontal, corridor_width)}"><py:if test="len(tail) > 1">${recursive_split(tail[0], tail[1:], not horizontal, show_children, corridor_width)}</py:if><py:else><py:if test="show_children and len(tail[0].children) > 0">${recursive_split(tail[0].children[0], tail[0].children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(tail[0])}</py:else></py:else></div>
+    </py:def>
     <div id="app">
       <div class="grid-y grid-frame">
-        <header class="cell shrink">
-          <div class="world-museum-return">
-            <div class="grid-container">
-              <div class="grid-x">
-                <div class="cell">
-                  <a href="http://www.liverpoolmuseums.org.uk/wml/collections/antiquities/ancient-egypt/index.aspx">&lt;&nbsp;&nbsp;Back to the World Museum</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="main-banner">
-            <div class="grid-container">
-              <div class="grid-x">
-                <div class="cell shrink">
-                  <a href="http://www.liverpoolmuseums.org.uk" class="nml-logo"><img src="http://www.liverpoolmuseums.org.uk/redesign/images/logo-nml-white.png"/></a>
-                </div>
-                <div class="cell shrink">
-                  <a href="http://www.liverpoolmuseums.org.uk/wml" class="wml-logo"> </a>
-                </div>
-                <div class="cell auto">
-                  <a href="${request.route_url('explore')}" class="explore-logo">Explore the Ancient Egypt Collection
-                  <span class="label warning">Beta</span></a>
-                </div>
-                <div class="cell shrink text-right">
-                  <a href="http://informatik.uni-halle.de" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <nav id="breadcrumbs">
-            <div class="grid-container">
-              <ul class="breadcrumbs">
-                <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore.group', gid=parent.id)}"><span class="ellipsis" title="${parent.title}">${parent.title}</span></a></li>
-                <li title="${hierarchy[-1].title}"><span class="show-for-sr">Current: </span> <span class="ellipsis">${hierarchy[-1].title}</span></li>
-              </ul>
-            </div>
-          </nav>
-        </header>
+        <py:include href="museum_map:templates/_header.kajiki"/>
         <article class="cell auto cell-block-container">
           <div class="grid-x cell-block-y">
             <aside class="cell medium-5 large-4 xlarge-3">
@@ -134,15 +91,17 @@
             </section>
           </div>
         </article>
+        <py:include href="museum_map:templates/_footer.kajiki"/>
       </div>
       <div id="overlay">
         <div class="background"></div>
         <div class="spinner"><img src="${request.static_url('museum_map:static/images/loading-black.svg')}"/></div>
       </div>
     </div>
-    <script src="${request.static_url('museum_map:static/application.js')}"></script>
+  </py:block>
+  <py:block name="body_script">
     <script>
     $('#app').app();
     </script>
-  </body>
-</html>
+  </py:block>
+</py:extends>

@@ -1,6 +1,7 @@
 0.0.6dev
 ========
 
+* *NEW*: Added 404 page
 * *UPDATE*: Standardise command-line parameters
 
 0.0.5

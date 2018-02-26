@@ -1,0 +1,16 @@
+<py:extends href="museum_map:templates/layout.kajiki">
+  <py:block name="title">404 - The grave-robbers beat you to it</py:block>
+  <py:block name="content">
+    <div class="grid-y grid-frame">
+      <py:include href="museum_map:templates/_header.kajiki"/>
+      <div class="cell auto">
+        <div class="grid-container">
+          <h1>404 - The grave-robbers beat you to it</h1>
+          <p>This room is empty. There are scuffed marks that indicate that something might have once been here. Or not.
+            In any case, you are probably best going <a href="${request.route_url('explore')}">back to the entrance</a> to explore further.</p>
+        </div>
+      </div>
+      <py:include href="museum_map:templates/_footer.kajiki"/>
+    </div>
+  </py:block>
+</py:extends>

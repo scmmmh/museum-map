@@ -1,0 +1,10 @@
+<footer class="cell shrink">
+  <div class="grid-x">
+    <div class="cell medium-6">
+      <a href="">Click here to learn more</a> about how this application works.
+    </div>
+    <div class="cell medium-6 text-right">
+      Version 0.0.6
+    </div>
+  </div>
+</footer>
