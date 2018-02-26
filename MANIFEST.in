@@ -1,2 +1,2 @@
 include *.rst *.json
-recursive-include src *.txt *.kajiki
+recursive-include src *.txt *.kajiki *.js *.css *.svg *.jpg
