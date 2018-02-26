@@ -21,7 +21,7 @@ class Group(Base, AttributesMixin):
     attributes = Column(MutableDict.as_mutable(JSONUnicodeText))
 
     parent = relationship('Group', remote_side=[id])
-    children = relationship('Group', remote_side=[parent_id], order_by='Group.order')
+    children = relationship('Group', remote_side=[parent_id], order_by='Group.order', cascade=('save-update', 'delete'))
     items = relationship('Item', secondary=groups_items)
 
 Index('group', groups_items.c.group_id)

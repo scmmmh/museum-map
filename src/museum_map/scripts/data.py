@@ -314,10 +314,16 @@ def generate_hierarchy(config_uri):
     """Generate the item hierarchy structure."""
     settings = get_appsettings(config_uri)
     session_factory = get_session_factory(get_engine(settings))
+    click.echo('Removing old group assignments', nl=False)
+    with transaction.manager:
+        dbsession = get_tm_session(session_factory, transaction.manager)
+        for root in dbsession.query(Group).filter(Group.parent_id == None):
+            dbsession.delete(root)
+    click.echo('\rRemoving old group assignments %s' % click.style('✓', fg='green'))
     with transaction.manager:
         click.echo('Initial group assignment', nl=False)
         dbsession = get_tm_session(session_factory, transaction.manager)
-        group = Group(title='Root')
+        group = Group(title='Ancient Egypt')
         dbsession.add(group)
         for item in dbsession.query(Item):
             group.items.append(item)
