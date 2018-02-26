@@ -2,6 +2,7 @@
 ========
 
 * *NEW*: Added 404 page
+* *UPDATE*: Improve image caching on the client
 * *UPDATE*: Standardise command-line parameters
 
 0.0.5
