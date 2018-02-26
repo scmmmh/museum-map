@@ -11,6 +11,7 @@ from pkg_resources import resource_string
 @click.option('--thread-count', default='4')
 @click.option('--proxy-prefix', default='/')
 @click.option('--proxy-scheme', default='http')
+@click.option('--more-info-url', default='http://informatik.uni-halle.de')
 @click.command()
 def generate_config(config_uri, **kwargs):
     """Generate a new configuration file."""

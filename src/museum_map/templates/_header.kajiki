@@ -23,7 +23,7 @@
           <span class="label warning">Beta</span></a>
         </div>
         <div class="cell shrink text-right">
-          <a href="${get_config_setting(request, 'app.more_info_url', 'http://informatik.uni-halle.de', default='')}" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
+          <a href="${get_config_setting(request, 'app.more_info_url', default='http://informatik.uni-halle.de')}" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
         </div>
       </div>
     </div>
