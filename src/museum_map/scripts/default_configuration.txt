@@ -6,6 +6,7 @@
 
 # App Configuration
 app.cache_dir = ${cache_dir}
+app.more_info_url = ${more_info_url}
 
 # Database Configuration
 sqlalchemy.url = ${sqlalchemy_url}

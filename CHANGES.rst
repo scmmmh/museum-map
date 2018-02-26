@@ -2,6 +2,7 @@
 ========
 
 * *NEW*: Added 404 page
+* *NEW*: Made the MLU link configurable
 * *UPDATE*: Improve image caching on the client
 * *UPDATE*: Standardise command-line parameters
 

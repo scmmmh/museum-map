@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "abae32789f75aeefeafb8249fb97710db37f4bf272928ae234fa2d2f83f05a1a"
+            "sha256": "f5a3e7f6008e0a85d0c585d285a46c448fad0506b062093bbedacde18179cc38"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -29,6 +29,18 @@
         ]
     },
     "default": {
+        "aadict": {
+            "hashes": [
+                "sha256:a77328ac55dbb5735da99441870251befe135f687ab707a7a178561363b27704"
+            ],
+            "version": "==0.2.3"
+        },
+        "asset": {
+            "hashes": [
+                "sha256:addb25dbdbfa820c667e246f9c09122401df21cd9e94db919c72f8f04fc972eb"
+            ],
+            "version": "==0.6.12"
+        },
         "certifi": {
             "hashes": [
                 "sha256:14131608ad2fd56836d33a71ee60fa1c82bc9d2c8d98b7bdbc631fe1b3cd1296",
@@ -103,6 +115,12 @@
                 "sha256:3c0066db64a98436e751e56414f03f1cdea54f29364c0632c141c36cca6a5d94"
             ],
             "version": "==4.4.3"
+        },
+        "globre": {
+            "hashes": [
+                "sha256:ee214204f237e9114b8f61eeb61c2abd1e665ca3b59e5a6a0b070971c0bb12e2"
+            ],
+            "version": "==0.1.5"
         },
         "html5lib": {
             "hashes": [

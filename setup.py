@@ -22,6 +22,7 @@ requires = [
     'waitress',
     'kajiki',
     'pywebtools>=1.1.3',
+    'asset'
 ]
 
 tests_require = [
