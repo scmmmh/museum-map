@@ -9,7 +9,7 @@ from ..models import get_engine
 
 @click.command()
 @click.option('--drop-existing', is_flag=True, help='Drop the existing database structure')
-@click.argument('config_uri')
+@click.argument('config-uri')
 @click.argument('options', nargs=-1)
 def init_database(config_uri, drop_existing, options):
     """Initialise the database structure."""

@@ -1,3 +1,8 @@
+0.0.6dev
+========
+
+* *UPDATE*: Standardise command-line parameters
+
 0.0.5
 =====
 

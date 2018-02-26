@@ -20,8 +20,8 @@ def echo_line(text, nl=True):
 
 
 @click.command()
-@click.argument('config_uri')
-@click.argument('source_file', type=click.File('r'))
+@click.argument('config-uri')
+@click.argument('source-file', type=click.File('r'))
 def load_data(config_uri, source_file):
     """Load the JSON source file into the database."""
     settings = get_appsettings(config_uri)
@@ -309,7 +309,7 @@ def split_data(dbsession, group, filter_keys=None, progress=''):
 
 
 @click.command()
-@click.argument('config_uri')
+@click.argument('config-uri')
 def generate_hierarchy(config_uri):
     """Generate the item hierarchy structure."""
     settings = get_appsettings(config_uri)
@@ -334,7 +334,7 @@ def generate_hierarchy(config_uri):
 
 
 @click.command()
-@click.argument('config_uri')
+@click.argument('config-uri')
 def link_wikipedia(config_uri):
     """Link groups and items to Wikipedia articles."""
     settings = get_appsettings(config_uri)
