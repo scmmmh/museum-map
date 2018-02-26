@@ -11,7 +11,7 @@ from ..models import get_engine
 @click.option('--drop-existing', is_flag=True, help='Drop the existing database structure')
 @click.argument('config_uri')
 @click.argument('options', nargs=-1)
-def initdb(config_uri, drop_existing, options):
+def init_database(config_uri, drop_existing, options):
     """Initialise the database structure."""
     options = parse_vars(options)
     setup_logging(config_uri)

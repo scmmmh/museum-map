@@ -1,0 +1,74 @@
+#############################
+# Application Configuration #
+#############################
+
+[app:main]
+
+# App Configuration
+app.cache_dir = ${cache_dir}
+
+# Database Configuration
+sqlalchemy.url = ${sqlalchemy_url}
+
+# Pyramid Configuration
+kajiki.mode = ${kajiki_mode}
+
+pyramid.reload_templates = false
+pyramid.debug_authorization = false
+pyramid.debug_notfound = false
+pyramid.debug_routematch = false
+pyramid.default_locale_name = en
+pyramid.includes =
+
+retry.attempts = 3
+
+# DO NOT CHANGE
+use = egg:museum_map
+
+#############################
+# WSGI server configuration #
+#############################
+
+[server:main]
+use = egg:waitress#main
+listen = localhost:6543
+
+###############################################################################
+# Logging configuration                                                       #
+# https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/logging.html #
+###############################################################################
+
+[loggers]
+keys = root, museum_map, sqlalchemy
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = INFO
+handlers = console
+
+[logger_museum_map]
+level = DEBUG
+handlers =
+qualname = museum_map
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+# "level = INFO" logs SQL queries.
+# "level = DEBUG" logs SQL queries and results.
+# "level = WARN" logs neither.  (Recommended for production systems.)
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s %(levelname)-5.5s [%(name)s:%(lineno)s][%(threadName)s] %(message)s
