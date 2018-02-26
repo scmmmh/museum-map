@@ -1,0 +1,2 @@
+include *.rst *.json
+recursive-include src *.txt
