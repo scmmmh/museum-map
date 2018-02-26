@@ -14,7 +14,6 @@ requires = [
     'compound-jsonapi>=1.0.1',
     'plaster_pastedeploy',
     'pyramid >= 1.9a',
-    'pyramid_debugtoolbar',
     'pyramid_retry',
     'pyramid_tm',
     'SQLAlchemy',
