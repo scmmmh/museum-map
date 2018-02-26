@@ -4,8 +4,8 @@ from kajiki import TextTemplate
 from pkg_resources import resource_string
 
 
-@click.argument('config_uri', type=click.File('w'))
 @click.argument('sqlalchemy_url')
+@click.argument('config_uri', type=click.File('w'))
 @click.option('--cache_dir', default='%(here)s/cache_dir')
 @click.option('--kajiki_mode', default='xml')
 @click.command()
