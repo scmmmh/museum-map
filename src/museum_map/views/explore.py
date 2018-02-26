@@ -1,3 +1,4 @@
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
 
 from ..models import Group
@@ -10,9 +11,12 @@ def root(request):
         current = request.dbsession.query(Group).filter(Group.id == request.matchdict['gid']).first()
     else:
         current = root
-    hierarchy = []
-    parent = current
-    while parent is not None:
-        hierarchy.insert(0, parent)
-        parent = parent.parent
-    return {'root': root, 'current': current, 'hierarchy': hierarchy}
+    if current is not None:
+        hierarchy = []
+        parent = current
+        while parent is not None:
+            hierarchy.insert(0, parent)
+            parent = parent.parent
+        return {'root': root, 'current': current, 'hierarchy': hierarchy}
+    else:
+        raise HTTPNotFound()

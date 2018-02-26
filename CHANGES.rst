@@ -1,3 +1,8 @@
+0.0.7dev
+========
+
+* *BUGFIX*: Show the 404 page if a missing group is browsed to
+
 0.0.6
 =====
 
