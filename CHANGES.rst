@@ -1,5 +1,5 @@
-0.0.7dev
-========
+0.0.7
+=====
 
 * *BUGFIX*: Show the 404 page if a missing group is browsed to
 
