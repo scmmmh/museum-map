@@ -1,3 +1,8 @@
+0.0.5
+=====
+
+* *UPDATE*: Make the port number run-time configurable
+
 0.0.4
 =====
 

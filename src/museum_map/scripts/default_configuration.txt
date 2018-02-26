@@ -22,6 +22,9 @@ pyramid.includes =
 
 retry.attempts = 3
 
+# Proxy Configuration
+filter-with = proxy-prefix
+
 # DO NOT CHANGE
 use = egg:museum_map
 
@@ -31,7 +34,15 @@ use = egg:museum_map
 
 [server:main]
 use = egg:waitress#main
-listen = localhost:6543
+host = 127.0.0.1
+port = %(http_port)s
+threads = ${thread_count}
+
+[filter:proxy-prefix]
+use = egg:PasteDeploy#prefix
+prefix = ${proxy_prefix}
+scheme = ${proxy_scheme}
+
 
 ###############################################################################
 # Logging configuration                                                       #
