@@ -1,5 +1,5 @@
-0.0.6dev
-========
+0.0.6
+=====
 
 * *NEW*: Added 404 page
 * *NEW*: Made the MLU link configurable
