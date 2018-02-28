@@ -2,8 +2,13 @@ footer {
     background: #273d0e;
     color: #f0f0f0;
     font-weight: 300;
-    font-size: 80%;
-    padding: 0.5em 1em;
+    font-size: 8pt;
+    padding: 0.2rem 0.5rem;
+
+    @media screen and (min-height: 800px) {
+        font-size: 9pt;
+        padding: 0.5rem 1rem;
+    }
 
     a {
         color: #f0f0f0;

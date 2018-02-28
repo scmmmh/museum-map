@@ -5708,7 +5708,8 @@ a.thumbnail {
 
 header .world-museum-return {
   background: #222;
-  padding: 0.2rem 0; }
+  padding: 0.2rem 0;
+  font-size: 9pt; }
   header .world-museum-return .cell {
     padding-left: 9.375rem; }
   header .world-museum-return a:link, header .world-museum-return a:visited, header .world-museum-return a:hover {
@@ -5716,48 +5717,73 @@ header .world-museum-return {
     text-decoration: none; }
   header .world-museum-return a:hover {
     text-decoration: underline; }
+  @media screen and (min-height: 800px) {
+    header .world-museum-return {
+      font-size: 11pt; } }
 
 header .main-banner {
   background: linear-gradient(to bottom, #639b25, #49721b);
-  height: 6.25rem; }
+  height: 3.125rem; }
+  @media screen and (min-height: 800px) {
+    header .main-banner {
+      height: 6.25rem; } }
   header .main-banner div {
     height: 100%; }
   header .main-banner .cell:first-of-type {
     width: 9.375rem; }
   header .main-banner .nml-logo img {
-    height: 110%;
     position: relative;
-    top: -1.875rem; }
+    height: 200%;
+    top: -120%; }
+    @media screen and (min-height: 800px) {
+      header .main-banner .nml-logo img {
+        height: 110%;
+        top: -1.875rem; } }
   header .main-banner .wml-logo {
     background-image: url("http://www.liverpoolmuseums.org.uk/images/site-wide/venues/logos/wml.png");
     background-repeat: no-repeat;
-    background-position: 0 -210px;
+    background-position: 0 -201px;
     display: inline-block;
     width: 200px;
     height: 100%; }
     @media print, screen and (min-width: 64em) {
       header .main-banner .wml-logo {
         width: 300px; } }
+    @media screen and (max-height: 800px) {
+      header .main-banner .wml-logo {
+        background-size: 210px 300px; } }
+    @media screen and (min-height: 800px) {
+      header .main-banner .wml-logo {
+        background-position: 0 -210px; } }
   header .main-banner .explore-logo {
     display: inline-block;
     color: #fff;
-    font-size: 18pt;
-    padding-top: 2rem; }
+    font-size: 15pt;
+    padding-top: 0.7rem; }
+    @media screen and (min-height: 800px) {
+      header .main-banner .explore-logo {
+        font-size: 18pt;
+        padding-top: 2rem; } }
   header .main-banner .halle-logo {
     display: inline-block;
     height: 100%;
     box-sizing: border-box;
     padding: 0.5rem;
     background: #fff; }
+    header .main-banner .halle-logo img {
+      height: 100%; }
   header .main-banner .label.warning {
     position: relative;
     top: -0.9375rem; }
 
 header #breadcrumbs {
   background: #f0f0f0;
-  border-top: 3px solid #273d0e;
+  border-top: 2px solid #273d0e;
   margin: 0;
   padding: 0.5rem 0 0.5rem 0; }
+  @media screen and (min-height: 800px) {
+    header #breadcrumbs {
+      border-top: 3px solid #273d0e; } }
   header #breadcrumbs ul.breadcrumbs {
     font-weight: 900;
     overflow: auto;
@@ -5997,8 +6023,12 @@ footer {
   background: #273d0e;
   color: #f0f0f0;
   font-weight: 300;
-  font-size: 80%;
-  padding: 0.5em 1em; }
+  font-size: 8pt;
+  padding: 0.2rem 0.5rem; }
+  @media screen and (min-height: 800px) {
+    footer {
+      font-size: 9pt;
+      padding: 0.5rem 1rem; } }
   footer a {
     color: #f0f0f0;
     font-weight: 400; }
