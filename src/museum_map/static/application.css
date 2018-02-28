@@ -5757,14 +5757,17 @@ header #breadcrumbs {
   background: #f0f0f0;
   border-top: 3px solid #273d0e;
   margin: 0;
-  padding: 0.5rem 0; }
+  padding: 0.5rem 0 0.5rem 0; }
   header #breadcrumbs ul.breadcrumbs {
     font-weight: 900;
     overflow: auto;
     white-space: nowrap; }
+    header #breadcrumbs ul.breadcrumbs li {
+      line-height: 1; }
     header #breadcrumbs ul.breadcrumbs li::after {
-      vertical-align: top; }
+      vertical-align: bottom; }
     header #breadcrumbs ul.breadcrumbs a, header #breadcrumbs ul.breadcrumbs .ellipsis {
+      vertical-align: bottom;
       display: inline-block;
       overflow: hidden;
       text-overflow: ellipsis;

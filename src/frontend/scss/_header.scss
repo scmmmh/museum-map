@@ -74,18 +74,23 @@ header {
         background: #f0f0f0;
         border-top: 3px solid #273d0e;
         margin: 0;
-        padding: $global-margin / 2 0;
+        padding: $global-margin/2 0 $global-margin/2 0;
 
         ul.breadcrumbs {
             font-weight: 900;
             overflow: auto;
             white-space: nowrap;
 
+            li {
+                line-height: 1;
+            }
+
             li::after {
-                vertical-align: top;
+                vertical-align: bottom;
             }
 
             a, .ellipsis {
+                vertical-align: bottom;
                 display: inline-block;
                 overflow: hidden;
                 text-overflow: ellipsis;
