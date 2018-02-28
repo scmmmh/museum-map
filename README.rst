@@ -29,7 +29,7 @@ steps.
   $ pipenv run MuseumMap init_database production.ini --drop-existing
   $ pipenv run MuseumMap load_data production.ini PATH_TO_DATA_FILE
   $ pipenv run MuseumMap link_wikipedia production.ini
-  $ $ pipenv run MuseumMap generate_hierarchy production.ini
+  $ pipenv run MuseumMap generate_hierarchy production.ini
 
 Update
 ======
