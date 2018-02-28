@@ -5994,7 +5994,8 @@ footer {
   background: #273d0e;
   color: #f0f0f0;
   font-weight: 300;
-  padding: 0.5rem 1rem; }
+  font-size: 80%;
+  padding: 0.5em 1em; }
   footer a {
     color: #f0f0f0;
     font-weight: 400; }
