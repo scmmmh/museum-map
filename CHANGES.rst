@@ -1,3 +1,8 @@
+0.0.8dev
+========
+
+* *BUGFIX*: Fixed display issues on smaller displays
+
 0.0.7
 =====
 
