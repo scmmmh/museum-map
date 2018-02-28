@@ -5759,18 +5759,18 @@ header #breadcrumbs {
   margin: 0;
   padding: 0.5rem 0; }
   header #breadcrumbs ul.breadcrumbs {
-    font-weight: 900; }
-    header #breadcrumbs ul.breadcrumbs li {
-      position: relative; }
+    font-weight: 900;
+    overflow: auto;
+    white-space: nowrap; }
     header #breadcrumbs ul.breadcrumbs li::after {
       vertical-align: top; }
-    header #breadcrumbs ul.breadcrumbs .ellipsis {
+    header #breadcrumbs ul.breadcrumbs a, header #breadcrumbs ul.breadcrumbs .ellipsis {
       display: inline-block;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 15.625rem; }
-      header #breadcrumbs ul.breadcrumbs .ellipsis:hover {
+      header #breadcrumbs ul.breadcrumbs a:hover, header #breadcrumbs ul.breadcrumbs .ellipsis:hover {
         max-width: 31.25rem; }
 
 #overview {

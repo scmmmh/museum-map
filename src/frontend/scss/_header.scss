@@ -78,16 +78,14 @@ header {
 
         ul.breadcrumbs {
             font-weight: 900;
+            overflow: auto;
+            white-space: nowrap;
 
-            li {
-                position: relative;
-
-            }
             li::after {
                 vertical-align: top;
             }
 
-            .ellipsis {
+            a, .ellipsis {
                 display: inline-block;
                 overflow: hidden;
                 text-overflow: ellipsis;

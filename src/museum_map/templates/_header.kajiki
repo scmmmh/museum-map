@@ -31,7 +31,7 @@
   <nav id="breadcrumbs">
     <div class="grid-container">
       <ul class="breadcrumbs">
-        <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore.group', gid=parent.id)}"><span class="ellipsis" title="${parent.title}">${parent.title}</span></a></li>
+        <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore.group', gid=parent.id)}">${parent.title}</a></li>
         <li title="${hierarchy[-1].title}"><span class="show-for-sr">Current: </span> <span class="ellipsis">${hierarchy[-1].title}</span></li>
       </ul>
     </div>
