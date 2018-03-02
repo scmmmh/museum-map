@@ -3,4 +3,5 @@ def includeme(config):
     config.add_route('root', '/')
     config.add_route('explore', '/explore')
     config.add_route('explore.group', '/explore/{gid}')
+    config.add_route('overview', '/overview')
     config.add_route('image.cache', '/images/*path')

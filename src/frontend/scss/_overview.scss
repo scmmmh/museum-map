@@ -1,91 +1,71 @@
 #overview {
-    padding-top: rem-calc(50);
-
-    .outline {
-        border: 1px solid #222;
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        left: 0px;
-        top: 0px;
-    }
-
-    a.outline {
-        .title {
-            font-weight: 300;
-            font-size: rem-calc(14);
-            color: #222;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 95%;
-        }
-
-        &:hover, &.is-active {
-            box-shadow: 0 0 5px #222;
-            z-index: 10;
-        }
-
-        &:hover::after {
-            content: attr(data-title);
-            font-weight: 300;
-            font-size: rem-calc(14);
-            display: block;
-            position: absolute;
-            left: 0;
-            top: calc(100% + 1px);
-            width: 100%;
-            min-width: rem-calc(100);
-            z-index: 2;
-            background: #fff;
-            padding: 0.2rem 0.3rem;
-            box-shadow: 0 0 2px #222;
-        }
-    }
+    padding: rem-calc(10);
 
     .floor {
-        position: relative;
-        height: rem-calc(250);
-        box-sizing: border-box;
-        margin: 0 $global-margin rem-calc(70) $global-margin;
+        margin-bottom: $global-margin;
 
-        > a {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            transform: translate(0, -100%);
-            box-sizing: border-box;
+        h3 {
+            font-size: rem-calc(14);
+            font-weight: 900;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            font-weight: 900;
-            padding: $global-margin $global-margin $global-margin / 3 $global-margin;
         }
+    }
 
-        &:last-child {
-            margin-bottom: rem-calc(100);
-        }
+    .room-container {
+        position: relative;
 
-        .area {
+        a {
             position: absolute;
+            box-sizing: border-box;
+            border: 1px solid #222;
+            background: #f0f0f0;
 
-            &.horizontal {
-                height: 100%;
+            &.is-active {
+                box-shadow: 0 0 5px $primary-color;
+                border: 1px solid $primary-color;
             }
-            &.vertical {
-                width: 100%;
+
+            &:hover {
+                box-shadow: 0 0 5px #222;
+                z-index: 10;
+
+                &::after {
+                    content: attr(data-title);
+                    font-weight: 300;
+                    font-size: rem-calc(14);
+                    display: block;
+                    position: absolute;
+                    top: calc(100% + 1px);
+                    width: 100%;
+                    min-width: rem-calc(100);
+                    z-index: 2;
+                    background: #fff;
+                    color: #222;
+                    padding: 0.2rem 0.3rem;
+                    box-shadow: 0 0 2px #222;
+                }
             }
-            &.theme {
-                background: #f0f0f0;
+            &.left:hover::after {
+                left: 0;
             }
-            &.room {
-                background: #f0f0f0;
+            &.right:hover::after {
+                right: 0;
+            }
+
+            .title {
+                font-weight: 300;
+                font-size: rem-calc(14);
+                color: #222;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 95%;
             }
         }
     }

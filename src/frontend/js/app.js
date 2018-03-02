@@ -6,19 +6,39 @@
         init: function(options) {
             return this.each(function() {
                 var component = $(this);
+                component.data('busy-counter', 0);
+
                 component.find('#infoblock .accordion').foundation()
                 component.find('#overview').overview();
                 component.find('#gallery').gallery();
+
                 component.on('click', '#breadcrumbs a', function(ev) {
                     ev.preventDefault();
                     component.app('load', $(this).attr('href'));
                 });
+
                 $(window).on('popstate', function(ev) {
                     component.app('fetch', window.location.href, false);
                 });
-                var path = document.location.href.split('/');
-                if (path[path.length - 1].match(/[0-9]+/)) {
-                    component.find('#overview').overview('highlight', path[path.length - 1]);
+            });
+        },
+        start_busy: function() {
+            return this.each(function() {
+                var component = $(this);
+                var overlay = component.find('#overlay');
+                component.data('busy-counter', component.data('busy-counter') + 1);
+                overlay.show();
+                setTimeout(function() { overlay.addClass('is-active'); }, 50);
+            });
+        },
+        end_busy: function() {
+            return this.each(function() {
+                var component = $(this);
+                component.data('busy-counter', component.data('busy-counter') - 1);
+                if(component.data('busy-counter') == 0) {
+                    var overlay = component.find('#overlay');
+                    overlay.removeClass('is-active');
+                    setTimeout(function() {overlay.hide();}, 500);
                 }
             });
         },

@@ -17,11 +17,7 @@
           <div class="grid-x cell-block-y">
             <aside class="cell medium-5 large-4 xlarge-3">
               <div class="grid-y cell-block-y">
-                <div id="overview" class="cell medium-7 large-7 xlarge-8 cell-block-y">
-                  <div py:for="floor in root.children" class="floor">
-                    <a href="${request.route_url('explore.group', gid=floor.id)}">${floor.title}</a>
-                    <div class="outline"> </div>${recursive_split(floor.children[0], floor.children[1:])}
-                  </div>
+                <div id="overview" class="cell medium-7 large-7 xlarge-8 cell-block-y" data-src="${request.route_url('overview')}">
                 </div>
                 <div id="infoblock" class="cell medium-5 large-5 xlarge-4 cell-block-y">
                   <div class="grid-y cell-block-y">

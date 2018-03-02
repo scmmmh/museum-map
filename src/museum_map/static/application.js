@@ -22278,19 +22278,39 @@ ResponsiveAccordionTabs.defaults = {};
         init: function(options) {
             return this.each(function() {
                 var component = $(this);
+                component.data('busy-counter', 0);
+
                 component.find('#infoblock .accordion').foundation()
                 component.find('#overview').overview();
                 component.find('#gallery').gallery();
+
                 component.on('click', '#breadcrumbs a', function(ev) {
                     ev.preventDefault();
                     component.app('load', $(this).attr('href'));
                 });
+
                 $(window).on('popstate', function(ev) {
                     component.app('fetch', window.location.href, false);
                 });
-                var path = document.location.href.split('/');
-                if (path[path.length - 1].match(/[0-9]+/)) {
-                    component.find('#overview').overview('highlight', path[path.length - 1]);
+            });
+        },
+        start_busy: function() {
+            return this.each(function() {
+                var component = $(this);
+                var overlay = component.find('#overlay');
+                component.data('busy-counter', component.data('busy-counter') + 1);
+                overlay.show();
+                setTimeout(function() { overlay.addClass('is-active'); }, 50);
+            });
+        },
+        end_busy: function() {
+            return this.each(function() {
+                var component = $(this);
+                component.data('busy-counter', component.data('busy-counter') - 1);
+                if(component.data('busy-counter') == 0) {
+                    var overlay = component.find('#overlay');
+                    overlay.removeClass('is-active');
+                    setTimeout(function() {overlay.hide();}, 500);
                 }
             });
         },
@@ -22465,12 +22485,21 @@ ResponsiveAccordionTabs.defaults = {};
         init : function(options) {
             return this.each(function() {
                 var component = $(this);
-                component.find('a').on('click', function(ev) {
+                var promise = $.ajax(component.data('src'), {
+                    data: {width: this.getBoundingClientRect().width - 35}
+                });
+                $('#app').app('start_busy');
+                promise.then(function(data) {
+                    component.empty();
+                    component.append($(data).children());
+                    var path = document.location.href.split('/');
+                    component.find('a#room-' + path[path.length - 1]).addClass('is-active');
+                    $('#app').app('end_busy');
+                });
+                component.on('click', 'a', function(ev) {
                     ev.preventDefault();
                     $('#app').app('load', $(this).attr('href'));
-                });
-                var path = document.location.href.split('/');
-                component.find('a#room-' + path[path.length - 1]).addClass('is-active');
+                })
             });
         }, highlight(iid) {
             return this.each(function() {
