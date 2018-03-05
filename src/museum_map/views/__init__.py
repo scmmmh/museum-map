@@ -5,4 +5,5 @@ from ..models import Group
 
 @view_config(route_name='root')
 def root(request):
-    raise HTTPFound(location=request.route_url('explore'))
+    group = request.dbsession.query(Group).filter(Group.parent_id == None).first()
+    raise HTTPFound(location=request.route_url('explore', gid=group.id))

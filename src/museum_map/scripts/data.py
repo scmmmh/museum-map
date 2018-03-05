@@ -11,7 +11,7 @@ from pyramid.scripts.common import parse_vars
 
 from ..models.meta import Base
 from ..models import (get_engine, get_session_factory, get_tm_session,
-                      Group, Item)
+                      Group, Item, Image)
 from ..ioschema import (ItemSchema, MaterialSchema, DynastySchema, ImageSchema, OwnerSchema, PlaceSchema, PersonSchema)
 
 
@@ -36,8 +36,29 @@ def load_data(config_uri, source_file):
         dbsession = get_tm_session(get_session_factory(get_engine(settings)), transaction.manager)
         with click.progressbar(data, label='Importing Items', fill_char='=') as data:
             for item_data in data:
-                item = Item(attributes=item_data)
-                dbsession.add(item)
+                if 'images' in item_data and item_data['images']:
+                    has_primary = {'thumbnail': False, 'medium': False, 'large': False}
+                    images = []
+                    for img_data in item_data['images']:
+                        if img_data['size'] == 'thumbnail':
+                            continue
+                        img = Image(path=img_data['path'],
+                                    size=img_data['size'],
+                                    width=img_data['width'],
+                                    height=img_data['height'],
+                                    primary=img_data['primary'])
+                        if has_primary[img.size] and img.primary:
+                            img.primary = False
+                        elif img.primary:
+                            has_primary[img.size] = True
+                        images.append(img)
+                    for img in images:
+                        if not has_primary[img.size]:
+                            img.primary = True
+                            has_primary[img.size] = True
+                    del item_data['images']
+                    item = Item(attributes=item_data, images=images)
+                    dbsession.add(item)
 
 
 KEYS = [('maker', None),

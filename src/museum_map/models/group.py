@@ -24,4 +24,4 @@ class Group(Base, AttributesMixin):
     children = relationship('Group', remote_side=[parent_id], order_by='Group.order', cascade=('save-update', 'delete'))
     items = relationship('Item', secondary=groups_items)
 
-Index('group', groups_items.c.group_id)
+Index('groups_items_group_id_ix', groups_items.c.group_id)

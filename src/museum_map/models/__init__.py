@@ -7,6 +7,7 @@ import zope.sqlalchemy
 # Base.metadata prior to any initialization routines
 from .item import Item  # flake8: noqa
 from .group import Group  # flake8: noqa
+from .image import Image  # flake8: noqa
 
 # run configure_mappers after defining all of the models to ensure
 # all relationships can be setup

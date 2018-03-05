@@ -13,3 +13,6 @@ class Item(Base, AttributesMixin):
     attributes = Column(MutableDict.as_mutable(JSONUnicodeText))
 
     groups = relationship('Group', secondary='groups_items')
+    images = relationship('Image')
+    primary_medium_img = relationship('Image', uselist=False, primaryjoin='and_(Item.id==Image.item_id, Image.primary==True, Image.size=="medium")')
+    primary_large_img = relationship('Image', uselist=False, primaryjoin='and_(Item.id==Image.item_id, Image.primary==True, Image.size=="large")')

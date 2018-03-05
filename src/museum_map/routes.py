@@ -6,4 +6,4 @@ def includeme(config):
     config.add_route('items', '/explore/{gid}/items')
     config.add_route('breadcrumbs', '/explore/{gid}/breadcrumbs')
     config.add_route('overview', '/overview')
-    config.add_route('image.cache', '/images/*path')
+    config.add_route('image', '/images/{iid}')
