@@ -30,23 +30,15 @@
         }
     }
     /**
-     * The gallery jQuery plugin handles interaction with the gallery interface
+     * The items jQuery plugin handles interaction with the items interface
      */
     var methods = {
         init : function(options) {
             return this.each(function() {
                 var component = $(this);
-                setLastMarkers(component);
-                component.find('li.item img').on('load', function() {
-                    setLastMarkers(component);
-                });
-                dynamicLoad(component);
-                component.parent().on('scroll', function() {
-                    dynamicLoad(component);
-                });
                 $(window).on('resize', function() {
                     dynamicLoad(component);
-                })
+                });
                 var currentDetails = null;
                 var currentMarker = null;
                 component.on('click', '.close a', function(ev) {
@@ -101,16 +93,35 @@
                     }
                 });
             });
+        },
+        fetch(url) {
+            return this.each(function() {
+                var component = $(this);
+                $('#app').app('start_busy');
+                var promise = $.ajax(url);
+                promise.then(function(data) {
+                    component.empty();
+                    component.append($(data));
+                    component.find('li.item img').on('load', function() {
+                        setLastMarkers(component);
+                    });
+                    dynamicLoad(component);
+                    component.parent().on('scroll', function() {
+                        dynamicLoad(component);
+                    });
+                    $('#app').app('end_busy');
+                });
+            });
         }
     };
 
-    $.fn.gallery = function(method) {
+    $.fn.items = function(method) {
         if (methods[method]) {
             return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
         } else if (typeof method === 'object' || !method) {
             return methods.init.apply(this, arguments);
         } else {
-            $.error('Method ' + method + ' does not exist on jQuery.gallery');
+            $.error('Method ' + method + ' does not exist on jQuery.items');
         }
     };
 }(jQuery));

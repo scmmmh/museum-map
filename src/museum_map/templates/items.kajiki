@@ -1,0 +1,45 @@
+<ul>
+  <?py import json ?>
+  <py:for each="item in group.items">
+    <py:if test="item['images']">
+      <li id="item-${item.id}" class="item" data-attributes="${json.dumps(item.attributes)}" data-details="details-${item.id}"><a href="#">
+        <picture data-src="${request.route_url('image.cache', path='%s/v0_medium.jpg' % item['images'][0]['path'].replace('\\', '/'))}" class="pre-load">
+          <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt="${item['title']}"/>
+        </picture>
+        <span class="title">${item['title']}</span>
+      </a></li>
+      <li id="details-${item.id}" style="display:none;" class="details">
+        <div class="marker"> </div>
+        <div class="grid-x grid-padding-x content">
+          <div class="close"><a href="#">🞨</a></div>
+          <div class="cell medium-6 cell-block-y text-center">
+            <div class="grid-y cell-block-y justify-items-center">
+              <div class="cell shrink max-height">
+                <picture data-src="${request.route_url('image.cache', path='%s/v0_large.jpg' % item['images'][0]['path'].replace('\\', '/'))}" class="pre-load">
+                  <img src="${request.static_url('museum_map:static/images/loading-black.svg')}" alt=""/>
+                </picture>
+              </div>
+            </div>
+          </div>
+          <div class="cell medium-6 cell-block-y content-text">
+            <div class="grid-y cell-block-y">
+              <div class="cell shrink">
+                <h2>${item['title']}</h2>
+              </div>
+              <div class="cell auto cell-block-y">
+                <p py:if="item['description']" class="description">${item['description']}</p>
+                <p py:if="item['note']" class="note">${item['note']}</p>
+                <div class="grid-x medium-1 large-up-2 xlarge-up-4 metadata">
+                  <div py:for="category, label in [('category', 'Type'), ('culture', 'Culture'), ('materials', 'Materials'), ('measurements', 'Measurements'), ('date_made', 'Date made'), ('place_made', 'Made in'), ('maker', 'Made by'), ('collector', 'Collector'), ('date_collected', 'Date collected'), ('accession_no', 'Accession No')]" py:if="item[category]" class="cell" data-attribute="${category}">
+                    <h3>${category}</h3>
+                    <p><py:if test="isinstance(item[category], list)">${', '.join([c['term'] for c in item[category]])}</py:if><py:else>${item[category]}</py:else></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </py:if>
+  </py:for>
+</ul>

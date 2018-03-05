@@ -22282,7 +22282,7 @@ ResponsiveAccordionTabs.defaults = {};
 
                 component.find('#infoblock').infoblock();
                 component.find('#overview').overview();
-                component.find('#gallery').gallery();
+                component.find('#items').items();
 
                 component.on('click', '#breadcrumbs a', function(ev) {
                     ev.preventDefault();
@@ -22317,32 +22317,8 @@ ResponsiveAccordionTabs.defaults = {};
         load: function(url) {
             return this.each(function() {
                 var component = $(this);
-                component.app('fetch', url);
                 component.find('#infoblock').infoblock('fetch', url + '/infoblock');
-            });
-        },
-        fetch: function(url, updateHistory) {
-            return this.each(function() {
-                var component = $(this);
-                component.app('start_busy');
-                var promise = $.ajax(url);
-                promise.then(function(data) {
-                    data = $(data);
-                    var gallery = data.find('#gallery');
-                    component.find('#gallery').replaceWith(gallery);
-                    var breadcrumbs = data.find('#breadcrumbs');
-                    component.find('#breadcrumbs').replaceWith(breadcrumbs);
-                    document.title = data.filter('title').html();
-                    setTimeout(function() { gallery.gallery(); }, 50);
-                    if (updateHistory) {
-                        history.pushState(null, document.title, url);
-                    }
-                    var path = document.location.href.split('/');
-                    if (path[path.length - 1].match(/[0-9]+/)) {
-                        component.find('#overview').overview('highlight', path[path.length - 1]);
-                    }
-                    component.app('end_busy');
-                });
+                component.find('#items').items('fetch', url + '/items');
             });
         }
     };
@@ -22354,6 +22330,42 @@ ResponsiveAccordionTabs.defaults = {};
             return methods.init.apply(this, arguments);
         } else {
             $.error('Method ' + method + ' does not exist on jQuery.app');
+        }
+    };
+}(jQuery));
+
+(function($) {
+    /**
+     * The infoblock jQuery plugin handles the overview map
+     */
+    var methods = {
+        init : function(options) {
+            return this.each(function() {
+                var component = $(this);
+            });
+        },
+        fetch(url) {
+            return this.each(function() {
+                var component = $(this);
+                $('#app').app('start_busy');
+                var promise = $.ajax(url);
+                promise.then(function(data) {
+                    component.empty();
+                    component.append($(data));
+                    component.find('.accordion').foundation();
+                    $('#app').app('end_busy');
+                });
+            });
+        }
+    };
+
+    $.fn.infoblock = function(method) {
+        if (methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof method === 'object' || !method) {
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error('Method ' + method + ' does not exist on jQuery.infoblock');
         }
     };
 }(jQuery));
@@ -22390,23 +22402,15 @@ ResponsiveAccordionTabs.defaults = {};
         }
     }
     /**
-     * The gallery jQuery plugin handles interaction with the gallery interface
+     * The items jQuery plugin handles interaction with the items interface
      */
     var methods = {
         init : function(options) {
             return this.each(function() {
                 var component = $(this);
-                setLastMarkers(component);
-                component.find('li.item img').on('load', function() {
-                    setLastMarkers(component);
-                });
-                dynamicLoad(component);
-                component.parent().on('scroll', function() {
-                    dynamicLoad(component);
-                });
                 $(window).on('resize', function() {
                     dynamicLoad(component);
-                })
+                });
                 var currentDetails = null;
                 var currentMarker = null;
                 component.on('click', '.close a', function(ev) {
@@ -22461,29 +22465,6 @@ ResponsiveAccordionTabs.defaults = {};
                     }
                 });
             });
-        }
-    };
-
-    $.fn.gallery = function(method) {
-        if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === 'object' || !method) {
-            return methods.init.apply(this, arguments);
-        } else {
-            $.error('Method ' + method + ' does not exist on jQuery.gallery');
-        }
-    };
-}(jQuery));
-
-(function($) {
-    /**
-     * The infoblock jQuery plugin handles the overview map
-     */
-    var methods = {
-        init : function(options) {
-            return this.each(function() {
-                var component = $(this);
-            });
         },
         fetch(url) {
             return this.each(function() {
@@ -22493,20 +22474,26 @@ ResponsiveAccordionTabs.defaults = {};
                 promise.then(function(data) {
                     component.empty();
                     component.append($(data));
-                    component.find('.accordion').foundation();
+                    component.find('li.item img').on('load', function() {
+                        setLastMarkers(component);
+                    });
+                    dynamicLoad(component);
+                    component.parent().on('scroll', function() {
+                        dynamicLoad(component);
+                    });
                     $('#app').app('end_busy');
                 });
             });
         }
     };
 
-    $.fn.infoblock = function(method) {
+    $.fn.items = function(method) {
         if (methods[method]) {
             return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
         } else if (typeof method === 'object' || !method) {
             return methods.init.apply(this, arguments);
         } else {
-            $.error('Method ' + method + ' does not exist on jQuery.infoblock');
+            $.error('Method ' + method + ' does not exist on jQuery.items');
         }
     };
 }(jQuery));

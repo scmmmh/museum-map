@@ -5866,42 +5866,42 @@ header #breadcrumbs {
   #infoblock .accordion-content {
     font-weight: 300; }
 
-#gallery {
+#items ul {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
   margin: 0 0.9375rem 0.9375rem 1.25rem;
   position: relative; }
-  #gallery li.title {
+  #items ul li.title {
     list-style-type: none;
     border-bottom: 2px solid #222;
     width: 100%; }
-    #gallery li.title h1 {
+    #items ul li.title h1 {
       font-size: 1.5rem; }
-  #gallery li.item {
+  #items ul li.item {
     flex: 0 0 auto;
     width: auto;
     margin-right: 0.3125rem;
     margin-left: 0.3125rem;
     list-style-type: none;
     margin-top: 1.25rem; }
-    #gallery li.item a {
+    #items ul li.item a {
       display: block;
       box-sizing: border-box;
       max-width: 300px;
       height: 168px;
       line-height: 168px;
       position: relative; }
-      #gallery li.item a:hover span.title {
+      #items ul li.item a:hover span.title {
         opacity: 0.8; }
-    #gallery li.item.selected span.title {
+    #items ul li.item.selected span.title {
       opacity: 0.8; }
-    #gallery li.item img {
+    #items ul li.item img {
       max-height: 160px;
       max-width: 300px;
       display: inline;
       vertical-align: middle; }
-    #gallery li.item span.title {
+    #items ul li.item span.title {
       color: #ddd;
       background: #222;
       z-index: 1;
@@ -5917,23 +5917,23 @@ header #breadcrumbs {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap; }
-  #gallery li.details {
+  #items ul li.details {
     width: 100%;
     margin-top: 0;
     list-style-type: none;
     position: relative; }
-    #gallery li.details .close {
+    #items ul li.details .close {
       position: absolute;
       top: 0.3125rem;
       right: 0.3125rem; }
       @media print, screen and (min-width: 64em) {
-        #gallery li.details .close {
+        #items ul li.details .close {
           top: 1.25rem;
           right: 1.25rem; } }
-      #gallery li.details .close a {
+      #items ul li.details .close a {
         font-size: 1.5625rem;
         color: #888; }
-    #gallery li.details .marker::before {
+    #items ul li.details .marker::before {
       display: block;
       width: 0;
       height: 0;
@@ -5942,38 +5942,38 @@ header #breadcrumbs {
       border-top-width: 0;
       border-bottom-style: solid;
       border-color: transparent transparent #222; }
-    #gallery li.details .content {
+    #items ul li.details .content {
       height: 35vh;
       background: #222;
       color: #d6d6d6;
       padding: 0.625rem;
       align-items: center; }
       @media print, screen and (min-width: 64em) {
-        #gallery li.details .content {
+        #items ul li.details .content {
           height: 50vh;
           padding: 1.875rem; } }
-      #gallery li.details .content h2 {
+      #items ul li.details .content h2 {
         font-size: 1.125rem; }
         @media print, screen and (min-width: 64em) {
-          #gallery li.details .content h2 {
+          #items ul li.details .content h2 {
             font-size: 1.5rem; } }
-      #gallery li.details .content .description, #gallery li.details .content .note {
+      #items ul li.details .content .description, #items ul li.details .content .note {
         font-size: 1.0625rem;
         font-weight: 300;
         color: #d6d6d6; }
-      #gallery li.details .content .metadata {
+      #items ul li.details .content .metadata {
         color: #d6d6d6;
         margin-top: 3.125rem; }
-        #gallery li.details .content .metadata h3 {
+        #items ul li.details .content .metadata h3 {
           color: #aaaaaa;
           font-size: 0.9375rem;
           font-variant: small-caps; }
-        #gallery li.details .content .metadata p {
+        #items ul li.details .content .metadata p {
           font-size: 1rem;
           font-weight: 300; }
-        #gallery li.details .content .metadata div {
+        #items ul li.details .content .metadata div {
           padding-right: 1rem; }
-      #gallery li.details .content img {
+      #items ul li.details .content img {
         max-height: 100%;
         vertical-align: middle; }
 
