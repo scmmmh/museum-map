@@ -81,13 +81,13 @@
                                 $('#' + currentDetails).slideUp({done: function() {dynamicLoad(component);}});
                             }
                             details.slideDown();
-                            if (marker[0].offsetTop < component.parent()[0].scrollTop) {
-                                component.parent().animate({scrollTop: marker[0].offsetTop - 50});
-                            } else if (marker[0].offsetTop > component.parent()[0].scrollTop + component.parent()[0].offsetHeight / 2 - 200) {
+                            if (marker[0].offsetTop < component[0].scrollTop) {
+                                component.animate({scrollTop: marker[0].offsetTop - 50});
+                            } else if (marker[0].offsetTop > component[0].scrollTop + component[0].offsetHeight / 2 - 200) {
                                 if (currentDetails) {
-                                    component.parent().animate({scrollTop: marker[0].offsetTop - component.parent()[0].offsetHeight / 2 - 50});
+                                    component.animate({scrollTop: marker[0].offsetTop - component[0].offsetHeight / 2 - 50});
                                 } else {
-                                    component.parent().animate({scrollTop: marker[0].offsetTop - 50});
+                                    component.animate({scrollTop: marker[0].offsetTop - 50});
                                 }
                             }
                         }
