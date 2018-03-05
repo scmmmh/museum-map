@@ -22564,6 +22564,27 @@ ResponsiveAccordionTabs.defaults = {};
                     component.append($(data).children());
                     var path = document.location.href.split('/');
                     component.find('a#room-' + path[path.length - 1]).addClass('is-active');
+                    component.find('.room-container a').each(function() {
+                        var room = $(this);
+                        var bbox = this.getBoundingClientRect();
+                        var horiz = Math.floor((bbox.width - 12) / 60);
+                        var vert = Math.floor((bbox.height - 42) / 60);
+                        if(vert * 60 + 42 + 50 <= bbox.height) {
+                            vert = vert + 1;
+                        }
+                        var max_samples = 0;
+                        if(horiz > 1 && vert > 1) {
+                            max_samples = Math.min(Math.floor((horiz * vert) / 2) * 2, Math.floor(10 / horiz) * horiz);
+                        } else if((horiz == 1 && vert >= 1) || (horiz >= 1 && vert == 1)) {
+                            max_samples = Math.min(horiz * vert, 10);
+                        }
+                        var samples = room.data('samples');
+                        var sample_container = $('<span class="image-samples"></span>');
+                        for(var idx = 0; idx < max_samples; idx++) {
+                            sample_container.append('<span class="image-sample"><img src="' + samples[idx] + '"/></span>')
+                        }
+                        room.append(sample_container);
+                    });
                     $('#app').app('end_busy');
                 });
                 component.on('click', 'a', function(ev) {

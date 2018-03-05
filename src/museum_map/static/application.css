@@ -5854,6 +5854,23 @@ header #breadcrumbs {
         text-overflow: ellipsis;
         white-space: nowrap;
         max-width: calc(100% - 20px); }
+      #overview .room-container a .image-samples {
+        display: block;
+        padding: 2.5rem 0 0 0.625rem;
+        box-sizing: border-box;
+        max-height: 100%;
+        max-width: 100%;
+        overflow: hidden; }
+        #overview .room-container a .image-samples .image-sample {
+          display: inline-block;
+          width: 3.125rem;
+          height: 3.125rem;
+          overflow: hidden;
+          margin-right: 0.625rem;
+          margin-bottom: 0.625rem; }
+          #overview .room-container a .image-samples .image-sample img {
+            min-height: 100%;
+            min-width: 100%; }
 
 #infoblock {
   padding: 1rem 0 1rem 1rem; }
