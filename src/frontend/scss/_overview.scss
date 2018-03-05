@@ -59,13 +59,12 @@
                 font-size: rem-calc(14);
                 color: #222;
                 position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
+                top: rem-calc(10);
+                left: rem-calc(10);
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                max-width: 95%;
+                max-width: calc(100% - 20px);
             }
         }
     }
