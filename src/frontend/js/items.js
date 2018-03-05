@@ -2,7 +2,7 @@
     function setLastMarkers(component) {
         var y = undefined;
         var previous = undefined;
-        component.children('li.item').each(function() {
+        component.find('li.item').each(function() {
             var top = this.getBoundingClientRect().top;
             if (y !== top) {
                 if (previous) {
@@ -39,11 +39,11 @@
                 $(window).on('resize', function() {
                     dynamicLoad(component);
                 });
-                var currentDetails = null;
-                var currentMarker = null;
                 component.on('scroll', function() {
                     dynamicLoad(component);
                 });
+                var currentDetails = null;
+                var currentMarker = null;
                 component.on('click', '.close a', function(ev) {
                     ev.preventDefault();
                     component.find('.selected').removeClass('selected');
