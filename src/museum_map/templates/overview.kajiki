@@ -1,8 +1,8 @@
 <div>
   <section py:for="floor in floors" class="floor">
-    <h3><a href="${request.route_url('explore.group', gid=floor['floor'].id)}" title="${floor['floor'].title}">${floor['floor'].title}</a></h3>
+    <h3><a href="${request.route_url('explore', gid=floor['floor'].id)}" title="${floor['floor'].title}">${floor['floor'].title}</a></h3>
     <div class="room-container" style="height:${height}px;">
-      <a py:for="room, bbox in floor['items']" id="room-${room.id}" class="${'right' if bbox['left'] > width / 2 else 'left'}" style="top:${bbox['top']}px;left:${bbox['left']}px;width:${bbox['width']}px;height:${bbox['height']}px;" href="${request.route_url('explore.group', gid=room.id)}" data-title="${room.title}"><span class="title">${room.title}</span></a>
+      <a py:for="room, bbox in floor['items']" id="room-${room.id}" class="${'right' if bbox['left'] > width / 2 else 'left'}" style="top:${bbox['top']}px;left:${bbox['left']}px;width:${bbox['width']}px;height:${bbox['height']}px;" href="${request.route_url('explore', gid=room.id)}" data-title="${room.title}"><span class="title">${room.title}</span></a>
     </div>
   </section>
 </div>

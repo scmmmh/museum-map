@@ -11,6 +11,7 @@
                 component.find('#infoblock').infoblock();
                 component.find('#overview').overview();
                 component.find('#items').items();
+                component.find('#breadcrumbs').breadcrumbs();
 
                 component.on('click', '#breadcrumbs a', function(ev) {
                     ev.preventDefault();
@@ -47,6 +48,7 @@
                 var component = $(this);
                 component.find('#infoblock').infoblock('fetch', url + '/infoblock');
                 component.find('#items').items('fetch', url + '/items');
+                component.find('#breadcrumbs').breadcrumbs('fetch', url + '/breadcrumbs');
             });
         }
     };

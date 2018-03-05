@@ -1,15 +1,6 @@
 <py:extends href="museum_map:templates/layout.kajiki">
-  <py:block name="title">${current.title}</py:block>
+  <py:block name="title">Loading...</py:block>
   <py:block name="content">
-    <?py import json ?>
-    <py:def function="head_area_style(split_point, horizontal, corridor_width)">${'width:' if horizontal else 'height:'}calc(${split_point}% - ${corridor_width}px);</py:def>
-    <py:def function="tail_area_style(split_point, horizontal, corridor_width)">${'left:' if horizontal else 'top:'}calc(${split_point}% + ${corridor_width if corridor_width != 0 else -1}px);${'width:' if horizontal else 'height:'}calc(${100-split_point}% - ${corridor_width if corridor_width != 0 else -1}px);</py:def>
-    <py:def function="clickable_outline(area)"><a id="room-${area.id}" class="outline" href="${request.route_url('explore.group', gid=area.id)}" data-title="${area.title}"><span class="title">${area.title}</span></a></py:def>
-    <py:def function="recursive_split(head, tail, horizontal=True, show_children=True, corridor_width=5)">
-      <?py split_point = max(25, 100 / (len(head.items) + sum([len(t.items) for t in tail])) * len(head.items)) ?>
-      <div class="area ${'horizontal' if horizontal else 'vertical'} ${'room' if corridor_width == 0 else 'theme'}" style="${head_area_style(split_point, horizontal, corridor_width)}"><py:if test="show_children and len(head.children) > 0">${recursive_split(head.children[0], head.children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(head)}</py:else></div>
-      <div class="area ${'horizontal' if horizontal else 'vertical'} ${'' if len(tail) != 1 else 'room' if corridor_width == 0 else 'theme'}" style="${tail_area_style(split_point, horizontal, corridor_width)}"><py:if test="len(tail) > 1">${recursive_split(tail[0], tail[1:], not horizontal, show_children, corridor_width)}</py:if><py:else><py:if test="show_children and len(tail[0].children) > 0">${recursive_split(tail[0].children[0], tail[0].children[1:], True, False, 0)}</py:if><py:else>${clickable_outline(tail[0])}</py:else></py:else></div>
-    </py:def>
     <div id="app">
       <div class="grid-y grid-frame">
         <py:include href="museum_map:templates/_header.kajiki"/>
