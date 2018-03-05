@@ -1,6 +1,7 @@
 0.0.8dev
 ========
 
+* *UPDATE*: Internal refactoring
 * *BUGFIX*: Fixed display issues on smaller displays
 
 0.0.7
