@@ -20,22 +20,6 @@
                 <div id="overview" class="cell medium-7 large-7 xlarge-8 cell-block-y" data-src="${request.route_url('overview')}">
                 </div>
                 <div id="infoblock" class="cell medium-5 large-5 xlarge-4 cell-block-y">
-                  <div class="grid-y cell-block-y">
-                    <div class="cell shrink">
-                      <h2>Notes</h2>
-                    </div>
-                    <div class="cell auto cell-block-y">
-                      <ul py:if="'wikipedia' in current" class="accordion" data-accordion="" data-allow-all-closed="true">
-                        <li py:for="article in current['wikipedia']" class="accordion-item" data-accordion-item="">
-                          <a href="#" class="accordion-title">${article['title']}</a>
-                          <div class="accordion-content" data-tab-content="">
-                            ${literal(article['blocks'][0])}
-                            <p><a href="https://en.wikipedia.org/wiki/${article['title']}" target="_blank">Read more</a></p>
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
                 </div>
               </div>
             </aside>

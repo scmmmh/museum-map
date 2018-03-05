@@ -1,0 +1,16 @@
+<div class="grid-y cell-block-y">
+  <div class="cell shrink">
+    <h2>Notes</h2>
+  </div>
+  <div class="cell auto cell-block-y">
+    <ul py:if="'wikipedia' in group" class="accordion" data-accordion="" data-allow-all-closed="true">
+      <li py:for="article in group['wikipedia']" class="accordion-item" data-accordion-item="">
+        <a href="#" class="accordion-title">${article['title']}</a>
+        <div class="accordion-content" data-tab-content="">
+          ${literal(article['blocks'][0])}
+          <p><a href="https://en.wikipedia.org/wiki/${article['title']}" target="_blank">Read more</a></p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
