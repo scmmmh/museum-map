@@ -6,6 +6,10 @@
         init : function(options) {
             return this.each(function() {
                 var component = $(this);
+                component.on('click', 'a', function(ev) {
+                    ev.preventDefault();
+                    $('#app').app('load', $(this).attr('href'));
+                });
             });
         },
         fetch(url) {

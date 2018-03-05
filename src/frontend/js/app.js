@@ -8,18 +8,13 @@
                 var component = $(this);
                 component.data('busy-counter', 0);
 
-                component.find('#infoblock').infoblock();
                 component.find('#overview').overview();
-                component.find('#items').items();
-                component.find('#breadcrumbs').breadcrumbs();
-
-                component.on('click', '#breadcrumbs a', function(ev) {
-                    ev.preventDefault();
-                    component.app('load', $(this).attr('href'));
-                });
+                component.find('#infoblock').infoblock().infoblock('fetch', document.location.href + '/infoblock');
+                component.find('#items').items().items('fetch', document.location.href + '/items');
+                component.find('#breadcrumbs').breadcrumbs().breadcrumbs('fetch', document.location.href + '/breadcrumbs');
 
                 $(window).on('popstate', function(ev) {
-                    component.app('fetch', window.location.href, false);
+                    component.app('load', window.location.href, false);
                 });
             });
         },
@@ -43,12 +38,20 @@
                 }
             });
         },
-        load: function(url) {
+        load: function(url, add_history) {
+            if(add_history === undefined) {
+                add_history = true;
+            }
             return this.each(function() {
                 var component = $(this);
+                var path = url.split('/');
+                component.find('#overview').overview('highlight', path[path.length - 1]);
                 component.find('#infoblock').infoblock('fetch', url + '/infoblock');
                 component.find('#items').items('fetch', url + '/items');
                 component.find('#breadcrumbs').breadcrumbs('fetch', url + '/breadcrumbs');
+                if(add_history) {
+                    history.pushState(null, '', url);
+                }
             });
         }
     };

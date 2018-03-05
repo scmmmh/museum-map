@@ -22,7 +22,8 @@
                     $('#app').app('load', $(this).attr('href'));
                 })
             });
-        }, highlight(iid) {
+        },
+        highlight(iid) {
             return this.each(function() {
                 var component = $(this);
                 component.find('a.is-active').removeClass('is-active');

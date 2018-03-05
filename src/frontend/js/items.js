@@ -18,8 +18,8 @@
 
     function dynamicLoad(component) {
         if (component.parent().length > 0) {
-            var top = component.parent()[0].scrollTop;
-            var bottom = top + component.parent()[0].offsetHeight + 200;
+            var top = component[0].scrollTop;
+            var bottom = top + component[0].offsetHeight + 200;
             component.find('li.item picture.pre-load').each(function() {
                 var picture = $(this);
                 var itemTop = picture.parents('li.item')[0].offsetTop;
@@ -41,6 +41,9 @@
                 });
                 var currentDetails = null;
                 var currentMarker = null;
+                component.on('scroll', function() {
+                    dynamicLoad(component);
+                });
                 component.on('click', '.close a', function(ev) {
                     ev.preventDefault();
                     component.find('.selected').removeClass('selected');
