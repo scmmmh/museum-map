@@ -1,6 +1,7 @@
 import os
 import requests
 
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
 from pyramid.response import Response, FileResponse
 from pywebtools.pyramid.util import get_config_setting
@@ -23,3 +24,5 @@ def root(request):
             with open(cache_path, 'wb') as out_f:
                 out_f.write(data)
         return Response(data, content_type='image/jpeg')
+    else:
+        raise HTTPNotFound()

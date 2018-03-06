@@ -6,4 +6,7 @@ from ..models import Group
 @view_config(route_name='items', renderer='museum_map:templates/items.kajiki')
 def items(request):
     group = request.dbsession.query(Group).filter(Group.id == request.matchdict['gid']).first()
-    return {'group': group}
+    if group is not None:
+        return {'group': group}
+    else:
+        raise HTTPNotFound()

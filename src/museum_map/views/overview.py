@@ -47,20 +47,21 @@ def split_space(items, bbox, corridor_width=2, allow_children=True):
 @view_config(route_name='overview', renderer='museum_map:templates/overview.kajiki')
 def overview(request):
     root = request.dbsession.query(Group).filter(Group.parent_id == None).first()
-    if root is None:
-        raise HTTPNotFound()
-    try:
-        width = int(request.params['width'])
-    except Exception:
+    if root is not None:
         try:
-            width = math.floor(float(request.params['width']))
+            width = int(request.params['width'])
         except Exception:
-            width = 200
-    height = math.ceil(width * (1 / ((1 + math.sqrt(5))/ 2)))
-    corridor_width = math.ceil(width / 100)
-    floors = []
-    for floor in root.children:
-        bbox = {'top': 0, 'left': 0, 'width': width, 'height': height}
-        rooms, bboxes = split_space(list(floor.children), bbox, corridor_width=corridor_width)
-        floors.append({'floor': floor, 'items': zip(rooms, bboxes)})
-    return {'floors': floors, 'height': height, 'width': width}
+            try:
+                width = math.floor(float(request.params['width']))
+            except Exception:
+                width = 200
+        height = math.ceil(width * (1 / ((1 + math.sqrt(5))/ 2)))
+        corridor_width = math.ceil(width / 100)
+        floors = []
+        for floor in root.children:
+            bbox = {'top': 0, 'left': 0, 'width': width, 'height': height}
+            rooms, bboxes = split_space(list(floor.children), bbox, corridor_width=corridor_width)
+            floors.append({'floor': floor, 'items': zip(rooms, bboxes)})
+        return {'floors': floors, 'height': height, 'width': width}
+    else:
+        raise HTTPNotFound()
