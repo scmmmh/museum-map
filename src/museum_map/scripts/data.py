@@ -1,5 +1,6 @@
 import click
 import json
+import math
 import requests
 import spacy
 import transaction
@@ -90,6 +91,19 @@ def best_effort_bins(values, target_bin_count):
                     min_value = bins[idx]['total'] + count - target
             bins[min_bin]['values'].append(value)
             bins[min_bin]['total'] = bins[idx]['total'] + count
+    avg = sum([bin['total'] for bin in bins]) / len(bins)
+    idx = 0
+    while idx < len(bins):
+        if bins[idx]['total'] < avg / 3:
+            if idx > 0:
+                bins[idx - 1]['values'].extend(bins[idx]['values'])
+                bins[idx - 1]['total'] = bins[idx - 1]['total'] + bins[idx]['total']
+            else:
+                bins[idx + 1]['values'].extend(bins[idx]['values'])
+                bins[idx + 1]['total'] = bins[idx + 1]['total'] + bins[idx]['total']
+            del bins[idx]
+        else:
+            idx = idx + 1
     return bins
 
 
@@ -352,6 +366,37 @@ def generate_hierarchy(config_uri):
         click.echo('Generating group assignments', nl=False)
         split_data(dbsession, group)
         echo_line('\rGenerating group assignments %s' % click.style('✓', fg='green'))
+        click.echo('Postprocessing', nl=False)
+        avg = sum([len(c.items) for c in group.children]) / len(group.children)
+        order = 0
+        for idx, child in enumerate(list(group.children)):
+            child.order = order
+            if len(child.items) > avg * 2:
+                total = 0
+                groups = []
+                counter = 1
+                child_groups = list(child.children)
+                child.children = []
+                for sub_child in child_groups:
+                    groups.append(sub_child)
+                    total = total + len(sub_child.items)
+                    if total > avg:
+                        new_child = Group(title='%s %s' % (child.title, counter), parent=group, order=order + counter - 1)
+                        for tmp_group in groups:
+                            tmp_group.parent = new_child
+                            new_child.items.extend(tmp_group.items)
+                        dbsession.add(new_child)
+                        groups = []
+                        total = 0
+                        counter = counter + 1
+                for tmp_group in groups:
+                    tmp_group.parent = new_child
+                    new_child.items.extend(tmp_group.items)
+                dbsession.delete(child)
+                order = order + counter - 1
+            else:
+                order = order + 1
+        click.echo('\rPostprocessing %s' % click.style('✓', fg='green'))
 
 
 @click.command()
