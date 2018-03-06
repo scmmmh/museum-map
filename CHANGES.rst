@@ -1,5 +1,5 @@
-0.0.8dev
-========
+1.0
+===
 
 * *UPDATE*: JS loading for all components for improved speed
 * *UPDATE*: Internal refactoring
