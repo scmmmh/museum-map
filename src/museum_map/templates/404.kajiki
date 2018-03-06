@@ -7,7 +7,7 @@
         <div class="grid-container">
           <h1>404 - The grave-robbers beat you to it</h1>
           <p>This room is empty. There are scuffed marks that indicate that something might have once been here. Or not.
-            In any case, you are probably best going <a href="${request.route_url('explore')}">back to the entrance</a> to explore further.</p>
+            In any case, you are probably best going <a href="${request.route_url('root')}">back to the entrance</a> to explore further.</p>
         </div>
       </div>
       <py:include href="museum_map:templates/_footer.kajiki"/>
