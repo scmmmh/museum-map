@@ -389,11 +389,13 @@ def generate_hierarchy(config_uri):
                         groups = []
                         total = 0
                         counter = counter + 1
+                if len(groups) > 1:
+                    new_child = Group(title='%s %s' % (child.title, counter), parent=group, order=order + counter - 1)
                 for tmp_group in groups:
                     tmp_group.parent = new_child
                     new_child.items.extend(tmp_group.items)
                 dbsession.delete(child)
-                order = order + counter - 1
+                order = order + counter
             else:
                 order = order + 1
         click.echo('\rPostprocessing %s' % click.style('✓', fg='green'))
