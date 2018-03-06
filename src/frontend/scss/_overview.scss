@@ -4,6 +4,10 @@
     .floor {
         margin-bottom: $global-margin;
 
+        &:last-of-type {
+            margin-bottom: rem-calc(100);
+        }
+
         h3 {
             font-size: rem-calc(14);
             font-weight: 900;

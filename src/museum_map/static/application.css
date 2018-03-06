@@ -5806,6 +5806,8 @@ header #breadcrumbs {
   padding: 0.625rem; }
   #overview .floor {
     margin-bottom: 1rem; }
+    #overview .floor:last-of-type {
+      margin-bottom: 6.25rem; }
     #overview .floor h3 {
       font-size: 0.875rem;
       font-weight: 900;
