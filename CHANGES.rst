@@ -1,6 +1,7 @@
 0.0.8dev
 ========
 
+* *UPDATE*: JS loading for all components for improved speed
 * *UPDATE*: Internal refactoring
 * *BUGFIX*: Fixed display issues on smaller displays
 
