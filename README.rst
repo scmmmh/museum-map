@@ -29,12 +29,20 @@ The database user and password need to be set up once:
 
 The first command will ask for a password to be used when configuring the application.
 
-Initial Fetch
+Initial Setup
 =============
+
+Fetch the source
 
 .. sourcecode:: console
 
-  $ hg clone ssh://hg@bitbucket.org/mhall/museum-map
+  $ hg clone https://bitbucket.org/mhall/museum-map
+
+Create a cache directory in the checked-out code:
+
+.. sourcecode:: console
+
+  $ mkdir cache
 
 (Re)build
 =========
