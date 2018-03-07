@@ -5,6 +5,11 @@ verify_ssl = true
 name = "pypi"
 
 
+[pipenv]
+
+allow_prereleases = true
+
+
 [packages]
 
 spacy = "*"
