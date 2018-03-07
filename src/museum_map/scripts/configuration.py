@@ -12,6 +12,8 @@ from pkg_resources import resource_string
 @click.option('--proxy-prefix', default='/')
 @click.option('--proxy-scheme', default='http')
 @click.option('--more-info-url', default='http://informatik.uni-halle.de')
+@click.option('--host', default='127.0.0.1')
+@click.option('--port', default='%(http_port)s')
 @click.command()
 def generate_config(config_uri, **kwargs):
     """Generate a new configuration file."""

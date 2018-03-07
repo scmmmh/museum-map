@@ -35,8 +35,8 @@ use = egg:museum_map
 
 [server:main]
 use = egg:waitress#main
-host = 127.0.0.1
-port = %(http_port)s
+host = ${host}
+port = ${port}
 threads = ${thread_count}
 
 [filter:proxy-prefix]

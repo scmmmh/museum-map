@@ -1,3 +1,8 @@
+1.0.1dev
+========
+
+* *UPDATE*: Added host and port configuration settings in the generate_config script
+
 1.0
 ===
 

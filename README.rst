@@ -20,6 +20,15 @@ The following core Debian packages are required:
 * Python Packages
   * Pipenv: sudo pip3 install pipenv
 
+The database user and password need to be set up once:
+
+.. sourcecode:: console
+
+  $ sudo -u postgres /usr/bin/createuser -P DBUSER
+  $ sudo -u postgres /usr/bin/createdb --owner=DBUSER DBNAME
+
+The first command will ask for a password to be used when configuring the application.
+
 Initial Fetch
 =============
 
@@ -31,7 +40,7 @@ Initial Fetch
 =========
 
 Updates the software and (re-)runs the full installation and data processing
-steps.
+steps:
 
 .. sourcecode:: console
 
@@ -40,11 +49,18 @@ steps.
   $ pipenv run pip install .
   $ pipenv run pip install psycopg2
   $ pipenv run python -m spacy download en
-  $ pipenv run MuseumMap generate_config production.ini SQLALCHEMY_CONNECTION_STRING
+  $ pipenv run MuseumMap generate_config production.ini postgresql+psycopg2://DBUSER:DBPASS@localhost/DBNAME
   $ pipenv run MuseumMap init_database production.ini --drop-existing
   $ pipenv run MuseumMap load_data production.ini PATH_TO_DATA_FILE
   $ pipenv run MuseumMap generate_hierarchy production.ini
   $ pipenv run MuseumMap link_wikipedia production.ini
+
+By default the server runs only on localhost. To run it on an external IP, replace the ``MuseumMap generate_config``
+line with the following:
+
+.. sourcecode:: console
+
+  $ pipenv run MuseumMap generate_config production.ini postgresql+psycopg2://DBUSER:DBPASS@localhost/DBNAME --host IP
 
 Update
 ======
