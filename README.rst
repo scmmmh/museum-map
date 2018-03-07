@@ -45,6 +45,7 @@ steps:
 .. sourcecode:: console
 
   $ hg pull --update
+  $ export PIPENV_VENV_IN_PROJECT=True
   $ pipenv install --three
   $ pipenv run pip install .
   $ pipenv run pip install psycopg2
@@ -70,5 +71,6 @@ Updates the software and dependencies, but does not touch the data
 .. sourcecode:: console
 
   $ hg pull --update
+  $ export PIPENV_VENV_IN_PROJECT=True
   $ pipenv install
   $ pipenv run pip install .
