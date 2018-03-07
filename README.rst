@@ -5,6 +5,21 @@ Museum Map
 Run the instruction for the initial fetch first. Then all further command
 sets should be run inside the checked out directory.
 
+Dependencies
+============
+
+The following core Debian packages are required:
+
+* Software Packages
+  * PostgreSQL server: postgresql
+  * Python 3: python3
+  * Python 3 dev: python3-dev
+  * Libxslt dev: libxslt1-dev
+  * Pip: python3-pip
+  * Supervisor: supervisor
+* Python Packages
+  * Pipenv: sudo pip3 install pipenv
+
 Initial Fetch
 =============
 
@@ -28,8 +43,8 @@ steps.
   $ pipenv run MuseumMap generate_config production.ini SQLALCHEMY_CONNECTION_STRING
   $ pipenv run MuseumMap init_database production.ini --drop-existing
   $ pipenv run MuseumMap load_data production.ini PATH_TO_DATA_FILE
-  $ pipenv run MuseumMap link_wikipedia production.ini
   $ pipenv run MuseumMap generate_hierarchy production.ini
+  $ pipenv run MuseumMap link_wikipedia production.ini
 
 Update
 ======
