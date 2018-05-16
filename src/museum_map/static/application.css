@@ -5848,42 +5848,55 @@ header #breadcrumbs {
   #infoblock .accordion-content {
     font-weight: 300; }
 
-#items ul {
+#items ul.overview li {
+  list-style-type: none;
+  margin-top: 1.25rem; }
+
+#items ul.overview h2 {
+  font-size: 1.125rem;
+  margin-bottom: 0;
+  position: relative;
+  top: 0.625rem; }
+  #items ul.overview h2 a {
+    color: #626262; }
+    #items ul.overview h2 a:hover, #items ul.overview h2 a:focus {
+      text-decoration: underline; }
+
+#items ul.overview .welcome-message {
+  max-width: 63rem;
+  margin: 0 auto;
+  padding-right: 1rem; }
+
+#items ul.gallery {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
   margin: 0 0.9375rem 0.9375rem 1.25rem;
   position: relative; }
-  #items ul li.title {
-    list-style-type: none;
-    border-bottom: 2px solid #222;
-    width: 100%; }
-    #items ul li.title h1 {
-      font-size: 1.5rem; }
-  #items ul li.item {
+  #items ul.gallery li.item {
     flex: 0 0 auto;
     width: auto;
     margin-right: 0.3125rem;
     margin-left: 0.3125rem;
     list-style-type: none;
     margin-top: 1.25rem; }
-    #items ul li.item a {
+    #items ul.gallery li.item a {
       display: block;
       box-sizing: border-box;
       max-width: 300px;
       height: 168px;
       line-height: 168px;
       position: relative; }
-      #items ul li.item a:hover span.title {
+      #items ul.gallery li.item a:hover span.title {
         opacity: 0.8; }
-    #items ul li.item.selected span.title {
+    #items ul.gallery li.item.selected span.title {
       opacity: 0.8; }
-    #items ul li.item img {
+    #items ul.gallery li.item img {
       max-height: 160px;
       max-width: 300px;
       display: inline;
       vertical-align: middle; }
-    #items ul li.item span.title {
+    #items ul.gallery li.item span.title {
       color: #ddd;
       background: #222;
       z-index: 1;
@@ -5899,23 +5912,23 @@ header #breadcrumbs {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap; }
-  #items ul li.details {
+  #items ul.gallery li.details {
     width: 100%;
     margin-top: 0;
     list-style-type: none;
     position: relative; }
-    #items ul li.details .close {
+    #items ul.gallery li.details .close {
       position: absolute;
       top: 0.3125rem;
       right: 0.3125rem; }
       @media print, screen and (min-width: 64em) {
-        #items ul li.details .close {
+        #items ul.gallery li.details .close {
           top: 1.25rem;
           right: 1.25rem; } }
-      #items ul li.details .close a {
+      #items ul.gallery li.details .close a {
         font-size: 1.5625rem;
         color: #888; }
-    #items ul li.details .marker::before {
+    #items ul.gallery li.details .marker::before {
       display: block;
       width: 0;
       height: 0;
@@ -5924,38 +5937,38 @@ header #breadcrumbs {
       border-top-width: 0;
       border-bottom-style: solid;
       border-color: transparent transparent #222; }
-    #items ul li.details .content {
+    #items ul.gallery li.details .content {
       height: 35vh;
       background: #222;
       color: #d6d6d6;
       padding: 0.625rem;
       align-items: center; }
       @media print, screen and (min-width: 64em) {
-        #items ul li.details .content {
+        #items ul.gallery li.details .content {
           height: 50vh;
           padding: 1.875rem; } }
-      #items ul li.details .content h2 {
+      #items ul.gallery li.details .content h2, #items ul.gallery li.details .content h3 {
         font-size: 1.125rem; }
         @media print, screen and (min-width: 64em) {
-          #items ul li.details .content h2 {
+          #items ul.gallery li.details .content h2, #items ul.gallery li.details .content h3 {
             font-size: 1.5rem; } }
-      #items ul li.details .content .description, #items ul li.details .content .note {
+      #items ul.gallery li.details .content .description, #items ul.gallery li.details .content .note {
         font-size: 1.0625rem;
         font-weight: 300;
         color: #d6d6d6; }
-      #items ul li.details .content .metadata {
+      #items ul.gallery li.details .content .metadata {
         color: #d6d6d6;
         margin-top: 3.125rem; }
-        #items ul li.details .content .metadata h3 {
+        #items ul.gallery li.details .content .metadata h3 {
           color: #aaaaaa;
           font-size: 0.9375rem;
           font-variant: small-caps; }
-        #items ul li.details .content .metadata p {
+        #items ul.gallery li.details .content .metadata p {
           font-size: 1rem;
           font-weight: 300; }
-        #items ul li.details .content .metadata div {
+        #items ul.gallery li.details .content .metadata div {
           padding-right: 1rem; }
-      #items ul li.details .content img {
+      #items ul.gallery li.details .content img {
         max-height: 100%;
         vertical-align: middle; }
 

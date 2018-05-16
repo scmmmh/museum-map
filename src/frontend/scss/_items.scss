@@ -1,20 +1,37 @@
 #items {
+    ul.overview {
 
-    ul {
+        li {
+            list-style-type: none;
+            margin-top: rem-calc(20);
+        }
+
+        h2 {
+            font-size: rem-calc(18);
+            margin-bottom: 0;
+            position: relative;
+            top: rem-calc(10);
+
+            a {
+                color: #626262;
+
+                &:hover, &:focus {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .welcome-message {
+            max-width: 63rem;
+            margin: 0 auto;
+            padding-right: $global-margin;
+        }
+    }
+    ul.gallery {
         @include xy-grid('horizontal', true);
         justify-content: space-between;
         margin: 0 rem-calc(15) rem-calc(15) rem-calc(20);
         position: relative;
-
-        li.title {
-            list-style-type: none;
-            border-bottom: 2px solid #222;
-            width: 100%;
-
-            h1 {
-                font-size: rem-calc(24);
-            }
-        }
 
         li.item {
             @include xy-cell('shrink', true, 10);
@@ -103,7 +120,7 @@
                     padding: rem-calc(30);
                 }
 
-                h2 {
+                h2, h3 {
                     font-size: rem-calc(18);
 
                     @include breakpoint(large) {

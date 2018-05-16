@@ -1,6 +1,6 @@
 <div>
   <section py:for="floor in floors" class="floor">
-    <h3><a href="${request.route_url('explore', gid=floor['floor'].id)}" title="${floor['floor'].title}">${floor['floor'].title}</a></h3>
+    <h3><a href="${request.route_url('explore', gid=floor['floor'].id)}" title="${floor['floor'].title}" data-room="room-${floor['floor'].id}">${floor['floor'].title}</a></h3>
     <div class="grid-x">
       <div class="cell small-12 medium-6 large-4">
         <div class="room-container" style="height: ${height}px;">

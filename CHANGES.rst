@@ -1,6 +1,7 @@
 1.0.2
 =====
 
+* *NEW*: For the initial landing page and individual floors a faster item view with sample items is now used
 * *UPDATE*: Improved the overview map styling to show more information
 * *UPDATE*: Allow the same splitting key to be used at different hierarchy levels
 * *BUGFIX*: Load all images via https

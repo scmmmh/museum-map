@@ -22460,6 +22460,10 @@ ResponsiveAccordionTabs.defaults = {};
                 component.on('scroll', function() {
                     dynamicLoad(component);
                 });
+                component.on('click', 'li.room > h2 > a', function(ev) {
+                    ev.preventDefault();
+                    $('#app').app('load', $(this).attr('href'));
+                })
                 var currentDetails = null;
                 var currentMarker = null;
                 component.on('click', '.close a', function(ev) {
