@@ -3,6 +3,7 @@
 
 * *UPDATE*: Improved the overview map styling to show more information
 * *UPDATE*: Allow the same splitting key to be used at different hierarchy levels
+* *BUGFIX*: Load all images via https
 
 1.0.1
 =====
