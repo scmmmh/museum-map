@@ -339,7 +339,7 @@ def split_data(dbsession, group, filter_keys=None, progress=''):
                     if matches:
                         child_group.items.append(item)
                 echo_line('\rGenerating group assignments%s' % click.style('%s %i/%i' % (progress, idx + 1, bin_length), fg='yellow'), nl=False)
-                split_data(dbsession, child_group, filter_keys + [best_key[0]], '%s %i/%i' % (progress, idx + 1, bin_length))
+                split_data(dbsession, child_group, filter_keys, '%s %i/%i' % (progress, idx + 1, bin_length))
                 idx = idx + 1
 
 
