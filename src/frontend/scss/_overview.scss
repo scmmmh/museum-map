@@ -1,12 +1,13 @@
 #overview {
-    padding: rem-calc(10);
     font-size: rem-calc(14);
+    padding: rem-calc(10);
+    border-bottom: 1px solid $light-gray;
 
     .floor {
         margin-bottom: $global-margin;
 
         &:last-of-type {
-            margin-bottom: rem-calc(100);
+            margin-bottom: rem-calc(20);
         }
 
         h3 {

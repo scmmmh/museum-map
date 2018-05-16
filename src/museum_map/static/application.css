@@ -5803,12 +5803,13 @@ header #breadcrumbs {
         max-width: 31.25rem; }
 
 #overview {
+  font-size: 0.875rem;
   padding: 0.625rem;
-  font-size: 0.875rem; }
+  border-bottom: 1px solid #e6e6e6; }
   #overview .floor {
     margin-bottom: 1rem; }
     #overview .floor:last-of-type {
-      margin-bottom: 6.25rem; }
+      margin-bottom: 1.25rem; }
     #overview .floor h3 {
       font-size: 0.875rem;
       font-weight: 900;
