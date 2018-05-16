@@ -1,3 +1,8 @@
+1.0.2
+=====
+
+* *UPDATE*: Improved the overview map styling to show more information
+
 1.0.1
 =====
 

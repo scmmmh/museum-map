@@ -55,13 +55,13 @@ def overview(request):
                 width = math.floor(float(request.params['width']))
             except Exception:
                 width = 200
-        height = math.ceil(width * (1 / ((1 + math.sqrt(5))/ 2)))
+        height = math.ceil(width * 0.6)
         corridor_width = math.ceil(width / 100)
         floors = []
         for floor in root.children:
             bbox = {'top': 0, 'left': 0, 'width': width, 'height': height}
             rooms, bboxes = split_space(list(floor.children), bbox, corridor_width=corridor_width)
-            floors.append({'floor': floor, 'items': zip(rooms, bboxes)})
+            floors.append({'floor': floor, 'items': list(zip(rooms, bboxes))})
         return {'floors': floors, 'height': height, 'width': width}
     else:
         raise HTTPNotFound()

@@ -5803,7 +5803,8 @@ header #breadcrumbs {
         max-width: 31.25rem; }
 
 #overview {
-  padding: 0.625rem; }
+  padding: 0.625rem;
+  font-size: 0.875rem; }
   #overview .floor {
     margin-bottom: 1rem; }
     #overview .floor:last-of-type {
@@ -5814,6 +5815,15 @@ header #breadcrumbs {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis; }
+  #overview a {
+    color: #626262; }
+    #overview a.is-hovering, #overview a:hover, #overview a:focus {
+      text-decoration: underline; }
+    #overview a.is-active {
+      color: #5b8f22;
+      font-weight: bold; }
+  #overview .menu li a {
+    padding: 0.25rem 0; }
   #overview .room-container {
     position: relative; }
     #overview .room-container a {
@@ -5824,55 +5834,9 @@ header #breadcrumbs {
       #overview .room-container a.is-active {
         box-shadow: 0 0 5px #5b8f22;
         border: 1px solid #5b8f22; }
-      #overview .room-container a:hover {
-        box-shadow: 0 0 5px #222;
-        z-index: 10; }
-        #overview .room-container a:hover::after {
-          content: attr(data-title);
-          font-weight: 300;
-          font-size: 0.875rem;
-          display: block;
-          position: absolute;
-          top: calc(100% + 1px);
-          width: 100%;
-          min-width: 6.25rem;
-          z-index: 2;
-          background: #fff;
-          color: #222;
-          padding: 0.2rem 0.3rem;
-          box-shadow: 0 0 2px #222; }
-      #overview .room-container a.left:hover::after {
-        left: 0; }
-      #overview .room-container a.right:hover::after {
-        right: 0; }
-      #overview .room-container a .title {
-        font-weight: 300;
-        font-size: 0.875rem;
-        color: #222;
-        position: absolute;
-        top: 0.625rem;
-        left: 0.625rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: calc(100% - 20px); }
-      #overview .room-container a .image-samples {
-        display: block;
-        padding: 2.5rem 0 0 0.625rem;
-        box-sizing: border-box;
-        max-height: 100%;
-        max-width: 100%;
-        overflow: hidden; }
-        #overview .room-container a .image-samples .image-sample {
-          display: inline-block;
-          width: 3.125rem;
-          height: 3.125rem;
-          overflow: hidden;
-          margin-right: 0.625rem;
-          margin-bottom: 0.625rem; }
-          #overview .room-container a .image-samples .image-sample img {
-            min-height: 100%;
-            min-width: 100%; }
+      #overview .room-container a.is-hovering, #overview .room-container a:hover, #overview .room-container a:focus {
+        box-shadow: 0 0 5px #626262;
+        border: 1px solid #626262; }
 
 #infoblock {
   padding: 1rem 0 1rem 1rem; }
