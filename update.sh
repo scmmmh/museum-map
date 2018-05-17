@@ -1,3 +1,5 @@
 #!/bin/bash
 hg pull --update
-gulp
+export PIPENV_VENV_IN_PROJECT=True
+pipenv install
+pipenv run pip install .
