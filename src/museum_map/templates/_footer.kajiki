@@ -1,10 +1,10 @@
 <footer class="cell shrink">
   <?py from pywebtools.pyramid.util import get_config_setting ?>
   <div class="grid-x">
-    <div class="cell medium-6">
+    <div class="cell small-8 medium-6">
       <a href="${get_config_setting(request, 'app.more_info_url', default='http://informatik.uni-halle.de')}" target="_blank">Click here to learn more</a> about how this application works.
     </div>
-    <div class="cell medium-6 text-right">
+    <div class="cell small-4 medium-6 text-right">
       <?py import asset ?>
       Version ${asset.version('museum-map')}
     </div>

@@ -5,7 +5,11 @@ header {
         font-size: 9pt;
 
         .cell {
-            padding-left: rem-calc(150);
+            padding-left: rem-calc(50);
+
+            @include breakpoint(medium) {
+                padding-left: rem-calc(150);
+            }
         }
 
         a:link, a:visited, a:hover {
@@ -15,7 +19,7 @@ header {
         a:hover {
             text-decoration: underline;
         }
-        @media screen and (min-height: 800px) {
+        @include breakpoint(medium) {
             font-size: 11pt;
         }
     }
@@ -23,7 +27,7 @@ header {
         background: linear-gradient(to bottom, #639b25, #49721b);
         height: rem-calc(50);
 
-        @media screen and (min-height: 800px) {
+        @include breakpoint(medium) {
             height: rem-calc(100);
         }
 
@@ -32,7 +36,11 @@ header {
         }
 
         .cell:first-of-type {
-            width: rem-calc(150);
+            width: rem-calc(100);
+
+            @include breakpoint(medium) {
+                width: rem-calc(150);
+            }
         }
 
         .nml-logo {
@@ -41,7 +49,7 @@ header {
                 height: 200%;
                 top: -120%;
 
-                @media screen and (min-height: 800px) {
+                @include breakpoint(medium) {
                     height: 110%;
                     top: rem-calc(-30);
                 }
@@ -53,28 +61,23 @@ header {
             background-repeat: no-repeat;
             background-position: 0 -201px;
             display: inline-block;
-            width: 200px;
+            width: 150px;
             height: 100%;
+            background-size: 210px 300px;
 
-            @include breakpoint(large) {
-                width: 300px;
-            }
-            @media screen and (max-height: 800px) {
-                background-size: 210px 300px;
-            }
-            @media screen and (min-height: 800px) {
-                background-position: 0 -210px;
+            @include breakpoint(medium) {
+                background-position: 0 -90px;
             }
         }
 
         .explore-logo {
             display: inline-block;
             color: #fff;
-            font-size: 15pt;
-            padding-top: 0.7rem;
+            font-size: rem-calc(15);
+            padding-top: 1rem;
 
-            @media screen and (min-height: 800px) {
-                font-size: 18pt;
+            @include breakpoint(medium) {
+                font-size: rem-calc(18);
                 padding-top: 2rem;
             }
         }
@@ -103,7 +106,7 @@ header {
         margin: 0;
         padding: $global-margin/2 0 $global-margin/2 0;
 
-        @media screen and (min-height: 800px) {
+        @include breakpoint(medium) {
             border-top: 3px solid #273d0e;
         }
 

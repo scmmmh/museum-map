@@ -15,12 +15,12 @@
         <div class="cell shrink">
           <a href="http://www.liverpoolmuseums.org.uk" class="nml-logo"><img src="https://www.liverpoolmuseums.org.uk/redesign/images/logo-nml-white.png"/></a>
         </div>
-        <div class="cell shrink">
+        <div class="cell shrink show-for-medium">
           <a href="http://www.liverpoolmuseums.org.uk/wml" class="wml-logo"> </a>
         </div>
-        <div class="cell auto">
-          <a href="${request.route_url('root')}" class="explore-logo">Explore the Ancient Egypt Collection
-          <span class="label warning">Beta</span></a>
+        <div class="cell auto text-center">
+          <a href="${request.route_url('root')}" class="explore-logo"><span class="show-for-medium">Explore the </span>Ancient Egypt<span class="show-for-medium"> Collection</span>
+          <span class="label warning show-for-medium">Beta</span></a>
         </div>
         <div class="cell shrink text-right">
           <a href="${get_config_setting(request, 'app.more_info_url', default='http://informatik.uni-halle.de')}" target="_blank" class="halle-logo"><img src="${request.static_url('museum_map:static/images/uni_halle_logo.jpg')}"/></a>
@@ -36,4 +36,10 @@
       </ul>
     </div>
   </nav>
+  <div class="callout warning show-for-small-only" data-closable="">
+    Unfortunately the application has not yet been optimised for mobile devices. This is planned for future work.
+    <button class="close-button" aria-label="Close this message" type="button" data-close="">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 </header>
