@@ -5765,6 +5765,9 @@ header .main-banner {
       header .main-banner .explore-logo {
         font-size: 1.125rem;
         padding-top: 2rem; } }
+    @media print, screen and (min-width: 64em) {
+      header .main-banner .explore-logo {
+        font-size: 1.5rem; } }
   header .main-banner .halle-logo {
     display: inline-block;
     height: 100%;

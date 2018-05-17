@@ -80,6 +80,9 @@ header {
                 font-size: rem-calc(18);
                 padding-top: 2rem;
             }
+            @include breakpoint(large) {
+                font-size: rem-calc(24);
+            }
         }
 
         .halle-logo {
