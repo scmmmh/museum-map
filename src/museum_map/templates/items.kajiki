@@ -7,14 +7,14 @@
       <li py:if="group.parent is None">
         <div class="welcome-message">
           <div class="callout">
-          <p>Welcome to the Ancient Egypt Collection. Here you can explore almost 2000 of the World Museum's collection of artifacts from ancient Egypt.
-            You can discover a wide range of interesting objects including ancient weapons, toys and games, coffins, and personal ornaments.</p>
-          <p>To explore the collection use the overview floorplan on the left, which is organised into a number of floors and rooms. Click on either
-            the room or the room's title to see the items in that room. The size of each room gives you a rough idea of how many objects you can
-            expect to see.</p>
-          <p>The objects in a room are shown in a grid in the area below this message. To see details on an object, click on its image and you will
-            be shown a larger version of the image together with information on the object and where it has come from.</p>
-        </div>
+            <p>Welcome to the Ancient Egypt Collection. Here you can explore almost 2000 of the World Museum's collection of artifacts from ancient Egypt.
+              You can discover a wide range of interesting objects including ancient weapons, toys and games, coffins, and personal ornaments.</p>
+            <p>To explore the collection use the overview floorplan on the left, which is organised into a number of floors and rooms. Click on either
+              the room or the room's title to see the items in that room. The size of each room gives you a rough idea of how many objects you can
+              expect to see.</p>
+            <p>The objects in a room are shown in a grid in the area below this message. To see details on an object, click on its image and you will
+              be shown a larger version of the image together with information on the object and where it has come from.</p>
+          </div>
         </div>
       </li>
       <li py:for="child in group.children" class="room">
