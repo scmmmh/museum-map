@@ -5850,24 +5850,24 @@ header #breadcrumbs {
   #infoblock .accordion-content {
     font-weight: 300; }
 
-#items ul.overview li {
-  list-style-type: none;
-  margin-top: 1.25rem; }
-
-#items ul.overview h2 {
-  font-size: 1.125rem;
-  margin-bottom: 0;
-  position: relative;
-  top: 0.625rem; }
-  #items ul.overview h2 a {
-    color: #626262; }
-    #items ul.overview h2 a:hover, #items ul.overview h2 a:focus {
-      text-decoration: underline; }
-
-#items ul.overview .welcome-message {
-  max-width: 63rem;
-  margin: 0 auto;
-  padding-right: 1rem; }
+#items ul.overview {
+  position: relative; }
+  #items ul.overview li {
+    list-style-type: none;
+    margin-top: 1.25rem; }
+  #items ul.overview h2 {
+    font-size: 1.125rem;
+    margin-bottom: 0;
+    position: relative;
+    top: 0.625rem; }
+    #items ul.overview h2 a {
+      color: #626262; }
+      #items ul.overview h2 a:hover, #items ul.overview h2 a:focus {
+        text-decoration: underline; }
+  #items ul.overview .welcome-message {
+    max-width: 63rem;
+    margin: 0 auto;
+    padding-right: 1rem; }
 
 #items ul.gallery {
   display: flex;

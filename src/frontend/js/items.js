@@ -85,13 +85,17 @@
                                 $('#' + currentDetails).slideUp({done: function() {dynamicLoad(component);}});
                             }
                             details.slideDown();
-                            if (marker[0].offsetTop < component[0].scrollTop) {
-                                component.animate({scrollTop: marker[0].offsetTop - 50});
-                            } else if (marker[0].offsetTop > component[0].scrollTop + component[0].offsetHeight / 2 - 200) {
+                            var markerTop = marker[0].offsetTop
+                            if(marker.parents('.room').length > 0) {
+                                markerTop = markerTop + marker.parents('.room')[0].offsetTop;
+                            }
+                            if (markerTop < component[0].scrollTop) {
+                                component.animate({scrollTop: markerTop - 50});
+                            } else if (markerTop > component[0].scrollTop + component[0].offsetHeight / 2 - 200) {
                                 if (currentDetails) {
-                                    component.animate({scrollTop: marker[0].offsetTop - component[0].offsetHeight / 2 - 50});
+                                    component.animate({scrollTop: markerTop - component[0].offsetHeight / 2 - 50});
                                 } else {
-                                    component.animate({scrollTop: marker[0].offsetTop - 50});
+                                    component.animate({scrollTop: markerTop - 50});
                                 }
                             }
                         }
