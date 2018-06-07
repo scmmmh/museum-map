@@ -6,6 +6,12 @@
         init : function(options) {
             return this.each(function() {
                 var component = $(this);
+                component.on('down.zf.accordion', function(ev, panel) {
+                    $('#tracking').tracking('track', {'action': 'show-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
+                });
+                component.on('up.zf.accordion', function(ev, panel) {
+                    $('#tracking').tracking('track', {'action': 'hide-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
+                });
             });
         },
         fetch(url) {

@@ -14,16 +14,20 @@
                     var link = $(this);
                     if(link.attr('id')) {
                         component.find("a[data-room='" + link.attr('id') + "'], ul[data-room='" + link.attr('id') + "']").addClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-in', 'rid': link.attr('id')});
                     } else if(link.data('room')) {
                         component.find("a#" + link.data('room') + ", ul[data-room='" + link.data('room') + "']").addClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-in', 'rid': link.data('room')});
                     }
                 });
                 component.on('mouseout', 'a', function(ev) {
                     var link = $(this);
                     if(link.attr('id')) {
                         component.find("a[data-room='" + link.attr('id') + "'], ul[data-room='" + link.attr('id') + "']").removeClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-out', 'rid': link.attr('id')});
                     } else if(link.data('room')) {
                         component.find("a#" + link.data('room') + ", ul[data-room='" + link.data('room') + "']").removeClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-out', 'rid': link.data('room')});
                     }
                 });
                 $(window).on('resize', function() {

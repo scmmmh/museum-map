@@ -1,0 +1,43 @@
+#tracking {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: #222;
+    color: #fff;
+    z-index: 1;
+    border-top: 2px solid #273d0e;
+
+    label {
+        color: #fff;
+        cursor: pointer;
+    }
+}
+footer .tracking {
+    margin-bottom: -0.5rem;
+
+    & > label {
+        display: inline-block;
+        color: #f0f0f0;
+        font-weight: 300;
+        cursor: pointer;
+        position: relative;
+        top: -0.5rem;
+
+        @media screen and (min-height: 800px) {
+            font-size: 9pt;
+        }
+    }
+
+    & > a {
+        display: inline-block;
+        position: relative;
+        top: -0.5rem;
+        margin-left: 0.5rem;
+    }
+
+    .switch {
+        margin-bottom: 0;
+        display: inline-block;
+    }
+}

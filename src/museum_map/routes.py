@@ -7,3 +7,4 @@ def includeme(config):
     config.add_route('breadcrumbs', '/explore/{gid}/breadcrumbs')
     config.add_route('overview', '/overview')
     config.add_route('image', '/images/{iid}')
+    config.add_route('tracking', '/tracking')

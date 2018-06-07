@@ -22284,6 +22284,8 @@ ResponsiveAccordionTabs.defaults = {};
                 component.find('#infoblock').infoblock().infoblock('fetch', document.location.href + '/infoblock');
                 component.find('#items').items().items('fetch', document.location.href + '/items');
                 component.find('#breadcrumbs').breadcrumbs().breadcrumbs('fetch', document.location.href + '/breadcrumbs');
+                component.find('#tracking').tracking();
+                component.find('#tracking').tracking('track', {'action': 'load-url', 'url': document.location.href, 'add_history': true});
 
                 $(window).on('popstate', function(ev) {
                     component.app('load', window.location.href, false);
@@ -22321,6 +22323,7 @@ ResponsiveAccordionTabs.defaults = {};
                 component.find('#infoblock').infoblock('fetch', url + '/infoblock');
                 component.find('#items').items('fetch', url + '/items');
                 component.find('#breadcrumbs').breadcrumbs('fetch', url + '/breadcrumbs');
+                component.find('#tracking').tracking('track', {'action': 'load-url', 'url': url, 'add_history': add_history});
                 if(add_history) {
                     history.pushState(null, '', url);
                 }
@@ -22388,6 +22391,12 @@ ResponsiveAccordionTabs.defaults = {};
         init : function(options) {
             return this.each(function() {
                 var component = $(this);
+                component.on('down.zf.accordion', function(ev, panel) {
+                    $('#tracking').tracking('track', {'action': 'show-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
+                });
+                component.on('up.zf.accordion', function(ev, panel) {
+                    $('#tracking').tracking('track', {'action': 'hide-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
+                });
             });
         },
         fetch(url) {
@@ -22473,6 +22482,19 @@ ResponsiveAccordionTabs.defaults = {};
                     currentDetails = null;
                     currentMarker = null;
                 });
+                // Track mouse movement
+                component.on('mouseover', 'li.item', function(ev) {
+                    $('#tracking').tracking('track', {'action': 'item-hover-in', 'iid': $(this).attr('id')});
+                });
+                component.on('mouseout', 'li.item', function(ev) {
+                    $('#tracking').tracking('track', {'action': 'item-hover-out', 'iid': $(this).attr('id')});
+                });
+                component.on('mouseover', 'li.item > a > span', function(ev) {
+                    $('#tracking').tracking('track', {'action': 'item-hover-in', 'iid': $(this).parent().parent().attr('id')});
+                });
+                component.on('mouseout', 'li.item > a > span', function(ev) {
+                    $('#tracking').tracking('track', {'action': 'item-hover-out', 'iid': $(this).parent().parent().attr('id')});
+                });
                 component.on('click', 'li.item a', function(ev) {
                     ev.preventDefault();
                     var item = $(this).parent();
@@ -22482,6 +22504,7 @@ ResponsiveAccordionTabs.defaults = {};
                         details.slideUp({done: function() {dynamicLoad(component);}});
                         currentDetails = null;
                         currentMarker = null;
+                        $('#tracking').tracking('track', {'action': 'hide-item', 'iid': details.attr('id')});
                     } else {
                         var picture = details.find('picture.pre-load');
                         picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
@@ -22519,6 +22542,7 @@ ResponsiveAccordionTabs.defaults = {};
                         }
                         currentDetails = details.attr('id');
                         currentMarker = marker.attr('id');
+                        $('#tracking').tracking('track', {'action': 'show-item', 'iid': details.attr('id')});
                     }
                 });
             });
@@ -22571,16 +22595,20 @@ ResponsiveAccordionTabs.defaults = {};
                     var link = $(this);
                     if(link.attr('id')) {
                         component.find("a[data-room='" + link.attr('id') + "'], ul[data-room='" + link.attr('id') + "']").addClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-in', 'rid': link.attr('id')});
                     } else if(link.data('room')) {
                         component.find("a#" + link.data('room') + ", ul[data-room='" + link.data('room') + "']").addClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-in', 'rid': link.data('room')});
                     }
                 });
                 component.on('mouseout', 'a', function(ev) {
                     var link = $(this);
                     if(link.attr('id')) {
                         component.find("a[data-room='" + link.attr('id') + "'], ul[data-room='" + link.attr('id') + "']").removeClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-out', 'rid': link.attr('id')});
                     } else if(link.data('room')) {
                         component.find("a#" + link.data('room') + ", ul[data-room='" + link.data('room') + "']").removeClass('is-hovering');
+                        $('#tracking').tracking('track', {'action': 'overview-hover-out', 'rid': link.data('room')});
                     }
                 });
                 $(window).on('resize', function() {
@@ -22622,6 +22650,74 @@ ResponsiveAccordionTabs.defaults = {};
             return methods.init.apply(this, arguments);
         } else {
             $.error('Method ' + method + ' does not exist on jQuery.overview');
+        }
+    };
+}(jQuery));
+
+(function($) {
+    /**
+     * The tracking jQuery plugin handles the GDPR-compliant tracking system
+     */
+    var methods = {
+        init: function(options) {
+            return this.each(function() {
+                var component = $(this);
+
+                if(localStorage.getItem('museum-map-tracking') !== null) {
+                    component.hide();
+                }
+                if(localStorage.getItem('museum-map-tracking') === 'true') {
+                    $('footer label span').html('Thank you for contributing');
+                } else {
+                    $('footer label span').html('Your interactions are not being tracked');
+                }
+                $('*[name=tracking-switch]').prop('checked', localStorage.getItem('museum-map-tracking') === 'true');
+                $('input[name=tracking-switch]').on('change', function() {
+                    component.hide();
+                    var consented = $(this).filter(':checked').length > 0;
+                    localStorage.setItem('museum-map-tracking', consented);
+                    $('*[name=tracking-switch]').prop('checked', consented);
+                    if(consented) {
+                        $('footer label span').html('Thank you for contributing');
+                    } else {
+                        $('footer label span').html('Your interactions are not being tracked');
+                    }
+                });
+            });
+        },
+        track: function(data) {
+            return this.each(function() {
+                var component = $(this);
+                if(localStorage.getItem('museum-map-tracking') === 'true') {
+                    if(localStorage.getItem('musem-map-tracking-id') !== null) {
+                        data['uuid'] = localStorage.getItem('musem-map-tracking-id');
+                    }
+                    var promise = fetch(component.data('tracking-url'), {
+                        body: JSON.stringify(data),
+                        credentials: 'same-origin',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        method: 'POST',
+                        referrer: 'no-referrer'
+                    });
+                    promise.then(function(response) {
+                        response.json().then(function(data) {
+                            localStorage.setItem('musem-map-tracking-id', data.uuid);
+                        });
+                    });
+                }
+            });
+        }
+    };
+
+    $.fn.tracking = function(method) {
+        if (methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof method === 'object' || !method) {
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error('Method ' + method + ' does not exist on jQuery.tracking');
         }
     };
 }(jQuery));

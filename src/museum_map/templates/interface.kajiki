@@ -20,6 +20,7 @@
         </article>
         <py:include href="museum_map:templates/_footer.kajiki"/>
       </div>
+      <py:include href="museum_map:templates/_tracking.kajiki"/>
       <div id="overlay">
         <div class="background"></div>
         <div class="spinner"><img src="${request.static_url('museum_map:static/images/loading-black.svg')}"/></div>

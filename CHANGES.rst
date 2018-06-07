@@ -1,3 +1,8 @@
+1.1.0
+=====
+
+* *NEW*: Implemented a GDPR-conformant tracking system
+
 1.0.2
 =====
 

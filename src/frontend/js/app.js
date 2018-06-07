@@ -12,6 +12,8 @@
                 component.find('#infoblock').infoblock().infoblock('fetch', document.location.href + '/infoblock');
                 component.find('#items').items().items('fetch', document.location.href + '/items');
                 component.find('#breadcrumbs').breadcrumbs().breadcrumbs('fetch', document.location.href + '/breadcrumbs');
+                component.find('#tracking').tracking();
+                component.find('#tracking').tracking('track', {'action': 'load-url', 'url': document.location.href, 'add_history': true});
 
                 $(window).on('popstate', function(ev) {
                     component.app('load', window.location.href, false);
@@ -49,6 +51,7 @@
                 component.find('#infoblock').infoblock('fetch', url + '/infoblock');
                 component.find('#items').items('fetch', url + '/items');
                 component.find('#breadcrumbs').breadcrumbs('fetch', url + '/breadcrumbs');
+                component.find('#tracking').tracking('track', {'action': 'load-url', 'url': url, 'add_history': add_history});
                 if(add_history) {
                     history.pushState(null, '', url);
                 }

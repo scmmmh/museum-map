@@ -1,10 +1,20 @@
 <footer class="cell shrink">
   <?py from pywebtools.pyramid.util import get_config_setting ?>
-  <div class="grid-x">
-    <div class="cell small-8 medium-6">
+  <div class="grid-x" style="align-items: center;">
+    <div class="cell small-8 medium-4">
       <a href="${get_config_setting(request, 'app.more_info_url', default='http://informatik.uni-halle.de')}" target="_blank">Click here to learn more</a> about how this application works.
     </div>
-    <div class="cell small-4 medium-6 text-right">
+    <div class="cell small-4 medium-4 text-center tracking">
+      <div class="switch tiny">
+        <input class="switch-input" id="tracking-switch-footer" type="checkbox" name="tracking-switch"/>
+        <label class="switch-paddle" for="tracking-switch-footer">
+          <span class="show-for-sr">Contribute your interactions</span>
+        </label>
+      </div>
+      <label for="tracking-switch-footer">&nbsp;<span>Thank you for contributing</span></label>
+      <a href="${get_config_setting(request, 'app.more_info_url', default='http://informatik.uni-halle.de')}">Learn more</a>
+    </div>
+    <div class="cell small-12 medium-4 text-right">
       <?py import asset ?>
       Version ${asset.version('museum-map')}
     </div>
