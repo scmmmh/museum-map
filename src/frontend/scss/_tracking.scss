@@ -12,6 +12,14 @@
         color: #fff;
         cursor: pointer;
     }
+
+    .close-button:hover {
+        color: lighten($closebutton-color, 20%);
+    }
+
+    .details {
+        display: none;
+    }
 }
 footer .tracking {
     margin-bottom: -0.5rem;

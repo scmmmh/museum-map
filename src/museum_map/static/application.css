@@ -6033,6 +6033,10 @@ footer {
   #tracking label {
     color: #fff;
     cursor: pointer; }
+  #tracking .close-button:hover {
+    color: #bdbdbd; }
+  #tracking .details {
+    display: none; }
 
 footer .tracking {
   margin-bottom: -0.5rem; }

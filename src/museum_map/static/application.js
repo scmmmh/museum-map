@@ -22683,6 +22683,20 @@ ResponsiveAccordionTabs.defaults = {};
                         $('footer label span').html('Your interactions are not being tracked');
                     }
                 });
+                component.find('button.close-button').on('click', function() {
+                    if(localStorage.getItem('museum-map-tracking') === null) {
+                        localStorage.setItem('museum-map-tracking', false);
+                    }
+                    component.hide();
+                });
+                component.find('*[data-show-tracking-details]').on('click', function(ev) {
+                    ev.preventDefault();
+                    component.find('.details').slideToggle();
+                });
+                $('*[data-show-tracking]').on('click', function(ev) {
+                    ev.preventDefault();
+                    component.show();
+                })
             });
         },
         track: function(data) {
