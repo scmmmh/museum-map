@@ -6058,3 +6058,9 @@ footer .tracking {
   footer .tracking .switch {
     margin-bottom: 0;
     display: inline-block; }
+  footer .tracking .is-tracking {
+    display: none; }
+  footer .tracking .gdpr-tracking-active .is-tracking {
+    display: inline; }
+  footer .tracking .gdpr-tracking-active .is-not-tracking {
+    display: none; }

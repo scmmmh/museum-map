@@ -48,4 +48,18 @@ footer .tracking {
         margin-bottom: 0;
         display: inline-block;
     }
+
+    .is-tracking {
+        display: none;
+    }
+
+    .gdpr-tracking-active {
+        .is-tracking {
+            display: inline;
+        }
+        
+        .is-not-tracking {
+            display: none;
+        }
+    }
 }

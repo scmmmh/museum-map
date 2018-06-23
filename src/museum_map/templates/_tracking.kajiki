@@ -1,5 +1,5 @@
-<div id="tracking" data-tracking-url="${request.route_url('tracking')}">
-  <button class="close-button" aria-label="Close the tracking information" type="button"><span aria-hidden="true">&times;</span></button>
+<div id="tracking" data-gdpr-tracking="museum-map" data-gdpr-tracking-url="${request.route_url('tracking')}">
+  <button data-gdpr-tracking-ui-toggle="" class="close-button" aria-label="Close the tracking information" type="button"><span aria-hidden="true">&times;</span></button>
   <div class="grid-container">
     <div class="grid-x grid-padding-x grid-padding-y" style="align-items:center;">
       <div class="cell auto">
@@ -20,7 +20,7 @@
       </div>
       <div class="cell shrink">
         <div class="switch large" style="margin-bottom:0;">
-          <input class="switch-input" id="tracking-switch" type="checkbox" name="tracking-switch"/>
+          <input class="switch-input" id="tracking-switch" type="checkbox" name="tracking-switch" data-gdpr-tracking-switch=""/>
           <label class="switch-paddle" for="tracking-switch">
             <span class="show-for-sr">Contribute your interactions</span>
           </label>

@@ -22272,6 +22272,92 @@ ResponsiveAccordionTabs.defaults = {};
 /******/ ]);
 (function($) {
     /**
+     * The tracking jQuery plugin provides functionality for tracking interactions
+     * in a GDPR-compliant manner.
+     */
+    var methods = {
+        init: function(options) {
+            return this.each(function() {
+                var component = $(this);
+
+                var tracking_id = 'gdpr-tracking-' + component.data('gdpr-tracking');
+
+                if(localStorage.getItem(tracking_id) !== null) {
+                    component.hide();
+                }
+                if(localStorage.getItem(tracking_id) === 'true') {
+                    $('*[data-gdpr-tracking-label]').addClass('gdpr-tracking-active');
+                }
+                $('input[data-gdpr-tracking-switch][type=checkbox]').prop('checked', localStorage.getItem(tracking_id) === 'true');
+                $('input[data-gdpr-tracking-switch][type!=checkbox]').val((localStorage.getItem(tracking_id) === 'true').toString());
+                $('*[data-gdpr-tracking-switch]').on('change', function() {
+                    if(this.getAttribute('type') === 'checkbox') {
+                        var consented = $(this).filter(':checked').length > 0;
+                    } else {
+                        var consented = $(this).val() === 'true';
+                    }
+                    component.hide();
+                    localStorage.setItem(tracking_id, consented);
+                    $('input[data-gdpr-tracking-switch][type=checkbox]').prop('checked', consented);
+                    $('input[data-gdpr-tracking-switch][type!=checkbox]').val(consented.toString());
+                    if(consented) {
+                        $('*[data-gdpr-tracking-label]').addClass('gdpr-tracking-active');
+                    } else {
+                        $('*[data-gdpr-tracking-label]').removeClass('gdpr-tracking-active');
+                    }
+                });
+                $('*[data-gdpr-tracking-ui-toggle]').on('click', function(ev) {
+                    ev.preventDefault();
+                    if(component.is(':visible') && localStorage.getItem(tracking_id) === null) {
+                        localStorage.setItem(tracking_id, false);
+                    }
+                    component.toggle();
+                });
+            });
+        },
+        track: function(data) {
+            return this.each(function() {
+                var component = $(this);
+
+                if(localStorage.getItem('gdpr-tracking-' + component.data('gdpr-tracking')) === 'true') {
+                    if(localStorage.getItem('gdpr-tracking-' + component.data('gdpr-tracking') + '-user') !== null) {
+                        data['gdpr-tracking-user'] = localStorage.getItem('gdpr-tracking-' + component.data('gdpr-tracking') + '-user');
+                    }
+                    data['gdpr-tracking-app'] = component.data('gdpr-tracking');
+                    var promise = fetch(component.data('gdpr-tracking-url'), {
+                        body: JSON.stringify(data),
+                        credentials: 'same-origin',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        method: 'POST',
+                        referrer: 'no-referrer'
+                    });
+                    promise.then(function(response) {
+                        response.json().then(function(data) {
+                            localStorage.setItem('gdpr-tracking-' + component.data('gdpr-tracking') + '-user', data['gdpr-tracking-user']);
+                        });
+                    });
+                }
+            });
+        }
+    };
+
+    $.fn.gdpr_tracking = function(method) {
+        if (methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof method === 'object' || !method) {
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error('Method ' + method + ' does not exist on jQuery.gdpr_tracking');
+        }
+    };
+}(jQuery));
+
+$('*[data-gdpr-tracking]').gdpr_tracking();
+
+(function($) {
+    /**
      * The app jQuery plugin handles the main interaction
      */
     var methods = {
@@ -22284,8 +22370,13 @@ ResponsiveAccordionTabs.defaults = {};
                 component.find('#infoblock').infoblock().infoblock('fetch', document.location.href + '/infoblock');
                 component.find('#items').items().items('fetch', document.location.href + '/items');
                 component.find('#breadcrumbs').breadcrumbs().breadcrumbs('fetch', document.location.href + '/breadcrumbs');
-                component.find('#tracking').tracking();
-                component.find('#tracking').tracking('track', {'action': 'load-url', 'url': document.location.href, 'add_history': true});
+
+                component.find('*[data-show-tracking-details]').on('click', function(ev) {
+                    ev.preventDefault();
+                    component.find('.details').slideToggle();
+                });
+
+                $('#tracking').gdpr_tracking('track', {'action': 'load-url', 'url': document.location.href, 'add_history': true});
 
                 $(window).on('popstate', function(ev) {
                     component.app('load', window.location.href, false);
@@ -22323,7 +22414,7 @@ ResponsiveAccordionTabs.defaults = {};
                 component.find('#infoblock').infoblock('fetch', url + '/infoblock');
                 component.find('#items').items('fetch', url + '/items');
                 component.find('#breadcrumbs').breadcrumbs('fetch', url + '/breadcrumbs');
-                component.find('#tracking').tracking('track', {'action': 'load-url', 'url': url, 'add_history': add_history});
+                $('#tracking').gdpr_tracking('track', {'action': 'load-url', 'url': url, 'add_history': add_history});
                 if(add_history) {
                     history.pushState(null, '', url);
                 }
@@ -22392,10 +22483,10 @@ ResponsiveAccordionTabs.defaults = {};
             return this.each(function() {
                 var component = $(this);
                 component.on('down.zf.accordion', function(ev, panel) {
-                    $('#tracking').tracking('track', {'action': 'show-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
+                    $('#tracking').gdpr_tracking('track', {'action': 'show-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
                 });
                 component.on('up.zf.accordion', function(ev, panel) {
-                    $('#tracking').tracking('track', {'action': 'hide-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
+                    $('#tracking').gdpr_tracking('track', {'action': 'hide-note', 'note': component.find('#' + panel.attr('id') + '-label').html()});
                 });
             });
         },
@@ -22484,16 +22575,16 @@ ResponsiveAccordionTabs.defaults = {};
                 });
                 // Track mouse movement
                 component.on('mouseover', 'li.item', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-in', 'iid': $(this).attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-in', 'iid': $(this).attr('id')});
                 });
                 component.on('mouseout', 'li.item', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-out', 'iid': $(this).attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-out', 'iid': $(this).attr('id')});
                 });
                 component.on('mouseover', 'li.item > a > span', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-in', 'iid': $(this).parent().parent().attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-in', 'iid': $(this).parent().parent().attr('id')});
                 });
                 component.on('mouseout', 'li.item > a > span', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-out', 'iid': $(this).parent().parent().attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-out', 'iid': $(this).parent().parent().attr('id')});
                 });
                 component.on('click', 'li.item a', function(ev) {
                     ev.preventDefault();
@@ -22504,7 +22595,7 @@ ResponsiveAccordionTabs.defaults = {};
                         details.slideUp({done: function() {dynamicLoad(component);}});
                         currentDetails = null;
                         currentMarker = null;
-                        $('#tracking').tracking('track', {'action': 'hide-item', 'iid': details.attr('id')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'hide-item', 'iid': details.attr('id')});
                     } else {
                         var picture = details.find('picture.pre-load');
                         picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
@@ -22542,7 +22633,7 @@ ResponsiveAccordionTabs.defaults = {};
                         }
                         currentDetails = details.attr('id');
                         currentMarker = marker.attr('id');
-                        $('#tracking').tracking('track', {'action': 'show-item', 'iid': details.attr('id')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'show-item', 'iid': details.attr('id')});
                     }
                 });
             });
@@ -22595,20 +22686,20 @@ ResponsiveAccordionTabs.defaults = {};
                     var link = $(this);
                     if(link.attr('id')) {
                         component.find("a[data-room='" + link.attr('id') + "'], ul[data-room='" + link.attr('id') + "']").addClass('is-hovering');
-                        $('#tracking').tracking('track', {'action': 'overview-hover-in', 'rid': link.attr('id')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'overview-hover-in', 'rid': link.attr('id')});
                     } else if(link.data('room')) {
                         component.find("a#" + link.data('room') + ", ul[data-room='" + link.data('room') + "']").addClass('is-hovering');
-                        $('#tracking').tracking('track', {'action': 'overview-hover-in', 'rid': link.data('room')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'overview-hover-in', 'rid': link.data('room')});
                     }
                 });
                 component.on('mouseout', 'a', function(ev) {
                     var link = $(this);
                     if(link.attr('id')) {
                         component.find("a[data-room='" + link.attr('id') + "'], ul[data-room='" + link.attr('id') + "']").removeClass('is-hovering');
-                        $('#tracking').tracking('track', {'action': 'overview-hover-out', 'rid': link.attr('id')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'overview-hover-out', 'rid': link.attr('id')});
                     } else if(link.data('room')) {
                         component.find("a#" + link.data('room') + ", ul[data-room='" + link.data('room') + "']").removeClass('is-hovering');
-                        $('#tracking').tracking('track', {'action': 'overview-hover-out', 'rid': link.data('room')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'overview-hover-out', 'rid': link.data('room')});
                     }
                 });
                 $(window).on('resize', function() {
@@ -22650,88 +22741,6 @@ ResponsiveAccordionTabs.defaults = {};
             return methods.init.apply(this, arguments);
         } else {
             $.error('Method ' + method + ' does not exist on jQuery.overview');
-        }
-    };
-}(jQuery));
-
-(function($) {
-    /**
-     * The tracking jQuery plugin handles the GDPR-compliant tracking system
-     */
-    var methods = {
-        init: function(options) {
-            return this.each(function() {
-                var component = $(this);
-
-                if(localStorage.getItem('museum-map-tracking') !== null) {
-                    component.hide();
-                }
-                if(localStorage.getItem('museum-map-tracking') === 'true') {
-                    $('footer label span').html('Thank you for contributing');
-                } else {
-                    $('footer label span').html('Your interactions are not being tracked');
-                }
-                $('*[name=tracking-switch]').prop('checked', localStorage.getItem('museum-map-tracking') === 'true');
-                $('input[name=tracking-switch]').on('change', function() {
-                    component.hide();
-                    var consented = $(this).filter(':checked').length > 0;
-                    localStorage.setItem('museum-map-tracking', consented);
-                    $('*[name=tracking-switch]').prop('checked', consented);
-                    if(consented) {
-                        $('footer label span').html('Thank you for contributing');
-                    } else {
-                        $('footer label span').html('Your interactions are not being tracked');
-                    }
-                });
-                component.find('button.close-button').on('click', function() {
-                    if(localStorage.getItem('museum-map-tracking') === null) {
-                        localStorage.setItem('museum-map-tracking', false);
-                    }
-                    component.hide();
-                });
-                component.find('*[data-show-tracking-details]').on('click', function(ev) {
-                    ev.preventDefault();
-                    component.find('.details').slideToggle();
-                });
-                $('*[data-show-tracking]').on('click', function(ev) {
-                    ev.preventDefault();
-                    component.show();
-                })
-            });
-        },
-        track: function(data) {
-            return this.each(function() {
-                var component = $(this);
-                if(localStorage.getItem('museum-map-tracking') === 'true') {
-                    if(localStorage.getItem('musem-map-tracking-id') !== null) {
-                        data['uuid'] = localStorage.getItem('musem-map-tracking-id');
-                    }
-                    var promise = fetch(component.data('tracking-url'), {
-                        body: JSON.stringify(data),
-                        credentials: 'same-origin',
-                        headers: {
-                            'content-type': 'application/json'
-                        },
-                        method: 'POST',
-                        referrer: 'no-referrer'
-                    });
-                    promise.then(function(response) {
-                        response.json().then(function(data) {
-                            localStorage.setItem('musem-map-tracking-id', data.uuid);
-                        });
-                    });
-                }
-            });
-        }
-    };
-
-    $.fn.tracking = function(method) {
-        if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === 'object' || !method) {
-            return methods.init.apply(this, arguments);
-        } else {
-            $.error('Method ' + method + ' does not exist on jQuery.tracking');
         }
     };
 }(jQuery));

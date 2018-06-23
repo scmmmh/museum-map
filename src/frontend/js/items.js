@@ -57,16 +57,16 @@
                 });
                 // Track mouse movement
                 component.on('mouseover', 'li.item', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-in', 'iid': $(this).attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-in', 'iid': $(this).attr('id')});
                 });
                 component.on('mouseout', 'li.item', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-out', 'iid': $(this).attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-out', 'iid': $(this).attr('id')});
                 });
                 component.on('mouseover', 'li.item > a > span', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-in', 'iid': $(this).parent().parent().attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-in', 'iid': $(this).parent().parent().attr('id')});
                 });
                 component.on('mouseout', 'li.item > a > span', function(ev) {
-                    $('#tracking').tracking('track', {'action': 'item-hover-out', 'iid': $(this).parent().parent().attr('id')});
+                    $('#tracking').gdpr_tracking('track', {'action': 'item-hover-out', 'iid': $(this).parent().parent().attr('id')});
                 });
                 component.on('click', 'li.item a', function(ev) {
                     ev.preventDefault();
@@ -77,7 +77,7 @@
                         details.slideUp({done: function() {dynamicLoad(component);}});
                         currentDetails = null;
                         currentMarker = null;
-                        $('#tracking').tracking('track', {'action': 'hide-item', 'iid': details.attr('id')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'hide-item', 'iid': details.attr('id')});
                     } else {
                         var picture = details.find('picture.pre-load');
                         picture.prepend('<source srcset="' + picture.data('src') + '"/>').removeClass('pre-load');
@@ -115,7 +115,7 @@
                         }
                         currentDetails = details.attr('id');
                         currentMarker = marker.attr('id');
-                        $('#tracking').tracking('track', {'action': 'show-item', 'iid': details.attr('id')});
+                        $('#tracking').gdpr_tracking('track', {'action': 'show-item', 'iid': details.attr('id')});
                     }
                 });
             });

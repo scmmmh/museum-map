@@ -1,3 +1,8 @@
+1.1.1
+=====
+
+* *UPDATE*: Extracted the JS tracking code
+
 1.1.0
 =====
 

@@ -6,13 +6,13 @@
     </div>
     <div class="cell small-4 medium-4 text-center tracking">
       <div class="switch tiny">
-        <input class="switch-input" id="tracking-switch-footer" type="checkbox" name="tracking-switch"/>
+        <input class="switch-input" id="tracking-switch-footer" type="checkbox" name="tracking-switch" data-gdpr-tracking-switch=""/>
         <label class="switch-paddle" for="tracking-switch-footer">
           <span class="show-for-sr">Contribute your interactions</span>
         </label>
       </div>
-      <label for="tracking-switch-footer">&nbsp;<span>Thank you for contributing</span></label>
-      <a href="${get_config_setting(request, 'app.more_info_url', default='http://informatik.uni-halle.de')}" data-show-tracking="">Learn more</a>
+      <label for="tracking-switch-footer" data-gdpr-tracking-label="">&nbsp;<span class="is-tracking">Thank you for contributing</span><span class="is-not-tracking">You are currently not contributing</span></label>
+      <a href="#" data-gdpr-tracking-ui-toggle="">Learn more</a>
     </div>
     <div class="cell small-12 medium-4 text-right">
       <?py import asset ?>

@@ -33,7 +33,7 @@ tests_require = [
 
 setup(
     name='museum-map',
-    version='1.1.0',
+    version='1.1.1',
     description='Code for generating the thematic museum map',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
