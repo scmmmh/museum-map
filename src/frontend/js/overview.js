@@ -45,7 +45,7 @@
                 promise.then(function(data) {
                     component.empty();
                     component.append($(data).children());
-                    var path = document.location.href.split('/');
+                    var path = document.location.pathname.split('/');
                     component.overview('highlight', path[path.length - 1]);
                     $('#app').app('end_busy');
                 });

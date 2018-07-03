@@ -11,13 +11,13 @@ from ..models import Tracking
 def items(request):
     body = json.loads(request.body.decode('utf-8'))
     if 'action' in body and body['action'] in ['load-url', 'show-item', 'hide-item', 'overview-hover-in', 'overview-hover-out', 'show-note', 'hide-note', 'item-hover-in', 'item-hover-out']:
-        if 'uuid' in body:
-            uuid = body['uuid']
-            del body['uuid']
+        if 'gdpr-tracking-user' in body:
+            uuid = body['gdpr-tracking-user']
+            del body['gdpr-tracking-user']
         else:
             uuid = uuid1().hex
         with transaction.manager:
             request.dbsession.add(Tracking(uuid=uuid, attributes=body))
-        return {"uuid": uuid}
+        return {"gdpr-tracking-user": uuid}
     else:
         raise HTTPBadRequest()

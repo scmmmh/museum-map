@@ -22365,18 +22365,19 @@ $('*[data-gdpr-tracking]').gdpr_tracking();
             return this.each(function() {
                 var component = $(this);
                 component.data('busy-counter', 0);
+                var base_url = document.location.protocol +'//' + document.location.host + document.location.pathname;
 
                 component.find('#overview').overview();
-                component.find('#infoblock').infoblock().infoblock('fetch', document.location.href + '/infoblock');
-                component.find('#items').items().items('fetch', document.location.href + '/items');
-                component.find('#breadcrumbs').breadcrumbs().breadcrumbs('fetch', document.location.href + '/breadcrumbs');
+                component.find('#infoblock').infoblock().infoblock('fetch', base_url + '/infoblock');
+                component.find('#items').items().items('fetch', base_url + '/items');
+                component.find('#breadcrumbs').breadcrumbs().breadcrumbs('fetch', base_url + '/breadcrumbs');
 
                 component.find('*[data-show-tracking-details]').on('click', function(ev) {
                     ev.preventDefault();
                     component.find('.details').slideToggle();
                 });
 
-                $('#tracking').gdpr_tracking('track', {'action': 'load-url', 'url': document.location.href, 'add_history': true});
+                $('#tracking').gdpr_tracking('track', {'action': 'load-url', 'url': base_url, 'add_history': true});
 
                 $(window).on('popstate', function(ev) {
                     component.app('load', window.location.href, false);
@@ -22717,7 +22718,7 @@ $('*[data-gdpr-tracking]').gdpr_tracking();
                 promise.then(function(data) {
                     component.empty();
                     component.append($(data).children());
-                    var path = document.location.href.split('/');
+                    var path = document.location.pathname.split('/');
                     component.overview('highlight', path[path.length - 1]);
                     $('#app').app('end_busy');
                 });

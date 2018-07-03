@@ -1,3 +1,9 @@
+1.1.2
+=====
+
+* *UPDATE*: Enable setting tracking mode and user from the initial URL
+* *BUGFIX*: Fixed bugs in the tracking code
+
 1.1.1
 =====
 
