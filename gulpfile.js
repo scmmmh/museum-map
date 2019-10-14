@@ -6,8 +6,6 @@ var babel = require('gulp-babel');
 var pump = require('pump');
 var concat = require('gulp-concat');
 
-gulp.task('default', ['scss', 'js']);
-
 gulp.task('scss', function(cb) {
     pump([
         gulp.src('src/frontend/scss/application.scss'),
@@ -35,8 +33,10 @@ gulp.task('js', function(cb) {
     ], cb);
 });
 
+gulp.task('default', gulp.parallel('scss', 'js'));
+
 // Task to watch the SCSS/JS files and re-build when needed
-gulp.task('watch', ['default'], function() {
+gulp.task('watch', gulp.series('default', function() {
     gulp.watch('src/frontend/scss/**/*.scss', ['scss']);
     gulp.watch('src/frontend/js/**/*.js', ['js']);
-});
+}));

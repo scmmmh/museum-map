@@ -1,4 +1,5 @@
-@import 'foundation_init';
+@import 'foundation';
+@import 'foundation_settings';
 
 @include foundation-everything;
 @import 'foundation_overrides';
