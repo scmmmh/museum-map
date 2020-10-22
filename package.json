@@ -9,16 +9,8 @@
   "repository": "bitbucket:mhall/museum-map",
   "description": "NPM modules for the museum map project frontend",
   "dependencies": {
-    "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "easeljs": "^1.0.2",
-    "foundation-sites": "^6.4.4-rc1",
-    "gdpr-tracking-client": "file:../gdpr-tracking/client",
     "gulp": "^4.0.2",
-    "gulp-babel": "^7.0.1",
-    "gulp-concat": "^2.6.1",
-    "gulp-sass": "^3.1.0",
-    "jquery": "^3.3.1",
+    "gulp-sass": "^4.1.0",
     "pump": "^3.0.0"
   }
 }
