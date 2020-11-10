@@ -12,16 +12,6 @@ from sqlalchemy.orm import sessionmaker
 from ..models import Base, Item, Group
 
 
-def strip_article(text):
-    if text.startswith('a '):
-        return text[2:]
-    elif text.startswith('an '):
-        return text[3:]
-    else:
-        return text
-
-
-
 @click.command()
 @click.pass_context
 def generate_groups(ctx):
@@ -47,6 +37,15 @@ def generate_groups(ctx):
                     item.group = group
                     break
     dbsession.commit()
+
+
+def strip_article(text):
+    if text.startswith('a '):
+        return text[2:]
+    elif text.startswith('an '):
+        return text[3:]
+    else:
+        return text
 
 
 def apply_nlp(category):
