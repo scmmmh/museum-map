@@ -1,18 +1,16 @@
-from pywebtools.sqlalchemy import MutableDict, JSONUnicodeText
-from sqlalchemy import (Column, Index, Integer, String,)
+from sqlalchemy import (Column, Integer, ForeignKey)
 from sqlalchemy.orm import relationship
+from sqlalchemy_json import NestedMutableJson
 
-from .meta import Base
-from .mixins import AttributesMixin
+from .base import Base
 
 
-class Item(Base, AttributesMixin):
+class Item(Base):
+
     __tablename__ = 'items'
 
     id = Column(Integer, primary_key=True)
-    attributes = Column(MutableDict.as_mutable(JSONUnicodeText))
+    group_id = Column(Integer, ForeignKey('groups.id'))
+    attributes = Column(NestedMutableJson)
 
-    groups = relationship('Group', secondary='groups_items')
-    images = relationship('Image')
-    primary_medium_img = relationship('Image', uselist=False, primaryjoin='and_(Item.id==Image.item_id, Image.primary==True, Image.size=="medium")')
-    primary_large_img = relationship('Image', uselist=False, primaryjoin='and_(Item.id==Image.item_id, Image.primary==True, Image.size=="large")')
+    group = relationship('Group', back_populates='items')
