@@ -1,42 +1,16 @@
 import click
 import inflection
 import json
+import math
 import os
 import requests
 
 from collections import Counter
 from lxml import etree
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 
 from ..models import Base, Item, Group
-
-
-@click.command()
-@click.pass_context
-def generate_groups(ctx):
-    """Generate the basic groups."""
-    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
-    Base.metadata.bind = engine
-    dbsession = sessionmaker(bind=engine)()
-    categories = []
-    query = dbsession.query(Item).filter(Item.group_id == None)
-    for item in query:
-        for category in item.attributes['categories']:
-            categories.append(category.lower())
-    counts = Counter(categories)
-    with click.progressbar(query, length=query.count(), label='Generating groups') as progress:
-        for item in progress:
-            for category in item.attributes['categories']:
-                category = category.lower()
-                if counts[category] >= 30:
-                    group = dbsession.query(Group).filter(Group.value == category).first()
-                    if group is None:
-                        group = Group(value=category, label=category[0].upper() + category[1:])
-                        dbsession.add(group)
-                    item.group = group
-                    break
-    dbsession.commit()
 
 
 def strip_article(text):
@@ -204,11 +178,180 @@ def expand_categories(ctx):
     dbsession.commit()
 
 
+@click.command()
+@click.pass_context
+def generate_groups(ctx):
+    """Generate the basic groups."""
+    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
+    Base.metadata.bind = engine
+    dbsession = sessionmaker(bind=engine)()
+    categories = []
+    query = dbsession.query(Item).filter(Item.group_id == None)
+    for item in query:
+        for category in item.attributes['categories']:
+            categories.append(category.lower())
+    counts = Counter(categories)
+    with click.progressbar(query, length=query.count(), label='Generating groups') as progress:
+        for item in progress:
+            for category in item.attributes['categories']:
+                category = category.lower()
+                if counts[category] >= 30:
+                    group = dbsession.query(Group).filter(Group.value == category).first()
+                    if group is None:
+                        group = Group(value=category, label=category[0].upper() + category[1:])
+                        dbsession.add(group)
+                    item.group = group
+                    break
+    dbsession.commit()
+
+
+@click.command()
+@click.pass_context
+def split_large_groups(ctx):
+    """Split large groups into smaller ones."""
+    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
+    Base.metadata.bind = engine
+    dbsession = sessionmaker(bind=engine)()
+    # Split sub-categories between 30 and 100
+    for group in dbsession.query(Group):
+        if len(group.items) > 100:
+            moved = True
+            while moved:
+                moved = False
+                categories = []
+                for item in group.items:
+                    cats = set()
+                    cats.update([v.lower() for v in item.attributes['techniques']])
+                    cats.update([v.lower() for v in item.attributes['materials']])
+                    cats.update([v.lower() for v in item.attributes['subjects']])
+                    cats.update([v.lower() for v in item.attributes['concepts']])
+                    categories.extend(cats)
+                for cat, size in Counter(categories).most_common():
+                    if size >= 30 and size <= 100:
+                        sub_group = dbsession.query(Group).filter(and_(Group.value == cat,
+                                                                       Group.parent_id == group.id)).first()
+                        if not sub_group:
+                            sub_group = Group(value=cat, label=cat[0].upper() + cat[1:], parent_id=group.id)
+                            dbsession.add(sub_group)
+                        for item in group.items:
+                            cats = set()
+                            cats.update([v.lower() for v in item.attributes['techniques']])
+                            cats.update([v.lower() for v in item.attributes['materials']])
+                            cats.update([v.lower() for v in item.attributes['subjects']])
+                            cats.update([v.lower() for v in item.attributes['concepts']])
+                            if cat in cats:
+                                item.group = sub_group
+                                dbsession.add(item)
+                        dbsession.commit()
+                        moved = True
+                        break
+    # Merge < 30 categories
+    for group in dbsession.query(Group):
+        if len(group.items) > 100:
+            moved = True
+            while moved:
+                moved = False
+                categories = []
+                for item in group.items:
+                    cats = set()
+                    cats.update([v.lower() for v in item.attributes['techniques']])
+                    cats.update([v.lower() for v in item.attributes['materials']])
+                    cats.update([v.lower() for v in item.attributes['subjects']])
+                    cats.update([v.lower() for v in item.attributes['concepts']])
+                    categories.extend(cats)
+                new_group = None
+                new_count = 0
+                for cat, size in Counter(categories).most_common():
+                    if size < 30:
+                        if not new_group:
+                            new_group = Group(value=group.value, label=group.label, parent_id=group.id)
+                            dbsession.add(group)
+                        for item in group.items:
+                            cats = set()
+                            cats.update([v.lower() for v in item.attributes['techniques']])
+                            cats.update([v.lower() for v in item.attributes['materials']])
+                            cats.update([v.lower() for v in item.attributes['subjects']])
+                            cats.update([v.lower() for v in item.attributes['concepts']])
+                            if cat in cats:
+                                item.group = new_group
+                                new_count = new_count + 1
+                                dbsession.add(item)
+                                moved = True
+                        if new_count > 100:
+                            break
+                dbsession.commit()
+    # Split large topics by larger categories
+    for group in dbsession.query(Group):
+        if len(group.items) > 100:
+            moved = True
+            while moved:
+                moved = False
+                categories = []
+                for item in group.items:
+                    cats = set()
+                    cats.update([v.lower() for v in item.attributes['techniques']])
+                    cats.update([v.lower() for v in item.attributes['materials']])
+                    cats.update([v.lower() for v in item.attributes['subjects']])
+                    cats.update([v.lower() for v in item.attributes['concepts']])
+                    categories.extend(cats)
+                for cat, size in Counter(categories).most_common():
+                    if size < len(group.items) / 2:
+                        sub_group = Group(value=cat, label=cat[0].upper() + cat[1:], parent_id=group.id)
+                        for item in group.items:
+                            cats = set()
+                            cats.update([v.lower() for v in item.attributes['techniques']])
+                            cats.update([v.lower() for v in item.attributes['materials']])
+                            cats.update([v.lower() for v in item.attributes['subjects']])
+                            cats.update([v.lower() for v in item.attributes['concepts']])
+                            if cat in cats:
+                                item.group = sub_group
+                                dbsession.add(item)
+                        dbsession.commit()
+                        moved = True
+                        break
+    # Split by year
+    for group in dbsession.query(Group):
+        if len(group.items) > 100:
+            years = []
+            for item in group.items:
+                if item.attributes['year_start']:
+                    years.append(item.attributes['year_start'])
+            common = Counter(years).most_common()
+            if math.ceil(len(group.items) / 100) < len(common):
+                common.sort(key=lambda i: int(i[0]))
+                groups = [[[], 0]]
+                target_size = len(group.items) / math.ceil(len(group.items) / 100)
+                for cat, count in common:
+                    if groups[-1][1] + count < target_size:
+                        groups[-1][0].append(cat)
+                        groups[-1][1] = groups[-1][1] + count
+                    else:
+                        groups.append([[cat], count])
+                if len(groups[-1][0]) == 1:
+                    groups[-2][0].extend(groups[-1][0])
+                    groups[-2][1] = groups[-2][1] + groups[-1][1]
+                    groups = groups[0:-1]
+                for cat, _ in groups:
+                    if len(cat) == 1:
+                        new_group = Group(value=cat[0], label=cat[0], parent_id=group.id)
+                    else:
+                        label = f'{cat[0]} - {cat[-1]}'
+                        new_group = Group(value=label, label=label, parent_id=group.id)
+                    dbsession.add(new_group)
+                    for item in group.items:
+                        if item.attributes['year_start']:
+                            if item.attributes['year_start'] in cat:
+                                item.group = new_group
+                                dbsession.add(item)
+                dbsession.commit()
+
+
 @click.group()
 def processing():
     """Process the loaded data."""
     pass
 
 
-processing.add_command(generate_groups)
 processing.add_command(expand_categories)
+processing.add_command(generate_groups)
+processing.add_command(split_large_groups)
