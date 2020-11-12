@@ -129,6 +129,8 @@ def apply_aat(category):
                     entry = entry.strip().lower()
                     if ' by ' in entry:
                         continue
+                    if ' genre' in entry:
+                        entry = entry[:entry.find(' genre')].strip()
                     if '(' in entry:
                         entry = entry[:entry.find('(')].strip()
                     if '[' in entry:
@@ -346,6 +348,30 @@ def split_large_groups(ctx):
                 dbsession.commit()
 
 
+@click.command()
+@click.pass_context
+def add_parent_groups(ctx):
+    """Add any required parent groups."""
+    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
+    Base.metadata.bind = engine
+    dbsession = sessionmaker(bind=engine)()
+    for group in dbsession.query(Group).filter(Group.parent_id == None):
+        cats = apply_aat(group.value)
+        if cats:
+            for category in cats:
+                parent_group = dbsession.query(Group).filter(Group.value == category).first()
+                if parent_group:
+                    group.parent_id = parent_group.id
+                    break
+        else:
+            for category in apply_nlp(group.value):
+                parent_group = dbsession.query(Group).filter(Group.value == category).first()
+                if parent_group:
+                    group.parent_id = parent_group.id
+                    break
+    dbsession.commit()
+
+
 @click.group()
 def processing():
     """Process the loaded data."""
@@ -355,3 +381,4 @@ def processing():
 processing.add_command(expand_categories)
 processing.add_command(generate_groups)
 processing.add_command(split_large_groups)
+processing.add_command(add_parent_groups)
