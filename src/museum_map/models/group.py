@@ -14,4 +14,6 @@ class Group(Base):
     value = Column(Unicode(255))
     label = Column(Unicode(255))
 
+    parent = relationship('Group', remote_side=[id], back_populates='children', uselist=False)
+    children = relationship('Group', remote_side=[parent_id])
     items = relationship('Item', back_populates='group')

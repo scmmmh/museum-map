@@ -5,11 +5,9 @@ import sys
 
 from configparser import ConfigParser
 
-#from .users import users
-#from .server import server
-#from .db import db
 from .db import db
 from .processing import processing
+from .server import server
 
 
 logger = logging.getLogger('scr')
@@ -37,6 +35,4 @@ def cli(ctx, verbose, config):
 
 cli.add_command(db)
 cli.add_command(processing)
-#cli.add_command(server)
-#cli.add_command(users)
-#cli.add_command(db)
+cli.add_command(server)
