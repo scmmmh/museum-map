@@ -4,6 +4,7 @@ import json
 import math
 import os
 import requests
+import spacy
 
 from collections import Counter
 from lxml import etree
@@ -11,6 +12,27 @@ from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 
 from ..models import Base, Item, Group
+
+
+@click.command()
+@click.pass_context
+def tokenise(ctx):
+    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
+    Base.metadata.bind = engine
+    dbsession = sessionmaker(bind=engine)()
+    nlp = spacy.load("en_core_web_sm")
+    query = dbsession.query(Item)
+    with click.progressbar(query, length=query.count(), label='Tokenising items') as progress:
+        for item in progress:
+            text = ''
+            for field in ['title', 'description', 'physical_description', 'notes']:
+                if item.attributes[field].strip():
+                    if item.attributes[field].strip().endswith('.'):
+                        text = f'{text} {item.attributes[field].strip()}'
+                    else:
+                        text = f'{text} {item.attributes[field].strip()}.'
+            item.attributes['tokens'] = [t.lemma_ for t in nlp(text) if not t.pos_ in ['PUNCT', 'SPACE']]
+    dbsession.commit()
 
 
 def strip_article(text):
@@ -198,4 +220,5 @@ def items():
     pass
 
 
+items.add_command(tokenise)
 items.add_command(expand_categories)
