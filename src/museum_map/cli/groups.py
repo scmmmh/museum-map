@@ -9,10 +9,7 @@ from .items import apply_aat, apply_nlp
 from ..models import Base, Group, Item
 
 
-@click.command()
-@click.pass_context
-def generate_groups(ctx):
-    """Generate the basic groups."""
+def generate_groups_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -48,8 +45,12 @@ def generate_groups(ctx):
 
 @click.command()
 @click.pass_context
-def split_large_groups(ctx):
-    """Split large groups into smaller ones."""
+def generate_groups(ctx):
+    """Generate the basic groups."""
+    generate_groups_impl(ctx)
+
+
+def split_large_groups_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -190,8 +191,12 @@ def split_large_groups(ctx):
 
 @click.command()
 @click.pass_context
-def merge_singular_plural(ctx):
-    """Merge singular and plural groups."""
+def split_large_groups(ctx):
+    """Split large groups into smaller ones."""
+    split_large_groups_impl(ctx)
+
+
+def merge_singular_plural_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -218,8 +223,12 @@ def merge_singular_plural(ctx):
 
 @click.command()
 @click.pass_context
-def add_parent_groups(ctx):
-    """Add any required parent groups."""
+def merge_singular_plural(ctx):
+    """Merge singular and plural groups."""
+    merge_singular_plural_impl(ctx)
+
+
+def add_parent_groups_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -276,8 +285,12 @@ def add_parent_groups(ctx):
 
 @click.command()
 @click.pass_context
-def prune_single_groups(ctx):
-    """Remove groups that have a single child and no items."""
+def add_parent_groups(ctx):
+    """Add any required parent groups."""
+    add_parent_groups_impl(ctx)
+
+
+def prune_single_groups_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -285,10 +298,10 @@ def prune_single_groups(ctx):
     click.echo('Pruning single groups  ', nl=False)
     pruning = True
     while pruning:
-        click.echo(f'\b{anim[-1]}', nl=False)
-        anim.insert(0, anim.pop())
         pruning = False
         for group in dbsession.query(Group):
+            click.echo(f'\b{anim[-1]}', nl=False)
+            anim.insert(0, anim.pop())
             if len(group.items) == 0 and len(group.children) == 1:
                 group.children[0].parent = group.parent
                 dbsession.delete(group)
@@ -300,8 +313,12 @@ def prune_single_groups(ctx):
 
 @click.command()
 @click.pass_context
-def move_inner_items(ctx):
-    """Move items from non-leaf groups into extra leaf groups."""
+def prune_single_groups(ctx):
+    """Remove groups that have a single child and no items."""
+    prune_single_groups_impl(ctx)
+
+
+def move_inner_items_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -309,10 +326,10 @@ def move_inner_items(ctx):
     click.echo('Moving inner items  ', nl=False)
     moving = True
     while moving:
-        click.echo(f'\b{anim[-1]}', nl=False)
-        anim.insert(0, anim.pop())
         moving = False
         for group in dbsession.query(Group):
+            click.echo(f'\b{anim[-1]}', nl=False)
+            anim.insert(0, anim.pop())
             if len(group.items) > 0 and len(group.children) > 0:
                 sub_group = Group(value=group.value, label=group.label)
                 dbsession.add(sub_group)
@@ -324,6 +341,24 @@ def move_inner_items(ctx):
                 break
     dbsession.commit()
     click.echo('\b ')
+
+
+@click.command()
+@click.pass_context
+def move_inner_items(ctx):
+    """Move items from non-leaf groups into extra leaf groups."""
+    move_inner_items_impl(ctx)
+
+
+@click.command()
+@click.pass_context
+def pipeline(ctx):
+    """Run the group processing pipeline."""
+    generate_groups_impl(ctx)
+    merge_singular_plural_impl(ctx)
+    add_parent_groups_impl(ctx)
+    prune_single_groups_impl(ctx)
+    move_inner_items_impl(ctx)
 
 
 @click.group()
@@ -338,3 +373,4 @@ groups.add_command(add_parent_groups)
 groups.add_command(merge_singular_plural)
 groups.add_command(prune_single_groups)
 groups.add_command(move_inner_items)
+groups.add_command(pipeline)
