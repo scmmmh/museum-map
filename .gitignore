@@ -9,4 +9,5 @@ cache
 .venv
 .vscode
 *.sqlite
+*.sqlite-journal
 *.json
