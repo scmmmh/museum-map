@@ -7,6 +7,7 @@ import requests
 import spacy
 
 from collections import Counter
+from gensim import corpora, models
 from lxml import etree
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
@@ -14,9 +15,7 @@ from sqlalchemy.orm import sessionmaker
 from ..models import Base, Item, Group
 
 
-@click.command()
-@click.pass_context
-def tokenise(ctx):
+def tokenise_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -33,6 +32,13 @@ def tokenise(ctx):
                         text = f'{text} {item.attributes[field].strip()}.'
             item.attributes['tokens'] = [t.lemma_ for t in nlp(text) if not t.pos_ in ['PUNCT', 'SPACE']]
     dbsession.commit()
+
+
+@click.command()
+@click.pass_context
+def tokenise(ctx):
+    """Generate token lists for each item."""
+    tokenise_impl(ctx)
 
 
 def strip_article(text):
@@ -195,14 +201,11 @@ def apply_aat(category, merge=True):
         return cache[category]
 
 
-@click.command()
-@click.pass_context
-def expand_categories(ctx):
-    """Expand the object categories."""
+def expand_categories_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
-    query = dbsession.query(Item).filter(Item.group_id == None)
+    query = dbsession.query(Item)
     with click.progressbar(query, length=query.count(), label='Expanding categories') as progress:
         for item in progress:
             categories = [c.lower() for c in item.attributes['object']]
@@ -214,6 +217,56 @@ def expand_categories(ctx):
     dbsession.commit()
 
 
+@click.command()
+@click.pass_context
+def expand_categories(ctx):
+    """Expand the object categories."""
+    expand_categories_impl(ctx)
+
+
+def generate_topic_vectors_impl(ctx):
+    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
+    Base.metadata.bind = engine
+    dbsession = sessionmaker(bind=engine)()
+
+    def texts(dictionary=None, label=''):
+        query = dbsession.query(Item)
+        with click.progressbar(query, length=query.count(), label=label) as progress:
+            for item in progress:
+                if 'tokens' in item.attributes:
+                    if dictionary:
+                        yield dictionary.doc2bow(item.attributes['tokens'])
+                    else:
+                        yield item.attributes['tokens']
+
+    dictionary = corpora.Dictionary(texts(label='Generating dictionary'))
+    dictionary.filter_extremes(keep_n=None)
+    model = models.LdaModel(list(texts(dictionary=dictionary, label='Generating model')), num_topics=300, id2word=dictionary)
+    query = dbsession.query(Item)
+    with click.progressbar(query, length=query.count(), label='Generating topic vectors') as progress:
+        for item in progress:
+            if 'tokens' in item.attributes:
+                vec = model[dictionary.doc2bow(item.attributes['tokens'])]
+                item.attributes['lda_vector'] = [(wid, float(prob)) for wid, prob in vec]
+    dbsession.commit()
+
+
+@click.command()
+@click.pass_context
+def generate_topic_vectors(ctx):
+    """Generate topic vectors for all items."""
+    generate_topic_vectors_impl(ctx)
+
+
+@click.command()
+@click.pass_context
+def pipeline(ctx):
+    """Run the items processing pipeline."""
+    expand_categories_impl(ctx)
+    tokenise_impl(ctx)
+    generate_topic_vectors_impl(ctx)
+
+
 @click.group()
 def items():
     """Process the loaded items."""
@@ -222,3 +275,5 @@ def items():
 
 items.add_command(tokenise)
 items.add_command(expand_categories)
+items.add_command(generate_topic_vectors)
+items.add_command(pipeline)
