@@ -1,4 +1,4 @@
-from sqlalchemy import (Column, Integer, Unicode, ForeignKey)
+from sqlalchemy import (Column, Integer, Unicode, ForeignKey, Index)
 from sqlalchemy.orm import relationship
 from sqlalchemy_json import NestedMutableJson
 
@@ -17,3 +17,6 @@ class Group(Base):
     parent = relationship('Group', remote_side=[id], back_populates='children', uselist=False)
     children = relationship('Group', remote_side=[parent_id])
     items = relationship('Item', back_populates='group')
+
+
+Index(Group.parent_id)
