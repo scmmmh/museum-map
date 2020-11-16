@@ -1,7 +1,10 @@
 import click
 import inflection
+import math
 
 from collections import Counter
+from numpy import array
+from scipy.spatial.distance import cosine
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 
@@ -50,143 +53,224 @@ def generate_groups(ctx):
     generate_groups_impl(ctx)
 
 
+def fill_vector(group):
+    vec = array([0 for _ in range(0, 300)], dtype=float)
+    for dim, value in group.attributes['lda_vector']:
+        vec[dim] = value
+    return vec
+
+
+def split_by_similarity(dbsession, group):
+    vectors = {}
+    sorted_items = []
+    current = group.items[0]
+    vectors[current.id] = fill_vector(current)
+    while len(sorted_items) < len(group.items):
+        next_item = None
+        next_sim = None
+        for item in group.items:
+            if item in sorted_items:
+                continue
+            if item.id not in vectors:
+                vectors[item.id] = fill_vector(item)
+            if not next_item or cosine(vectors[current.id], vectors[item.id]) > next_sim:
+                next_item = item
+                next_sim = cosine(vectors[current.id], vectors[item.id])
+        if next_item:
+            sorted_items.append(next_item)
+    limit = len(group.items) / math.ceil(len(group.items) / 100)
+    new_group = Group(value=group.value, label=group.label, parent=group)
+    count = 0
+    for item in sorted_items:
+        if count > limit:
+            new_group = Group(value=group.value, label=group.label, parent=group)
+            count = 0
+        item.group = new_group
+        count = count + 1
+
+
+def split_by_attribute(dbsession, group, attr):
+    values = []
+    for item in group.items:
+        if attr in item.attributes and item.attributes[attr]:
+            values.extend(item.attributes[attr])
+    categories = [(v, c) for v, c in Counter(values).most_common() if c < len(group.items) * 0.6666 and c >= 15]
+    if categories:
+        category_values = [v for v, _ in categories]
+        has_values = 0
+        for item in group.items:
+            found = False
+            for value in item.attributes[attr]:
+                if value in category_values:
+                    found = True
+                    break
+            if found:
+                has_values = has_values + 1
+        if has_values / len(group.items) > 0.9:
+            categories.reverse()
+            for category in categories:
+                new_group = Group(value=category[0], label=f'{group.label} - {category[0]}', parent=group)
+                dbsession.add(new_group)
+                for item in list(group.items):
+                    if category[0] in item.attributes[attr]:
+                        item.group = new_group
+            new_group = Group(value=group.label, label=group.label, parent=group)
+            dbsession.add(new_group)
+            for item in list(group.items):
+                item.group = new_group
+            return True
+    return False
+
+
+def split_by_year(dbsession, group):
+    years = []
+    decades = []
+    centuries = []
+    with_year = 0
+    for item in group.items:
+        if item.attributes['year_start']:
+            years.append(item.attributes['year_start'])
+            with_year = with_year + 1
+    if with_year / len(group.items) > 0.95:
+        common = [(int(v), c) for v, c in Counter(years).most_common()]
+        start_year = min([c for c, _ in common])
+        end_year = max([c for c, _ in common])
+        if (start_year != end_year):
+            year_boundaries = []
+            if (end_year - start_year) <= 100 and (end_year - start_year) > 10:
+                start_decade = math.floor(start_year / 10)
+                end_decade = math.floor(end_year / 10)
+                decades = []
+                for start_year in range(start_decade * 10, (end_decade + 1) * 10, 10):
+                    for item in list(group.items):
+                        if item.attributes['year_start']:
+                            if start_year <= int(item.attributes['year_start']) and int(item.attributes['year_start']) < start_year + 10:
+                                if len(decades) == 0 or decades[-1][0][0] != start_year:
+                                    decades.append([[start_year], 1])
+                                else:
+                                    decades[-1][1] = decades[-1][1] + 1
+                idx = 0
+                while idx < len(decades) - 1:
+                    if decades[idx][1] + decades[idx + 1][1] < 100:
+                        decades[idx][0].extend(decades[idx + 1][0])
+                        decades[idx][1] = decades[idx][1] + decades[idx + 1][1]
+                        decades.pop(idx + 1)
+                    else:
+                        idx = idx + 1
+                for years, _ in decades:
+                    new_group = None
+                    for item in list(group.items):
+                        if item.attributes['year_start']:
+                            if years[0] <= int(item.attributes['year_start']) and int(item.attributes['year_start']) < years[-1] + 10:
+                                if new_group is None:
+                                    if len(years) == 1:
+                                        label = f'{years[0]}s'
+                                    else:
+                                        label = f'{years[0]}s-{years[-1]}s'
+                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label}', parent=group)
+                                    dbsession.add(new_group)
+                                item.group = new_group
+                if group.items:
+                    new_group = Group(value=group.label, label=group.label, parent=group)
+                    dbsession.add(new_group)
+                    for item in list(group.items):
+                        item.group = new_group
+                return True
+            elif (end_year - start_year) > 100:
+                start_century = math.floor(start_year / 100)
+                end_century = math.floor(end_year / 100)
+                centuries = []
+                for start_year in range(start_century * 100, (end_century + 1) * 100, 100):
+                    century = math.floor(start_year / 100) + 1
+                    if century % 10 == 1 and century != 11:
+                        label = f'{century}st'
+                    elif century % 10 == 2 and century != 12:
+                        label = f'{century}nd'
+                    elif century % 10 == 3 and century != 13:
+                        label = f'{century}rd'
+                    else:
+                        label = f'{century}th'
+                    for item in list(group.items):
+                        if item.attributes['year_start']:
+                            if start_year <= int(item.attributes['year_start']) and int(item.attributes['year_start']) < start_year + 100:
+                                if len(centuries) == 0 or centuries[-1][0][0] != label:
+                                    centuries.append([[label], 1])
+                                else:
+                                    centuries[-1][1] = centuries[-1][1] + 1
+                idx = 0
+                while idx < len(centuries) - 1:
+                    if centuries[idx][1] + centuries[idx + 1][1] < 100:
+                        centuries[idx][0].extend(centuries[idx + 1][0])
+                        centuries[idx][1] = centuries[idx][1] + centuries[idx + 1][1]
+                        centuries.pop(idx + 1)
+                    else:
+                        idx = idx + 1
+                for years, _ in centuries:
+                    new_group = None
+                    for item in list(group.items):
+                        if item.attributes['year_start']:
+                            century = math.floor(int(item.attributes['year_start']) / 100) + 1
+                            if century % 10 == 1 and century != 11:
+                                label = f'{century}st'
+                            elif century % 10 == 2 and century != 12:
+                                label = f'{century}nd'
+                            elif century % 10 == 3 and century != 13:
+                                label = f'{century}rd'
+                            else:
+                                label = f'{century}th'
+                            if label in years[0]:
+                                if new_group is None:
+                                    if len(years) == 1:
+                                        group_label = years[0]
+                                    else:
+                                        group_label = f'{years[0]}-{years[-1]}'
+                                    new_group = Group(value=str(start_year), label=f'{group.label} - {group_label} century', parent=group)
+                                    dbsession.add(new_group)
+                                item.group = new_group
+                if group.items:
+                    new_group = Group(value=group.label, label=group.label, parent=group)
+                    dbsession.add(new_group)
+                    for item in list(group.items):
+                        item.group = new_group
+                return True
+    return False
+
+
 def split_large_groups_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
-    """# Split sub-categories between 30 and 100
-    for group in dbsession.query(Group):
-        if len(group.items) > 100:
-            moved = True
-            while moved:
-                moved = False
-                categories = []
-                for item in group.items:
-                    cats = set()
-                    cats.update([v.lower() for v in item.attributes['techniques']])
-                    cats.update([v.lower() for v in item.attributes['materials']])
-                    cats.update([v.lower() for v in item.attributes['subjects']])
-                    cats.update([v.lower() for v in item.attributes['concepts']])
-                    categories.extend(cats)
-                for cat, size in Counter(categories).most_common():
-                    if size >= 30 and size <= 100:
-                        sub_group = dbsession.query(Group).filter(and_(Group.value == cat,
-                                                                       Group.parent_id == group.id)).first()
-                        if not sub_group:
-                            sub_group = Group(value=cat, label=cat[0].upper() + cat[1:], parent_id=group.id)
-                            dbsession.add(sub_group)
-                        for item in group.items:
-                            cats = set()
-                            cats.update([v.lower() for v in item.attributes['techniques']])
-                            cats.update([v.lower() for v in item.attributes['materials']])
-                            cats.update([v.lower() for v in item.attributes['subjects']])
-                            cats.update([v.lower() for v in item.attributes['concepts']])
-                            if cat in cats:
-                                item.group = sub_group
-                                dbsession.add(item)
-                        dbsession.commit()
-                        moved = True
-                        break
-    # Merge < 30 categories
-    for group in dbsession.query(Group):
-        if len(group.items) > 100:
-            moved = True
-            while moved:
-                moved = False
-                categories = []
-                for item in group.items:
-                    cats = set()
-                    cats.update([v.lower() for v in item.attributes['techniques']])
-                    cats.update([v.lower() for v in item.attributes['materials']])
-                    cats.update([v.lower() for v in item.attributes['subjects']])
-                    cats.update([v.lower() for v in item.attributes['concepts']])
-                    categories.extend(cats)
-                new_group = None
-                new_count = 0
-                for cat, size in Counter(categories).most_common():
-                    if size < 30:
-                        if not new_group:
-                            new_group = Group(value=group.value, label=group.label, parent_id=group.id)
-                            dbsession.add(group)
-                        for item in group.items:
-                            cats = set()
-                            cats.update([v.lower() for v in item.attributes['techniques']])
-                            cats.update([v.lower() for v in item.attributes['materials']])
-                            cats.update([v.lower() for v in item.attributes['subjects']])
-                            cats.update([v.lower() for v in item.attributes['concepts']])
-                            if cat in cats:
-                                item.group = new_group
-                                new_count = new_count + 1
-                                dbsession.add(item)
-                                moved = True
-                        if new_count > 100:
-                            break
-                dbsession.commit()
-    # Split large topics by larger categories
-    for group in dbsession.query(Group):
-        if len(group.items) > 100:
-            moved = True
-            while moved:
-                moved = False
-                categories = []
-                for item in group.items:
-                    cats = set()
-                    cats.update([v.lower() for v in item.attributes['techniques']])
-                    cats.update([v.lower() for v in item.attributes['materials']])
-                    cats.update([v.lower() for v in item.attributes['subjects']])
-                    cats.update([v.lower() for v in item.attributes['concepts']])
-                    categories.extend(cats)
-                for cat, size in Counter(categories).most_common():
-                    if cat.strip().strip('()[]') and size < len(group.items) / 2:
-                        sub_group = Group(value=cat, label=cat[0].upper() + cat[1:], parent_id=group.id)
-                        for item in group.items:
-                            cats = set()
-                            cats.update([v.lower() for v in item.attributes['techniques']])
-                            cats.update([v.lower() for v in item.attributes['materials']])
-                            cats.update([v.lower() for v in item.attributes['subjects']])
-                            cats.update([v.lower() for v in item.attributes['concepts']])
-                            if cat in cats:
-                                item.group = sub_group
-                                dbsession.add(item)
-                        dbsession.commit()
-                        moved = True
-                        break
-    # Split by year
-    for group in dbsession.query(Group):
-        if len(group.items) > 100:
-            years = []
-            for item in group.items:
-                if item.attributes['year_start']:
-                    years.append(item.attributes['year_start'])
-            common = Counter(years).most_common()
-            if math.ceil(len(group.items) / 100) < len(common):
-                common.sort(key=lambda i: int(i[0]))
-                groups = [[[], 0]]
-                target_size = len(group.items) / math.ceil(len(group.items) / 100)
-                for cat, count in common:
-                    if groups[-1][1] + count < target_size:
-                        groups[-1][0].append(cat)
-                        groups[-1][1] = groups[-1][1] + count
+    splitting = True
+    anim = ['|', '/', '-', '\\']
+    click.echo('Splitting large groups  ', nl=False)
+    while splitting:
+        splitting = False
+        for group in dbsession.query(Group):
+            if len(group.children) == 0:
+                click.echo(f'\b{anim[-1]}', nl=False)
+                anim.insert(0, anim.pop())
+                if len(group.items) > 120 and len(group.items) < 300:
+                    if split_by_year(dbsession, group):
+                        splitting = True
                     else:
-                        groups.append([[cat], count])
-                if len(groups[-1][0]) == 1:
-                    groups[-2][0].extend(groups[-1][0])
-                    groups[-2][1] = groups[-2][1] + groups[-1][1]
-                    groups = groups[0:-1]
-                for cat, _ in groups:
-                    if len(cat) == 1:
-                        new_group = Group(value=cat[0], label=cat[0], parent_id=group.id)
+                        split_by_similarity(dbsession, group)
+                        splitting = True
+                elif len(group.items) >= 300:
+                    if split_by_attribute(dbsession, group, 'concepts'):
+                        splitting = True
+                    elif split_by_attribute(dbsession, group, 'subjects'):
+                        splitting = True
+                    elif split_by_attribute(dbsession, group, 'materials'):
+                        splitting = True
+                    elif split_by_attribute(dbsession, group, 'techniques'):
+                        splitting = True
+                    elif split_by_year(dbsession, group):
+                        splitting = True
                     else:
-                        label = f'{cat[0]} - {cat[-1]}'
-                        new_group = Group(value=label, label=label, parent_id=group.id)
-                    dbsession.add(new_group)
-                    for item in group.items:
-                        if item.attributes['year_start']:
-                            if item.attributes['year_start'] in cat:
-                                item.group = new_group
-                                dbsession.add(item)
-                dbsession.commit()
-    """
+                        split_by_similarity(dbsession, group)
+                        splitting = True
+        dbsession.commit()
+    click.echo('\b ')
 
 
 @click.command()
@@ -359,6 +443,7 @@ def pipeline(ctx):
     add_parent_groups_impl(ctx)
     prune_single_groups_impl(ctx)
     move_inner_items_impl(ctx)
+    split_large_groups_impl(ctx)
 
 
 @click.group()

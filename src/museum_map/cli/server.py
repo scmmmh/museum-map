@@ -14,7 +14,7 @@ def run(ctx):
     dbsession = sessionmaker(bind=engine)()
 
     def output(group, indent=''):
-        print(f'{indent}{group.value} ({len(group.items)})')
+        print(f'{indent}{group.label} ({len(group.items)})')
         for child in dbsession.query(Group).filter(Group.parent_id == group.id):
             output(child, indent=f'{indent}  ')
 
