@@ -181,20 +181,11 @@ def split_by_year(dbsession, group):
                 end_century = math.floor(end_year / 100)
                 centuries = []
                 for start_year in range(start_century * 100, (end_century + 1) * 100, 100):
-                    century = math.floor(start_year / 100) + 1
-                    if century % 10 == 1 and century != 11:
-                        label = f'{century}st'
-                    elif century % 10 == 2 and century != 12:
-                        label = f'{century}nd'
-                    elif century % 10 == 3 and century != 13:
-                        label = f'{century}rd'
-                    else:
-                        label = f'{century}th'
                     for item in list(group.items):
                         if item.attributes['year_start']:
                             if start_year <= int(item.attributes['year_start']) and int(item.attributes['year_start']) < start_year + 100:
-                                if len(centuries) == 0 or centuries[-1][0][0] != label:
-                                    centuries.append([[label], 1])
+                                if len(centuries) == 0 or centuries[-1][0][0] != start_year:
+                                    centuries.append([[start_year], 1])
                                 else:
                                     centuries[-1][1] = centuries[-1][1] + 1
                 idx = 0
@@ -209,22 +200,39 @@ def split_by_year(dbsession, group):
                     new_group = None
                     for item in list(group.items):
                         if item.attributes['year_start']:
-                            century = math.floor(int(item.attributes['year_start']) / 100) + 1
-                            if century % 10 == 1 and century != 11:
-                                label = f'{century}st'
-                            elif century % 10 == 2 and century != 12:
-                                label = f'{century}nd'
-                            elif century % 10 == 3 and century != 13:
-                                label = f'{century}rd'
-                            else:
-                                label = f'{century}th'
-                            if label in years[0]:
+                            if years[0] <= int(item.attributes['year_start']) and int(item.attributes['year_start']) < years[-1] + 100:
                                 if new_group is None:
                                     if len(years) == 1:
-                                        group_label = years[0]
+                                        century = math.floor(years[0] / 100) + 1
+                                        if century % 10 == 1 and century != 11:
+                                            label = f'{century}st'
+                                        elif century % 10 == 2 and century != 12:
+                                            label = f'{century}nd'
+                                        elif century % 10 == 3 and century != 13:
+                                            label = f'{century}rd'
+                                        else:
+                                            label = f'{century}th'
                                     else:
-                                        group_label = f'{years[0]}-{years[-1]}'
-                                    new_group = Group(value=str(start_year), label=f'{group.label} - {group_label} century', parent=group)
+                                        century = math.floor(years[0] / 100) + 1
+                                        if century % 10 == 1 and century != 11:
+                                            start_label = f'{century}st'
+                                        elif century % 10 == 2 and century != 12:
+                                            start_label = f'{century}nd'
+                                        elif century % 10 == 3 and century != 13:
+                                            start_label = f'{century}rd'
+                                        else:
+                                            start_label = f'{century}th'
+                                        century = math.floor(years[-1] / 100) + 1
+                                        if century % 10 == 1 and century != 11:
+                                            end_label = f'{century}st'
+                                        elif century % 10 == 2 and century != 12:
+                                            end_label = f'{century}nd'
+                                        elif century % 10 == 3 and century != 13:
+                                            end_label = f'{century}rd'
+                                        else:
+                                            end_label = f'{century}th'
+                                        label = f'{start_label}-{end_label}'
+                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label} century', parent=group)
                                     dbsession.add(new_group)
                                 item.group = new_group
                 if group.items:
@@ -443,7 +451,7 @@ def pipeline(ctx):
     add_parent_groups_impl(ctx)
     prune_single_groups_impl(ctx)
     move_inner_items_impl(ctx)
-    split_large_groups_impl(ctx)
+    #split_large_groups_impl(ctx)
 
 
 @click.group()
