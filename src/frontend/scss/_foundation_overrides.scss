@@ -1,9 +1,0 @@
-.accordion-title::before {
-    content: '\25bc';
-    font-family: sans-serif;
-    font-weight: 400;
-    font-size: rem-calc(12);
-}
-.is-active > .accordion-title::before {
-    content: '\25b2';
-}
