@@ -29,7 +29,7 @@ def generate_groups_impl(ctx):
             category = counts[0][0]
             group = dbsession.query(Group).filter(Group.value == category).first()
             if group is None:
-                group = Group(value=category, label=category[0].upper() + category[1:])
+                group = Group(value=category, label=category[0].upper() + category[1:], split='basic')
                 dbsession.add(group)
             for item in query:
                 if category in item.attributes['categories']:
@@ -79,11 +79,11 @@ def split_by_similarity(dbsession, group):
         if next_item:
             sorted_items.append(next_item)
     limit = len(group.items) / math.ceil(len(group.items) / 100)
-    new_group = Group(value=group.value, label=group.label, parent=group)
+    new_group = Group(value=group.value, label=group.label, parent=group, split='similar')
     count = 0
     for item in sorted_items:
         if count > limit:
-            new_group = Group(value=group.value, label=group.label, parent=group)
+            new_group = Group(value=group.value, label=group.label, parent=group, split='similar')
             count = 0
         item.group = new_group
         count = count + 1
@@ -109,12 +109,12 @@ def split_by_attribute(dbsession, group, attr):
         if has_values / len(group.items) > 0.9:
             categories.reverse()
             for category in categories:
-                new_group = Group(value=category[0], label=f'{group.label} - {category[0]}', parent=group)
+                new_group = Group(value=category[0], label=f'{group.label} - {category[0]}', parent=group, split='attribute')
                 dbsession.add(new_group)
                 for item in list(group.items):
                     if category[0] in item.attributes[attr]:
                         item.group = new_group
-            new_group = Group(value=group.label, label=group.label, parent=group)
+            new_group = Group(value=group.label, label=group.label, parent=group, split='attribute')
             dbsession.add(new_group)
             for item in list(group.items):
                 item.group = new_group
@@ -167,11 +167,11 @@ def split_by_year(dbsession, group):
                                         label = f'{years[0]}s'
                                     else:
                                         label = f'{years[0]}s-{years[-1]}s'
-                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label}', parent=group)
+                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label}', parent=group, split='time')
                                     dbsession.add(new_group)
                                 item.group = new_group
                 if group.items:
-                    new_group = Group(value=group.label, label=group.label, parent=group)
+                    new_group = Group(value=group.label, label=group.label, parent=group, split='time')
                     dbsession.add(new_group)
                     for item in list(group.items):
                         item.group = new_group
@@ -232,11 +232,11 @@ def split_by_year(dbsession, group):
                                         else:
                                             end_label = f'{century}th'
                                         label = f'{start_label}-{end_label}'
-                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label} century', parent=group)
+                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label} century', parent=group, split='time')
                                     dbsession.add(new_group)
                                 item.group = new_group
                 if group.items:
-                    new_group = Group(value=group.label, label=group.label, parent=group)
+                    new_group = Group(value=group.label, label=group.label, parent=group, split='time')
                     dbsession.add(new_group)
                     for item in list(group.items):
                         item.group = new_group
@@ -334,7 +334,7 @@ def add_parent_groups_impl(ctx):
                     for category in category_list:
                         parent_group = dbsession.query(Group).filter(Group.value == category).first()
                         if not parent_group:
-                            parent_group = Group(value=category, label=category[0].upper() + category[1:])
+                            parent_group = Group(value=category, label=category[0].upper() + category[1:], split='parent')
                             dbsession.add(group)
                         group.parent = parent_group
                         mapped = True
@@ -423,7 +423,7 @@ def move_inner_items_impl(ctx):
             click.echo(f'\b{anim[-1]}', nl=False)
             anim.insert(0, anim.pop())
             if len(group.items) > 0 and len(group.children) > 0:
-                sub_group = Group(value=group.value, label=group.label)
+                sub_group = Group(value=group.value, label=group.label, split='inner')
                 dbsession.add(sub_group)
                 sub_group.parent = group
                 for item in list(group.items):
@@ -451,7 +451,7 @@ def pipeline(ctx):
     add_parent_groups_impl(ctx)
     prune_single_groups_impl(ctx)
     move_inner_items_impl(ctx)
-    #split_large_groups_impl(ctx)
+    split_large_groups_impl(ctx)
 
 
 @click.group()
