@@ -10,7 +10,7 @@
                 </ol>
             </nav>
         </header>
-        <nav id="floors">
+        <nav id="floors" v-if="false">
             <div>
                 <div class="flex">
                     <div class="expand padding">
@@ -34,9 +34,12 @@
                         <h3 class="padding invert">Watches</h3>
                     </div>
                 </div>
-                <div class="map-demo">
-                    <div>
+                <div class="map">
+                    <div class="base-layer">
                         <img src="@/assets/map.png" alt=""/>
+                    </div>
+                    <div class="room-layer">
+                        <button>Photos</button>
                     </div>
                 </div>
             </div>
@@ -302,20 +305,45 @@ main {
             color: #ffffff;
         }
 
-        .map-demo {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .map {
+            position: relative;
+            transform-origin: top left;
 
-            div {
-                flex: 0 1 auto;
-                overflow: hidden;
-                padding: 1rem;
+            .base-layer {
+                position: absolute;
+                left: 1rem;
+                top: 1rem;
+                width: calc(100% - 2rem);
+                height: calc(100% - 2rem);
+                z-index: 1;
             }
 
-            img {
-                max-width: 100%;
-                max-height: 100%;
+            .room-layer {
+                position: absolute;
+                left: 1rem;
+                top: 1rem;
+                width: calc(100% - 2rem);
+                height: calc(100% - 2rem);
+                z-index: 2;
+
+                button {
+                    position: absolute;
+                    left: 240px;
+                    top: 81px;
+                    width: 58px;
+                    height: 238px;
+                    color: #222222;
+                    background: #ffffff;
+                    font-size: 0.7rem;
+                    border: 0;
+                    cursor: pointer;
+                    transition: color 0.1s, background-color 0.1s;
+
+                    &:hover, &:focus {
+                        background: #0040adff;
+                        color: #ffffff;
+                    }
+                }
             }
         }
     }
