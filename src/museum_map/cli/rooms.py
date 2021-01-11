@@ -4,7 +4,7 @@ from copy import deepcopy
 from sqlalchemy import create_engine, and_, not_
 from sqlalchemy.orm import sessionmaker
 
-from ..models import Base, Item, Group, Room
+from ..models import Base, Item, Group, Room, Floor
 
 
 def count_items(group):
@@ -32,11 +32,11 @@ def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
     while room_ids:
         rid = room_ids.pop()
         room = rooms[rid]
-        splits_left = room['max_splits']
+        splits_left = 1  # room['max_splits']
         items_left = room['max_items']
         for group in get_assignable_groups(dbsession, assigned):
             if items_left >= len(group.items) and splits_left > 0:
-                dbsession.add(Room(number=f'{floor}.{nr}', group=group))
+                dbsession.add(Room(number=f'{floor.level}.{nr}', group=group, floor=floor))
                 items_left = items_left - len(group.items)
                 splits_left = splits_left - 1
                 assigned.append(group.id)
@@ -72,10 +72,12 @@ def generate_layout(ctx):
     assigned = []
     assignable = get_assignable_groups(dbsession, assigned)
     old_len = len(assignable)
-    floor = -1
+    floor_nr = -1
     progress = click.progressbar(length=len(assignable), label='Generating layout')
     while assignable:
-        floor = floor + 1
+        floor_nr = floor_nr + 1
+        floor = Floor(label = f'Floor {floor_nr}', level=floor_nr)
+        dbsession.add(floor)
         generate_rooms(dbsession, floor, 1, deepcopy(room_ids), rooms, assigned)
         assignable = get_assignable_groups(dbsession, assigned)
         progress.update(old_len - len(assignable))

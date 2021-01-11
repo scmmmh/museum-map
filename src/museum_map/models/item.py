@@ -15,5 +15,20 @@ class Item(Base):
 
     group = relationship('Group', back_populates='items')
 
+    def as_jsonapi(self):
+        return {
+            'type': 'items',
+            'id': str(self.id),
+            'attributes': self.attributes,
+            'relationships': {
+                'group': {
+                    'data': {
+                        'type': 'groups',
+                        'id': str(self.group_id)
+                    }
+                }
+            }
+        }
+
 
 Index(Item.group_id)
