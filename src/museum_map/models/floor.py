@@ -1,4 +1,4 @@
-from sqlalchemy import (Column, Integer, Unicode, ForeignKey, Index)
+from sqlalchemy import (Column, Integer, Unicode, UnicodeText, ForeignKey, Index)
 from sqlalchemy.orm import relationship
 from sqlalchemy_json import NestedMutableJson
 
@@ -12,6 +12,7 @@ class Floor(Base):
     id = Column(Integer, primary_key=True)
     label = Column(Unicode(64))
     level = Column(Integer)
+    topics = Column(UnicodeText())
 
     rooms = relationship('Room', back_populates='floor')
 
@@ -22,14 +23,17 @@ class Floor(Base):
             'attributes': {
                 'label': self.label,
                 'level': self.level,
+                'topics': self.topics,
             },
             'relationships': {
-                'rooms': [
-                    {
-                        'type': 'rooms',
-                        'id': str(room.id)
-                    }
-                    for room in self.rooms
-                ]
+                'rooms': {
+                    'data': [
+                        {
+                            'type': 'rooms',
+                            'id': str(room.id)
+                        }
+                        for room in self.rooms
+                    ]
+                }
             }
         }

@@ -45,6 +45,13 @@ def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
                 break
 
 
+def get_basic_group(group):
+    if group.split == 'basic':
+        return group
+    else:
+        return get_basic_group(group.parent)
+
+
 @click.command()
 @click.pass_context
 def generate_layout(ctx):
@@ -79,6 +86,12 @@ def generate_layout(ctx):
         floor = Floor(label = f'Floor {floor_nr}', level=floor_nr)
         dbsession.add(floor)
         generate_rooms(dbsession, floor, 1, deepcopy(room_ids), rooms, assigned)
+        topics = set()
+        for room in floor.rooms:
+            topics.add(get_basic_group(room.group).label)
+        topics = list(topics)
+        topics.sort()
+        floor.topics = ', '.join(topics)
         assignable = get_assignable_groups(dbsession, assigned)
         progress.update(old_len - len(assignable))
         old_len = len(assignable)

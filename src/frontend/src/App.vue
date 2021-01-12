@@ -1,75 +1,20 @@
 <template>
     <main>
         <header>
-            <h1>Museum Map<template v-if="currentRoom && currentGroup"> - {{ currentRoom.attributes.number }} {{ currentGroup.attributes.label }}</template></h1>
+            <h1>Museum Map<template v-if="currentRoom && currentGroup"> - {{ roomTitle }}</template></h1>
             <nav>
                 <ol>
                     <li><router-link to="/">Virtual Museum</router-link></li>
                     <li v-if="currentRoom && currentFloor"><button>{{ currentFloor.attributes.label }}</button></li>
-                    <li v-if="currentRoom && currentGroup"><button>Room {{ currentRoom.attributes.number }} - {{ currentGroup.attributes.label }}</button></li>
+                    <li v-if="currentRoom && currentGroup"><button>Room {{ roomTitle }}</button></li>
                 </ol>
             </nav>
         </header>
         <router-view></router-view>
-    </main>
-    <!--<main>
-        <header>
-            <h1>Museum Map - Drawings (12th-17th century)</h1>
-            <nav>
-                <ol>
-                    <li><a>Virtual Museum</a></li>
-                    <li><a>Floor 3</a></li>
-                    <li><a aria-current="page">Room 32 - Drawings (12th-17th century)</a></li>
-                </ol>
-            </nav>
-        </header>
-        <nav id="floors" v-if="false">
-            <div>
-                <div class="flex">
-                    <div class="expand padding">
-                        <div class="shrink flex row">
-                            <h2 class="expand">Floor 3</h2>
-                            <div class="shrink">
-                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                                </svg>
-                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <p class="shrink">Drawings, Paintings, China, Textiles, Prints, Photos, ...</p>
-                    </div>
-                    <div class="shrink">
-                        <figure class="banner">
-                            <img src="https://media.vam.ac.uk/media/thira/collection_images/2006AM/2006AM0953_jpg_w.jpg" alt=""/>
-                        </figure>
-                        <h3 class="padding invert">Watches</h3>
-                    </div>
-                </div>
-                <div class="map">
-                    <div class="base-layer">
-                        <img src="@/assets/map.png" alt=""/>
-                    </div>
-                    <div class="room-layer">
-                        <button>Photos</button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-        <article>
-            <ul>
-                <li v-for="item in items" :key="item.id">
-                    <a>
-                        <figure>
-                            <img :src="item.image"/>
-                            <figcaption>Drawing</figcaption>
-                        </figure>
-                    </a>
-                </li>
-            </ul>
-        </article>
         <footer>
+            <div>
+                <a href="https://www.room3b.eu/pages/projects/digital-museum-map.html" target="_blank" rel="noopener">Find out more about how this works</a>
+            </div>
             <div>
                 <a href="https://collections.vam.ac.uk/" target="_blank" rel="noopener">Objects, Images, and Meta-data provided by the V&amp;A</a>
             </div>
@@ -77,7 +22,19 @@
                 <a href="http://www.getty.edu/research/tools/vocabularies/aat/" target="_blank" rel="noopener">Includes part of the AAT</a>
             </div>
         </footer>
-    </main>-->
+        <div v-if="loading" id="loading">
+            <div>Loading</div>
+            <svg width="100" height="100" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#1e4b9b">
+                <g fill="none" fill-rule="evenodd">
+                    <g transform="translate(1 1)" stroke-width="2">
+                        <path d="M36 18c0-9.94-8.06-18-18-18">
+                            <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1.5s" repeatCount="indefinite"/>
+                        </path>
+                    </g>
+                </g>
+            </svg>
+        </div>
+    </main>
 </template>
 
 <script lang="ts">
@@ -89,8 +46,17 @@ import { JSONAPIReference } from '@/store';
 @Options({
     components: {
     },
+    watch: {
+        roomTitle: (newVal) => {
+            document.title = 'Room ' + newVal;
+        }
+    }
 })
 export default class App extends ComponentRoot {
+    public get loading() {
+        return this.$store.state.ui.loadingCount > 0;
+    }
+
     public get currentRoom() {
         if (this.$router.currentRoute) {
             if (this.$router.currentRoute.value.params.rid) {
@@ -115,6 +81,15 @@ export default class App extends ComponentRoot {
         return null;
     }
 
+    public get roomTitle() {
+        if (this.currentRoom && this.currentGroup) {
+            if (this.currentRoom.attributes && this.currentGroup.attributes) {
+                return this.currentRoom.attributes.number + ' - ' + this.currentGroup.attributes.label;
+            }
+        }
+        return 'Museum Map';
+    }
+
     public get currentFloor() {
         if (this.currentRoom) {
             if (this.currentRoom.relationships && this.currentRoom.relationships.floor) {
@@ -126,6 +101,10 @@ export default class App extends ComponentRoot {
         }
         return null;
     }
+
+    public created() {
+        this.$store.dispatch('fetchFloors');
+    }
 }
 </script>
 
@@ -136,13 +115,43 @@ body {
 }
 
 main {
-    width: 1200px;
+    max-width: 1200px;
     height: 100vh;
     display: flex;
     flex-direction: column;
     background: #555555;
     color: #ffffff;
     position: relative;
+
+    #loading {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10000;
+        max-width: 1200px;
+
+        div {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            z-index: 2;
+        }
+
+        svg {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #222222cc;
+            padding: 1rem;
+            box-shadow: 0 0 20px #000000;
+            z-index: 1;
+        }
+    }
 
     header, footer {
         flex: 0 0 auto;
@@ -218,164 +227,217 @@ main {
         position: relative;
         overflow: hidden;
 
-        ol {
-            height: 100%;
-            overflow: auto;
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, 240px);
-            column-gap: 2rem;
-            row-gap: 2rem;
-            justify-content: center;
+        &.lobby {
+            ol {
+                height: 100%;
+                overflow: auto;
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
 
-            li {
-                width: 240px;
-                height: 240px;
+                li {
+                    padding: 0 1rem 1.5rem 1rem;
 
-                button {
-                    display: block;
-                    width: 100%;
-                    height: 100%;
-                    overflow: hidden;
-                    cursor: pointer;
-                    border: 0;
-                    background: transparent;
-                    color: #ffffff;
-                }
+                    h2 {
+                        margin: 0;
 
-                figure {
-                    display: block;
-                    width: 100%;
-                    height: 100%;
-                    position: relative;
-                    margin: 0;
-                    padding: 0;
-                    background: #000000;
+                        button {
+                            border: 0;
+                            background: transparent;
+                            font-size: inherit;
+                            font-weight: inherit;
+                            color: inherit;
+                            padding: 0;
+                            margin: 0;
+                            cursor: pointer;
 
-                    img {
-                        max-width: 100%;
-                        max-height: 100%;
-                        position: absolute;
-                        left: 50%;
-                        top: 50%;
-                        transform: translate(-50%, -50%);
+                            &:hover {
+                                text-decoration: underline;
+                            }
+                        }
                     }
 
-                    figcaption {
-                        position: absolute;
-                        left: 0;
-                        bottom: 0;
-                        width: 100%;
-                        z-index: 1;
-                        background-color: #222222cc;
-                        display: block;
-                        box-sizing: border-box;
-                        padding: 0.5rem;
-                        opacity: 0;
-                        transition: opacity 0.3s;
-                    }
-                }
+                    ul {
+                        list-style-type: none;
+                        margin: 0;
+                        padding-left: 1rem;
 
-                &:hover {
-                    figcaption {
-                        opacity: 1;
+                        li {
+                            display: inline;
+                            padding: 0;
+                            margin: 0;
+
+                            + li {
+                                &:before {
+                                    content: ', ';
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
-        section.item {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: #222222cc;
-            z-index: 2;
-
-            > div {
-                position: relative;
-                margin: 3rem;
-                height: calc(100% - 6rem);
-                width: calc(100% - 6rem);
-                background: #222222;
-                display: flex;
-                flex-direction: row;
+        &.room {
+            ol {
+                height: 100%;
+                overflow: auto;
+                margin: 0;
                 padding: 0;
-                box-shadow: 0 0 20px #000000;
+                list-style-type: none;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, 240px);
+                column-gap: 2rem;
+                row-gap: 2rem;
+                justify-content: center;
 
-                button.close {
-                    display: block;
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    background: #222222cc;
-                    color: #ffffff;
-                    border: 0;
-                    padding: 0.5rem 1rem;
-                    font-size: 1.2rem;
-                    cursor: pointer;
-                    z-index: 2;
-                }
+                li {
+                    width: 240px;
+                    height: 240px;
 
-                figure {
-                    display: flex;
-                    flex: 0 0 auto;
-                    margin: 0;
-                    background: #000000;
-                    justify-content: center;
-                    align-items: center;
-                    width: 50%;
+                    button {
+                        display: block;
+                        width: 100%;
+                        height: 100%;
+                        overflow: hidden;
+                        cursor: pointer;
+                        border: 0;
+                        background: transparent;
+                        color: #ffffff;
+                    }
 
-                    img {
-                        max-height: 100%;
-                        max-width: 100%;
+                    figure {
+                        display: block;
+                        width: 100%;
+                        height: 100%;
+                        position: relative;
+                        margin: 0;
+                        padding: 0;
+                        background: #000000;
+
+                        img {
+                            max-width: 100%;
+                            max-height: 100%;
+                            position: absolute;
+                            left: 50%;
+                            top: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+
+                        figcaption {
+                            position: absolute;
+                            left: 0;
+                            bottom: 0;
+                            width: 100%;
+                            z-index: 1;
+                            background-color: #222222cc;
+                            display: block;
+                            box-sizing: border-box;
+                            padding: 0.5rem;
+                            opacity: 0;
+                            transition: opacity 0.3s;
+                        }
+                    }
+
+                    &:hover {
+                        figcaption {
+                            opacity: 1;
+                        }
                     }
                 }
+            }
+
+            section.item {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: #222222cc;
+                z-index: 2;
 
                 > div {
-                    flex: 0 0 auto;
+                    position: relative;
+                    margin: 3rem;
+                    height: calc(100% - 6rem);
+                    width: calc(100% - 6rem);
+                    background: #222222;
                     display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
+                    flex-direction: row;
                     padding: 0;
-                    margin: 0;
-                    width: 50%;
+                    box-shadow: 0 0 20px #000000;
 
-                    h2 {
-                        background: #0040ad;
+                    button.close {
+                        display: block;
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        background: #222222cc;
                         color: #ffffff;
-                        font-size: 1.1rem;
-                        padding: 1rem;
+                        border: 0;
+                        padding: 0.5rem 1rem;
+                        font-size: 1.2rem;
+                        cursor: pointer;
+                        z-index: 2;
+                    }
+
+                    figure {
+                        display: flex;
+                        flex: 0 0 auto;
                         margin: 0;
+                        background: #000000;
+                        justify-content: center;
+                        align-items: center;
+                        width: 50%;
+
+                        img {
+                            max-height: 100%;
+                            max-width: 100%;
+                        }
                     }
 
                     > div {
-                        flex: 1 1 auto;
-                        overflow: auto;
-                        padding: 0 1rem;
+                        flex: 0 0 auto;
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                        padding: 0;
+                        margin: 0;
+                        width: 50%;
 
-                        dl {
+                        h2 {
+                            background: #0040ad;
+                            color: #ffffff;
+                            font-size: 1.1rem;
+                            padding: 1rem;
+                            margin: 0;
+                        }
+
+                        > div {
+                            flex: 1 1 auto;
                             overflow: auto;
-                            display: grid;
-                            grid-template-columns: auto 1fr;
-                            justify-content: start;
+                            padding: 0 1rem;
 
-                            dt {
-                                font-size: 0.8rem;
-                                text-align: right;
-                                color: #aaaaaa;
-                                align-self: end;
-                                padding-bottom: 0.5rem;
-                            }
+                            dl {
+                                overflow: auto;
+                                display: grid;
+                                grid-template-columns: auto 1fr;
+                                justify-content: start;
 
-                            dd {
-                                margin: 0;
-                                align-self: end;
-                                padding-left: 1rem;
-                                padding-bottom: 0.5rem;
+                                dt {
+                                    font-size: 0.8rem;
+                                    text-align: right;
+                                    color: #aaaaaa;
+                                    align-self: end;
+                                    padding-bottom: 0.5rem;
+                                }
+
+                                dd {
+                                    margin: 0;
+                                    align-self: end;
+                                    padding-left: 1rem;
+                                    padding-bottom: 0.5rem;
+                                }
                             }
                         }
                     }

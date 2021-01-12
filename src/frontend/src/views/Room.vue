@@ -1,5 +1,5 @@
 <template>
-    <article>
+    <article class="room">
         <ol>
             <li v-for="item in items" :key="item.id">
                 <button @click="selectItem(item)">
@@ -19,8 +19,12 @@
                 <div>
                     <h2>{{ selectedItem.attributes.title ? selectedItem.attributes.title : '[untitled]' }}</h2>
                     <div>
-                        <p v-if="selectedItem.attributes.description">{{ selectedItem.attributes.description }}</p>
-                        <p v-if="selectedItem.attributes.notes">{{ selectedItem.attributes.notes }}</p>
+                        <template v-if="selectedItem.attributes.description">
+                            <p v-for="(text, idx) in processText(selectedItem.attributes.description)" :key="idx" v-html="text"></p>
+                        </template>
+                        <template v-if="selectedItem.attributes.notes">
+                            <p v-for="(text, idx) in processText(selectedItem.attributes.notes)" :key="idx" v-html="text"></p>
+                        </template>
                         <dl>
                             <template v-for="field in fields" :key='field[1]'>
                                 <template v-if="selectedItem.attributes[field[1]] && selectedItem.attributes[field[1]].length">
@@ -89,7 +93,7 @@ export default class Room extends ComponentRoot {
         const promise = this.$store.dispatch('fetchRoom', this.$props.rid);
         promise.then(() => {
             this.$store.dispatch('fetchRoomItems', this.$props.rid);
-        })
+        });
     }
 
     public imageURL(imageId: string) {
@@ -116,6 +120,28 @@ export default class Room extends ComponentRoot {
         } else {
             return item;
         }
+    }
+
+    public processText(text: string) {
+        const paras = [] as string[];
+        text.split('\n\n').forEach((part1) => {
+            part1.split('<br><br>').forEach((part2) => {
+                paras.push(part2
+                    .replace(/<[iI]>/g, '\\begin{em}')
+                    .replace(/<\/[iI]>/g, '\\end{em}')
+                    .replace(/<[uU]>/g, '\\begin{em}')
+                    .replace(/<\/[uU]>/g, '\\end{em}')
+                    .replace(/<[bB]>/g, '\\begin{strong}')
+                    .replace(/<\/[bB]>/g, '\\end{strong}')
+                    .replace(/<\/?[a-zA-Z]+>/g, '')
+                    .replace('\\begin{em}', '<em>')
+                    .replace('\\end{em}', '</em>')
+                    .replace('\\begin{strong}', '<strong>')
+                    .replace('\\end{strong}', '</strong>')
+                );
+            });
+        });
+        return paras;
     }
 }
 </script>
