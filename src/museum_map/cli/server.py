@@ -18,6 +18,7 @@ def run(ctx):
         [
             ('/api/([a-z]+)', APICollectionHandler),
             ('/api/([a-z]+)/([0-9]+)', APIItemHandler),
+            ('/images/(.*)', StaticFileHandler, {'path': ctx.obj['config'].get('images', 'basepath')}),
             ('/(.*)', StaticFileHandler, {'path': 'src/museum_map/static', 'default_filename': 'index.html'})
         ],
         autoreload=True,

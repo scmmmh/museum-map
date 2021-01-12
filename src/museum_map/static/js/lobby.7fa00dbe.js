@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["lobby"],{"417e":function(e,t,c){"use strict";c.r(t);var n=c("7a23");function a(e,t,c,a,b,r){return Object(n["p"])(),Object(n["d"])("article",null,"Lobby")}var b=c("d4ec"),r=c("262e"),o=c("2caf"),u=c("9ab4"),i=c("ce1f"),f=c("ffbb"),p=function(e){Object(r["a"])(c,e);var t=Object(o["a"])(c);function c(){return Object(b["a"])(this,c),t.apply(this,arguments)}return c}(f["a"]);p=Object(u["a"])([Object(i["a"])({components:{}})],p);var s=p;s.render=a;t["default"]=s}}]);
+//# sourceMappingURL=lobby.7fa00dbe.js.map

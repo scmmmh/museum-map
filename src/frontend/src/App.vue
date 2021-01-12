@@ -1,6 +1,19 @@
 <template>
     <main>
         <header>
+            <h1>Museum Map<template v-if="currentRoom && currentGroup"> - {{ currentRoom.attributes.number }} {{ currentGroup.attributes.label }}</template></h1>
+            <nav>
+                <ol>
+                    <li><router-link to="/">Virtual Museum</router-link></li>
+                    <li v-if="currentRoom && currentFloor"><button>{{ currentFloor.attributes.label }}</button></li>
+                    <li v-if="currentRoom && currentGroup"><button>Room {{ currentRoom.attributes.number }} - {{ currentGroup.attributes.label }}</button></li>
+                </ol>
+            </nav>
+        </header>
+        <router-view></router-view>
+    </main>
+    <!--<main>
+        <header>
             <h1>Museum Map - Drawings (12th-17th century)</h1>
             <nav>
                 <ol>
@@ -64,59 +77,55 @@
                 <a href="http://www.getty.edu/research/tools/vocabularies/aat/" target="_blank" rel="noopener">Includes part of the AAT</a>
             </div>
         </footer>
-    </main>
+    </main>-->
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Options } from 'vue-class-component';
+
+import { ComponentRoot } from '@/base';
+import { JSONAPIReference } from '@/store';
 
 @Options({
     components: {
     },
 })
-export default class App extends Vue {
-    items = [
-        {id: 1, image: 'https://media.vam.ac.uk/media/thira/collection_images/2009CP/2009CP5568_jpg_ds.jpg'},
-        {id: 2, image: 'https://media.vam.ac.uk/media/thira/collection_images/2014HB/2014HB6438_jpg_ws.jpg'},
-        {id: 3, image: 'https://media.vam.ac.uk/media/thira/collection_images/2011FA/2011FA5317_jpg_ws.jpg'},
-        {id: 4, image: 'https://media.vam.ac.uk/media/thira/collection_images/2010EJ/2010EJ1362_jpg_ws.jpg'},
-        {id: 5, image: 'https://media.vam.ac.uk/media/thira/collection_images/2010EL/2010EL8510_jpg_ws.jpg'},
-        {id: 6, image: 'https://media.vam.ac.uk/media/thira/collection_images/2009CP/2009CP5568_jpg_ds.jpg'},
-        {id: 7, image: 'https://media.vam.ac.uk/media/thira/collection_images/2009CP/2009CP5568_jpg_ds.jpg'},
-        {id: 8, image: 'https://media.vam.ac.uk/media/thira/collection_images/2017JW/2017JW8908_jpg_ws.jpg'},
-        {id: 9, image: 'https://media.vam.ac.uk/media/thira/collection_images/2011EU/2011EU0058_jpg_ws.jpg'},
-        {id: 10, image: 'https://media.vam.ac.uk/media/thira/collection_images/2015HJ/2015HJ4655_jpg_ws.jpg'},
-        {id: 11, image: 'https://media.vam.ac.uk/media/thira/collection_images/2015HX/2015HX0218_jpg_ws.jpg'},
-        {id: 12, image: 'https://media.vam.ac.uk/media/thira/collection_images/2013GD/2013GD8526_jpg_ws.jpg'},
-        {id: 13},
-        {id: 14},
-        {id: 15},
-        {id: 16},
-        {id: 17},
-        {id: 18},
-        {id: 19},
-        {id: 20},
-        {id: 21},
-        {id: 22},
-        {id: 23},
-        {id: 24},
-        {id: 25},
-        {id: 26},
-        {id: 27},
-        {id: 28},
-        {id: 29},
-        {id: 30},
-        {id: 31},
-        {id: 32},
-        {id: 33},
-        {id: 34},
-        {id: 35},
-        {id: 36},
-        {id: 37},
-        {id: 38},
-        {id: 39},
-        {id: 40},
-    ]
+export default class App extends ComponentRoot {
+    public get currentRoom() {
+        if (this.$router.currentRoute) {
+            if (this.$router.currentRoute.value.params.rid) {
+                const rid = this.$router.currentRoute.value.params.rid as string;
+                if (this.$store.state.objects.rooms[rid]) {
+                    return this.$store.state.objects.rooms[rid];
+                }
+            }
+        }
+        return null;
+    }
+
+    public get currentGroup() {
+        if (this.currentRoom) {
+            if (this.currentRoom.relationships && this.currentRoom.relationships.group) {
+                const gid = (this.currentRoom.relationships.group.data as JSONAPIReference).id;
+                if (this.$store.state.objects.groups[gid]) {
+                    return this.$store.state.objects.groups[gid];
+                }
+            }
+        }
+        return null;
+    }
+
+    public get currentFloor() {
+        if (this.currentRoom) {
+            if (this.currentRoom.relationships && this.currentRoom.relationships.floor) {
+                const fid = (this.currentRoom.relationships.floor.data as JSONAPIReference).id;
+                if (this.$store.state.objects.floors[fid]) {
+                    return this.$store.state.objects.floors[fid];
+                }
+            }
+        }
+        return null;
+    }
 }
 </script>
 
@@ -174,6 +183,19 @@ main {
                     padding: 0.3rem 0.5rem;
                     cursor: pointer;
                 }
+
+                button {
+                    display: inline-block;
+                    padding: 0.3rem 0.5rem;
+                    cursor: pointer;
+                    border: 0;
+                    background: transparent;
+                    color: #ffffff;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
             }
         }
     }
@@ -192,10 +214,13 @@ main {
 
     article {
         flex: 1 1 auto;
-        overflow: auto;
         padding-top: 0.5rem;
+        position: relative;
+        overflow: hidden;
 
-        ul {
+        ol {
+            height: 100%;
+            overflow: auto;
             margin: 0;
             padding: 0;
             list-style-type: none;
@@ -209,12 +234,15 @@ main {
                 width: 240px;
                 height: 240px;
 
-                a {
+                button {
                     display: block;
                     width: 100%;
                     height: 100%;
                     overflow: hidden;
                     cursor: pointer;
+                    border: 0;
+                    background: transparent;
+                    color: #ffffff;
                 }
 
                 figure {
@@ -224,7 +252,7 @@ main {
                     position: relative;
                     margin: 0;
                     padding: 0;
-                    background: #ffffff;
+                    background: #000000;
 
                     img {
                         max-width: 100%;
@@ -257,6 +285,103 @@ main {
                 }
             }
         }
+
+        section.item {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: #222222cc;
+            z-index: 2;
+
+            > div {
+                position: relative;
+                margin: 3rem;
+                height: calc(100% - 6rem);
+                width: calc(100% - 6rem);
+                background: #222222;
+                display: flex;
+                flex-direction: row;
+                padding: 0;
+                box-shadow: 0 0 20px #000000;
+
+                button.close {
+                    display: block;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    background: #222222cc;
+                    color: #ffffff;
+                    border: 0;
+                    padding: 0.5rem 1rem;
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                    z-index: 2;
+                }
+
+                figure {
+                    display: flex;
+                    flex: 0 0 auto;
+                    margin: 0;
+                    background: #000000;
+                    justify-content: center;
+                    align-items: center;
+                    width: 50%;
+
+                    img {
+                        max-height: 100%;
+                        max-width: 100%;
+                    }
+                }
+
+                > div {
+                    flex: 0 0 auto;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    padding: 0;
+                    margin: 0;
+                    width: 50%;
+
+                    h2 {
+                        background: #0040ad;
+                        color: #ffffff;
+                        font-size: 1.1rem;
+                        padding: 1rem;
+                        margin: 0;
+                    }
+
+                    > div {
+                        flex: 1 1 auto;
+                        overflow: auto;
+                        padding: 0 1rem;
+
+                        dl {
+                            overflow: auto;
+                            display: grid;
+                            grid-template-columns: auto 1fr;
+                            justify-content: start;
+
+                            dt {
+                                font-size: 0.8rem;
+                                text-align: right;
+                                color: #aaaaaa;
+                                align-self: end;
+                                padding-bottom: 0.5rem;
+                            }
+
+                            dd {
+                                margin: 0;
+                                align-self: end;
+                                padding-left: 1rem;
+                                padding-bottom: 0.5rem;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     #floors {
@@ -268,7 +393,7 @@ main {
         z-index: 100;
         background: #555555cc;
 
-        & > div {
+        > div {
             position: absolute;
             left: 50%;
             top: 50%;
