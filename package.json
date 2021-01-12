@@ -10,9 +10,6 @@
   "description": "NPM modules for the museum map project frontend",
   "dependencies": {
     "@vue/cli": "^4.5.9",
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-sass": "^4.1.0",
-    "pump": "^3.0.0"
+    "gulp": "^4.0.2"
   }
 }
