@@ -209,6 +209,15 @@ export default createStore({
             const items = (await response.json()).data;
             commit('setItems', items);
         },
+
+        async fetchItem({ state, dispatch }, payload: string) {
+            if (!state.objects.items[payload]) {
+                const item = await dispatch('fetchObject', {type: 'items', id: payload});
+                return item;
+            } else {
+                return state.objects.items[payload];
+            }
+        },
     },
     modules: {
     }

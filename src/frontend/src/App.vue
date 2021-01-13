@@ -367,7 +367,7 @@ main {
                     padding: 0;
                     box-shadow: 0 0 20px #000000;
 
-                    button.close {
+                    a.close {
                         display: block;
                         position: absolute;
                         left: 0;

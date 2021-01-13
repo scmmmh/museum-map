@@ -10,6 +10,14 @@ const routes: Array<RouteRecordRaw> = [
         name: 'room',
         component: () => import(/* webpackChunkName: "room" */ '../views/Room.vue'),
         props: true,
+        children: [
+            {
+                path: ':iid',
+                name: 'item',
+                component: () => import(/* webpackChunkName: "item" */ '../views/Item.vue'),
+                props: true,
+            }
+        ]
     },
 ]
 
