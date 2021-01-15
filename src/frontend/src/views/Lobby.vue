@@ -1,6 +1,6 @@
 <template>
     <article class="lobby">
-        <ol>
+        <ol ref="lobbyList">
             <li v-for="floor in floors" :key="floor.floor.id">
                 <h2><button @click="setMapFloorId(floor.floor.id)">{{ floor.floor.attributes.label }}</button></h2>
                 <ul class="topics">
@@ -9,7 +9,7 @@
                     </li>
                     <li><button @click="setMapFloorId(floor.floor.id)">...</button></li>
                 </ul>
-                <ul class="samples">
+                <ul class="samples" :style="sampleWidth">
                     <li v-for="item in floor.samples" :key="item.id">
                         <router-link :to="{name: 'item', params: {rid: item.relationships.room.data.id, iid: item.id}}">
                             <figure>
@@ -44,6 +44,8 @@ interface LobbyEntryRoom {
     }
 })
 export default class Lobby extends ComponentRoot {
+    public sampleWidth = '';
+
     public get floors() {
         if (this.$store.state.objects.floors) {
             let floors = Object.values(this.$store.state.objects.floors);
@@ -58,7 +60,7 @@ export default class Lobby extends ComponentRoot {
                     return 0;
                 }
             });
-            return floors.map((floor) => {
+            const floorData = floors.map((floor) => {
                 if (floor.relationships) {
                     const topics = (floor.relationships.topics.data as JSONAPIReference[]).map((ref) => {
                         if (this.$store.state.objects['floor-topics'][ref.id]) {
@@ -89,6 +91,10 @@ export default class Lobby extends ComponentRoot {
             }).filter((item) => {
                 return item !== null;
             });
+            if (floorData.length > 0) {
+                this.$nextTick(this.updateSampleWidth);
+            }
+            return floorData;
         }
         return [];
     }
@@ -99,9 +105,16 @@ export default class Lobby extends ComponentRoot {
 
     public thumbImageURL(imageId: string) {
         if (imageId) {
-            return '/images/' + imageId.split('').join('/') + '/' + imageId + '-thumb.jpg';
+            return '/images/' + imageId.split('').join('/') + '/' + imageId + '-240.jpg';
         } else {
             return '';
+        }
+    }
+
+    public updateSampleWidth() {
+        const child = (this.$refs.lobbyList as HTMLElement).querySelector(':scope > li > h2');
+        if (child) {
+            this.sampleWidth = 'width:' + Math.floor(child.clientWidth / 96) * 96 + 'px';
         }
     }
 }

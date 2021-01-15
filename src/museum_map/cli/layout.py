@@ -148,7 +148,7 @@ def get_ancestors(group):
 
 def summarise_floor(dbsession, floor):
     # Generate the sample images
-    floor.samples = [choice(room.items) for room in sample(floor.rooms, 10)]
+    floor.samples = [choice(room.items) for room in sample(floor.rooms, min(15, len(floor.rooms)))]
     for room in floor.rooms:
         room.sample = choice(room.items)
     # Generate the topic list

@@ -93,7 +93,11 @@ export default class Room extends ComponentRoot {
 
     public thumbImageURL(imageId: string) {
         if (imageId) {
-            return '/images/' + imageId.split('').join('/') + '/' + imageId + '-thumb.jpg';
+            if (window.innerWidth <= 784) {
+                return '/images/' + imageId.split('').join('/') + '/' + imageId + '-320.jpg';
+            } else {
+                return '/images/' + imageId.split('').join('/') + '/' + imageId + '-240.jpg';
+            }
         } else {
             return '';
         }

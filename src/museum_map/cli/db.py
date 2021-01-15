@@ -51,8 +51,8 @@ def load_images(ctx, source, target):
                 image_source = os.path.join(basepath, filename)
                 image_target = os.path.join(target, *image_id, filename)
                 shutil.copy(image_source, image_target)
-                subprocess.run(['gm', 'convert', image_source, '-resize', '240x240', image_target.replace('.jpg', '-thumb.jpg')])
-
+                subprocess.run(['gm', 'convert', image_source, '-resize', '240x240', image_target.replace('.jpg', '-240.jpg')])
+                subprocess.run(['gm', 'convert', image_source, '-resize', '320x320', image_target.replace('.jpg', '-320.jpg')])
 
 
 @click.group()

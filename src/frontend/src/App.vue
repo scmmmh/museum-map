@@ -1,12 +1,13 @@
 <template>
     <main>
         <header>
-            <h1>Museum Map<template v-if="currentRoom"> - {{ roomTitle }}</template></h1>
+            <h1 v-if="isSmall"><button v-if="currentFloor && currentRoom" @click="setMapFloorId(currentFloor.id)">{{ roomTitle }}</button><template v-else>Museum Map</template></h1>
+            <h1 v-else>Museum Map<template v-if="currentRoom"> - {{ roomTitle }}</template></h1>
             <nav>
                 <ol>
-                    <li><router-link to="/">Virtual Museum</router-link></li>
+                    <li><router-link :to="{name: 'lobby'}">Lobby</router-link></li>
                     <li v-if="currentFloor"><button @click="setMapFloorId(currentFloor.id)">{{ currentFloor.attributes.label }}</button></li>
-                    <li v-if="currentRoom"><button @click="setMapFloorId(currentFloor.id)">Room {{ roomTitle }}</button></li>
+                    <li v-if="currentRoom && !isSmall"><button @click="setMapFloorId(currentFloor.id)">Room {{ roomTitle }}</button></li>
                 </ol>
             </nav>
         </header>
@@ -99,6 +100,10 @@ export default class App extends ComponentRoot {
         return null;
     }
 
+    public get isSmall() {
+        return window.innerWidth <= 784;
+    }
+
     public created() {
         this.$store.dispatch('fetchFloors').then((floors: JSONAPIItem[]) => {
             const itemIds = [] as string[];
@@ -136,6 +141,7 @@ export default class App extends ComponentRoot {
 body {
     margin: 0;
     padding: 0;
+
 }
 
 main {
@@ -191,6 +197,20 @@ main {
     }
 
     header {
+        h1 {
+            button {
+                cursor: pointer;
+                border: 0;
+                background: transparent;
+                color: #ffffff;
+                padding: 0;
+                font-weight: inherit;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
         nav {
             ol {
                 list-style-type: none;
@@ -247,7 +267,6 @@ main {
 
     article {
         flex: 1 1 auto;
-        padding-top: 0.5rem;
         position: relative;
         overflow: hidden;
 
@@ -260,7 +279,7 @@ main {
                 list-style-type: none;
 
                 > li {
-                    padding: 0 1rem 1.5rem 1rem;
+                    padding: 0.5rem 1rem 1rem 1rem;
 
                     h2 {
                         margin: 0;
@@ -287,6 +306,10 @@ main {
 
                         &.samples {
                             padding-left: 0;
+                            overflow: hidden;
+                            display: flex;
+                            flex-direction: row;
+                            flex-wrap: nowrap;
 
                             li {
                                 display: inline-block;
@@ -311,7 +334,6 @@ main {
                         &.topics {
                             padding-left: 0;
                             padding-bottom: 1rem;
-                            margin-top: -0.3rem;
 
                             li {
                                 display: inline;
@@ -356,9 +378,18 @@ main {
                 row-gap: 2rem;
                 justify-content: center;
 
+                @media screen and (max-width: 784px) and (min-width: 241px) {
+                    grid-template-columns: repeat(auto-fill, 320px);
+                }
+
                 li {
                     width: 240px;
                     height: 240px;
+
+                    @media screen and (max-width: 784px) and (min-width: 241px) {
+                        width: 320px;
+                        height: 320px;
+                    }
 
                     button {
                         display: block;
@@ -432,6 +463,13 @@ main {
                     padding: 0;
                     box-shadow: 0 0 20px #000000;
 
+                    @media screen and (max-width: 784px) {
+                        margin: 0;
+                        height: 100%;
+                        width: 100%;
+                        flex-direction: column;
+                    }
+
                     a.close {
                         display: block;
                         position: absolute;
@@ -455,6 +493,11 @@ main {
                         align-items: center;
                         width: 50%;
 
+                        @media screen and (max-width: 784px) {
+                            height: 50%;
+                            width: 100%;
+                        }
+
                         img {
                             max-height: 100%;
                             max-width: 100%;
@@ -469,6 +512,11 @@ main {
                         padding: 0;
                         margin: 0;
                         width: 50%;
+
+                        @media screen and (max-width: 784px) {
+                            height: 50%;
+                            width: 100%;
+                        }
 
                         h2 {
                             background: #0040ad;
@@ -531,6 +579,14 @@ main {
             flex-direction: row;
             box-shadow: 0 0 20px #000000;
 
+            @media screen and (max-width: 784px) {
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                transform: none;
+            }
+
             button.close {
                 display: block;
                 position: absolute;
@@ -565,6 +621,10 @@ main {
 
                     span {
                         flex: 1 1 auto;
+
+                        @media screen and (max-width: 784px) {
+                            padding-left: 1rem;
+                        }
                     }
 
                     button {
@@ -594,14 +654,28 @@ main {
                     padding: 1rem;
                     margin: 0;
 
-                    li {
-                        display: inline-block;
-                        margin: 0;
-                        padding: 0;
+                    &.rooms {
+                        flex: 1 1 auto;
+                        overflow: auto;
 
-                        & + li {
-                            &:before {
-                                content: ', ';
+                        li {
+                            a {
+                                display: block;
+                                padding: 0.5rem 0;
+                            }
+                        }
+                    }
+
+                    &.topics {
+                        li {
+                            display: inline-block;
+                            margin: 0;
+                            padding: 0;
+
+                            & + li {
+                                &:before {
+                                    content: ', ';
+                                }
                             }
                         }
                     }
@@ -633,6 +707,10 @@ main {
                 background: #000000;
                 padding: 1rem;
                 font-family: Arial, Helvetica, sans-serif;
+
+                @media screen and (max-width: 784px) {
+                    display: none;
+                }
 
                 .wrapper {
                     position: relative;
@@ -669,6 +747,7 @@ main {
 a, button {
     color: #ffffff;
     text-decoration: none;
+    font-family: inherit;
     font-size: inherit;
 
     &:hover {

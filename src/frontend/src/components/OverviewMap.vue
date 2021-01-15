@@ -1,7 +1,7 @@
 <template>
     <section id="map">
         <div>
-            <button class="close" @click="setMapFloorId(null)">&#x2716;</button>
+            <button v-if="!isSmall" class="close" @click="setMapFloorId(null)">&#x2716;</button>
             <div class="map">
                 <div class="wrapper">
                     <img src="@/assets/map.png" alt=""/>
@@ -10,6 +10,7 @@
             </div>
             <div class="description">
                 <h2>
+                    <button v-if="isSmall" @click="setMapFloorId(null)">&#x2716;</button>
                     <span>{{ mapFloor.attributes.label }}</span>
                     <button @click="moveFloorUpDown(1)">
                         <svg viewBox="0 0 24 24">
@@ -22,17 +23,24 @@
                         </svg>
                     </button>
                 </h2>
-                <ul>
-                    <li v-for="topic in mapFloorTopics" :key="topic.id">{{ topic.attributes.label }}</li>
-                    <li>...</li>
-                </ul>
-                <div></div>
-                <section v-if="selectedRoom">
-                    <h3>{{ selectedRoom.attributes.label }}</h3>
-                    <figure v-if="selectedRoomItem">
-                        <img :src="thumbImageURL(selectedRoomItem.attributes.images[0])" alt=""/>
-                    </figure>
-                </section>
+                <template v-if="isSmall">
+                    <ul class="rooms">
+                        <li v-for="room in mapFloorRooms" :key="room.id"><router-link :to="{name: 'room', params: {rid: room.id}}" :aria-selected="selectedRoom && room.id === selectedRoom.id ? 'true' : 'false'" @click="setMapFloorId(null)" @mouseover="highlightRoom(room)">{{ room.attributes.label }}</router-link></li>
+                    </ul>
+                </template>
+                <template v-else>
+                    <ul class="topics">
+                        <li v-for="topic in mapFloorTopics" :key="topic.id">{{ topic.attributes.label }}</li>
+                        <li>...</li>
+                    </ul>
+                    <div></div>
+                    <section v-if="selectedRoom">
+                        <h3>{{ selectedRoom.attributes.label }}</h3>
+                        <figure v-if="selectedRoomItem">
+                            <img :src="thumbImageURL(selectedRoomItem.attributes.images[0])" alt=""/>
+                        </figure>
+                    </section>
+                </template>
             </div>
         </div>
     </section>
@@ -122,6 +130,10 @@ export default class OverviewMap extends ComponentRoot {
             return topics;
         }
         return [];
+    }
+
+    public get isSmall() {
+        return window.innerWidth <= 784;
     }
 
     public setMapFloorId(floor: JSONAPIItem | null) {
