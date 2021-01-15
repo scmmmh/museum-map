@@ -11,8 +11,9 @@ from ..server.handlers import APICollectionHandler, APIItemHandler
 
 
 @click.command()
+@click.option('-p', '--port', type=int, default=6543, help='Server port')
 @click.pass_context
-def run(ctx):
+def run(ctx, port):
     engine = create_async_engine(ctx.obj['config'].get('db', 'uri'))
     app = Application(
         [
@@ -24,7 +25,7 @@ def run(ctx):
         autoreload=True,
         config=ctx.obj['config'],
         engine=engine)
-    app.listen(6543)
+    app.listen(port)
     IOLoop.current().start()
 
 
