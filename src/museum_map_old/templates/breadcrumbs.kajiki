@@ -1,6 +1,0 @@
-<div class="grid-container">
-  <ul class="breadcrumbs">
-    <li py:for="parent in hierarchy[:-1]" title="${parent.title}"><a href="${request.route_url('explore', gid=parent.id)}">${parent.title}</a></li>
-    <li title="${hierarchy[-1].title}"><span class="show-for-sr">Current: </span> <span class="ellipsis">${hierarchy[-1].title}</span></li>
-  </ul>
-</div>
