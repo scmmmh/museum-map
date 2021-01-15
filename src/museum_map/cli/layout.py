@@ -84,10 +84,7 @@ def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
                 break
 
 
-@click.command()
-@click.pass_context
-def generate_structure(ctx):
-    """Generate the floors and rooms structure."""
+def generate_structure_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -123,6 +120,13 @@ def generate_structure(ctx):
         progress.update(old_len - len(assignable))
         old_len = len(assignable)
     dbsession.commit()
+
+
+@click.command()
+@click.pass_context
+def generate_structure(ctx):
+    """Generate the floors and rooms structure."""
+    generate_structure_impl(ctx)
 
 
 def get_basic_group(group):
@@ -179,10 +183,7 @@ def summarise_floor(dbsession, floor):
                     count = count + 1
 
 
-@click.command()
-@click.pass_context
-def generate_summaries(ctx):
-    """Generate the floor and room summaries"""
+def generate_summaries_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -195,8 +196,12 @@ def generate_summaries(ctx):
 
 @click.command()
 @click.pass_context
-def order_items(ctx):
-    """Order the items in each room"""
+def generate_summaries(ctx):
+    """Generate the floor and room summaries"""
+    generate_summaries_impl(ctx)
+
+
+def order_items_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
@@ -226,6 +231,21 @@ def order_items(ctx):
     dbsession.commit()
 
 
+@click.command()
+@click.pass_context
+def order_items(ctx):
+    """Order the items in each room"""
+    order_items_impl(ctx)
+
+
+@click.command()
+@click.pass_context
+def pipeline(ctx):
+    generate_structure_impl(ctx)
+    generate_summaries_impl(ctx)
+    order_items_impl(ctx)
+
+
 @click.group()
 def layout():
     """Layout generation commands."""
@@ -235,3 +255,4 @@ def layout():
 layout.add_command(generate_structure)
 layout.add_command(generate_summaries)
 layout.add_command(order_items)
+layout.add_command(pipeline)

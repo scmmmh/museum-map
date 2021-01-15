@@ -43,6 +43,7 @@ def load(ctx, source):
 @click.argument('target')
 @click.pass_context
 def load_images(ctx, source, target):
+    """Load and convert images."""
     for basepath, _, filenames in os.walk(source):
         for filename in filenames:
             if filename.endswith('.jpg'):
