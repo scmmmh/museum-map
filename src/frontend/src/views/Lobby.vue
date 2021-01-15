@@ -1,10 +1,22 @@
 <template>
     <article class="lobby">
         <ol>
-            <li v-for="floor in floors" :key="floor.id">
-                <h2><button>{{ floor.floor.attributes.label }}</button></h2>
-                <ul>
-                    <li v-for="room in floor.rooms" :key="room.room.id"><router-link :to="'/room/' + room.room.id">{{ room.group.attributes.label }}</router-link></li>
+            <li v-for="floor in floors" :key="floor.floor.id">
+                <h2><button @click="setMapFloorId(floor.floor.id)">{{ floor.floor.attributes.label }}</button></h2>
+                <ul class="topics">
+                    <li v-for="topic in floor.topics" :key="topic.id">
+                        <router-link :to="{name: 'room', params: {rid: topic.relationships.room.data.id}}">{{ topic.attributes.label }}</router-link>
+                    </li>
+                    <li><button @click="setMapFloorId(floor.floor.id)">...</button></li>
+                </ul>
+                <ul class="samples">
+                    <li v-for="item in floor.samples" :key="item.id">
+                        <router-link :to="{name: 'item', params: {rid: item.relationships.room.data.id, iid: item.id}}">
+                            <figure>
+                                <img :src="thumbImageURL(item.attributes.images[0])" :alt="item.attributes.title ? item.attributes.title : '[untitled]'"/>
+                            </figure>
+                        </router-link>
+                    </li>
                 </ul>
             </li>
         </ol>
@@ -46,35 +58,51 @@ export default class Lobby extends ComponentRoot {
                     return 0;
                 }
             });
-            const structure = [] as LobbyEntry[];
-            floors.forEach((floor) => {
-                const entry = {
-                    'floor': floor,
-                    'rooms': []
-                } as LobbyEntry;
-                if (floor.relationships && floor.relationships.rooms) {
-                    (floor.relationships.rooms.data as JSONAPIReference[]).forEach((ref) => {
-                        if (this.$store.state.objects.rooms[ref.id]) {
-                            const room = this.$store.state.objects.rooms[ref.id];
-                            if (room.relationships && room.relationships.group) {
-                                if (this.$store.state.objects.groups[(room.relationships.group.data as JSONAPIReference).id]) {
-                                    const group = this.$store.state.objects.groups[(room.relationships.group.data as JSONAPIReference).id];
-                                    entry.rooms.push({
-                                        'room': room,
-                                        'group': group,
-                                    });
-                                }
-                            }
+            return floors.map((floor) => {
+                if (floor.relationships) {
+                    const topics = (floor.relationships.topics.data as JSONAPIReference[]).map((ref) => {
+                        if (this.$store.state.objects['floor-topics'][ref.id]) {
+                            return this.$store.state.objects['floor-topics'][ref.id];
+                        } else {
+                            return null;
                         }
+                    }).filter((item) => {
+                        return item !== null;
                     });
+                    const samples = (floor.relationships.samples.data as JSONAPIReference[]).map((ref) => {
+                        if (this.$store.state.objects.items[ref.id]) {
+                            return this.$store.state.objects.items[ref.id];
+                        } else {
+                            return null;
+                        }
+                    }).filter((item) => {
+                        return item !== null;
+                    });
+                    return {
+                        floor: floor,
+                        samples: samples,
+                        topics: topics,
+                    };
+                } else {
+                    return null;
                 }
-                if (entry.rooms.length > 0) {
-                    structure.push(entry);
-                }
+            }).filter((item) => {
+                return item !== null;
             });
-            return structure;
         }
         return [];
+    }
+
+    public setMapFloorId(floorId: string) {
+        this.$store.commit('setMapFloorId', floorId);
+    }
+
+    public thumbImageURL(imageId: string) {
+        if (imageId) {
+            return '/images/' + imageId.split('').join('/') + '/' + imageId + '-thumb.jpg';
+        } else {
+            return '';
+        }
     }
 }
 </script>

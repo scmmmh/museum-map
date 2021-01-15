@@ -12,17 +12,27 @@ class Room(Base):
     id = Column(Integer, primary_key=True)
     floor_id = Column(Integer, ForeignKey('floors.id'))
     group_id = Column(Integer, ForeignKey('groups.id'))
+    item_id = Column(Integer, ForeignKey('items.id'))
     number = Column(Unicode(16))
+    label = Column(Unicode(255))
+    position = Column(Unicode(255))
 
     group = relationship('Group', back_populates='room')
     floor = relationship('Floor', back_populates='rooms')
+    sample = relationship('Item', primaryjoin='Room.item_id == Item.id')
+    items = relationship('Item',
+                         back_populates='room',
+                         order_by='Item.sequence',
+                         primaryjoin='Room.id == Item.room_id')
 
     def as_jsonapi(self):
-        return {
+        data = {
             'type': 'rooms',
             'id': str(self.id),
             'attributes': {
                 'number': self.number,
+                'label': self.label,
+                'position': self.position
             },
             'relationships': {
                 'floor': {
@@ -31,14 +41,25 @@ class Room(Base):
                         'id': str(self.floor_id)
                     }
                 },
-                'group': {
-                    'data': {
-                        'type': 'groups',
-                        'id': str(self.group_id)
-                    }
+                'items': {
+                    'data': [
+                        {
+                            'type': 'items',
+                            'id': str(item.id)
+                        }
+                        for item in self.items
+                    ]
                 }
             }
         }
+        if self.sample:
+            data['relationships']['sample'] = {
+                'data': {
+                    'type': 'items',
+                    'id': str(self.sample.id)
+                }
+            }
+        return data
 
 
 class RoomLink(Base):

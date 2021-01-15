@@ -6,7 +6,7 @@
                 <img :src="imageURL(item.attributes.images[0])" alt=""/>
             </figure>
             <div>
-                <h2>{{ item.attributes.title ? item.attributes.title : '[untitled]' }}</h2>
+                <h2 v-html="item.attributes.title ? processParagraph(item.attributes.title) : '[untitled]'"></h2>
                 <div>
                     <template v-if="item.attributes.description">
                         <p v-for="(text, idx) in processText(item.attributes.description)" :key="idx" v-html="text"></p>
@@ -82,7 +82,11 @@ export default class Item extends ComponentRoot {
     }
 
     public imageURL(imageId: string) {
-        return '/images/' + imageId.split('').join('/') + '/' + imageId + '.jpg';
+        if (imageId) {
+            return '/images/' + imageId.split('').join('/') + '/' + imageId + '.jpg';
+        } else {
+            return '';
+        }
     }
 
     public formatField(item: string | string[]) {
@@ -93,23 +97,26 @@ export default class Item extends ComponentRoot {
         }
     }
 
+    public processParagraph(paragraph: string) {
+        return paragraph
+            .replace(/<[iI]>/g, '\\begin{em}')
+            .replace(/<\/[iI]>/g, '\\end{em}')
+            .replace(/<[uU]>/g, '\\begin{em}')
+            .replace(/<\/[uU]>/g, '\\end{em}')
+            .replace(/<[bB]>/g, '\\begin{strong}')
+            .replace(/<\/[bB]>/g, '\\end{strong}')
+            .replace(/<\/?[a-zA-Z]+>/g, '')
+            .replace(/\\begin\{em\}/g, '<em>')
+            .replace(/\\end\{em\}/g, '</em>')
+            .replace(/\\begin\{strong\}/g, '<strong>')
+            .replace(/\\end\{strong\}/g, '</strong>');
+    }
+
     public processText(text: string) {
         const paras = [] as string[];
         text.split('\n\n').forEach((part1) => {
             part1.split('<br><br>').forEach((part2) => {
-                paras.push(part2
-                    .replace(/<[iI]>/g, '\\begin{em}')
-                    .replace(/<\/[iI]>/g, '\\end{em}')
-                    .replace(/<[uU]>/g, '\\begin{em}')
-                    .replace(/<\/[uU]>/g, '\\end{em}')
-                    .replace(/<[bB]>/g, '\\begin{strong}')
-                    .replace(/<\/[bB]>/g, '\\end{strong}')
-                    .replace(/<\/?[a-zA-Z]+>/g, '')
-                    .replace('\\begin{em}', '<em>')
-                    .replace('\\end{em}', '</em>')
-                    .replace('\\begin{strong}', '<strong>')
-                    .replace('\\end{strong}', '</strong>')
-                );
+                paras.push(this.processParagraph(part2));
             });
         });
         return paras;

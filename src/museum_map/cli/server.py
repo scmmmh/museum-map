@@ -16,8 +16,8 @@ def run(ctx):
     engine = create_async_engine(ctx.obj['config'].get('db', 'uri'))
     app = Application(
         [
-            ('/api/([a-z]+)', APICollectionHandler),
-            ('/api/([a-z]+)/([0-9]+)', APIItemHandler),
+            ('/api/([a-z\-]+)', APICollectionHandler),
+            ('/api/([a-z\-]+)/([0-9]+)', APIItemHandler),
             ('/images/(.*)', StaticFileHandler, {'path': ctx.obj['config'].get('images', 'basepath')}),
             ('/(.*)', StaticFileHandler, {'path': 'src/museum_map/static', 'default_filename': 'index.html'})
         ],

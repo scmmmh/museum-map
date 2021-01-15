@@ -9,7 +9,7 @@ from .db import db
 from .groups import groups
 from .server import server
 from .items import items
-from .rooms import rooms
+from .layout import layout
 
 
 logger = logging.getLogger('scr')
@@ -39,4 +39,4 @@ cli.add_command(db)
 cli.add_command(groups)
 cli.add_command(items)
 cli.add_command(server)
-cli.add_command(rooms)
+cli.add_command(layout)

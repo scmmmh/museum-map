@@ -20,52 +20,5 @@ class Group(Base):
     items = relationship('Item', back_populates='group')
     room = relationship('Room', back_populates='group', uselist=False)
 
-    def as_jsonapi(self):
-        data = {
-            'type': 'groups',
-            'id': str(self.id),
-            'attributes': {
-                'value': self.value,
-                'label': self.label,
-                'split': self.split,
-            },
-            'relationships': {
-                'children': {
-                    'data': [
-                        {
-                            'type': 'groups',
-                            'id': str(child.id)
-                        }
-                        for child in self.children
-                    ]
-                },
-                'items': {
-                    'data': [
-                        {
-                            'type': 'items',
-                            'id': str(item.id)
-                        }
-                        for item in self.items
-                    ]
-                }
-            }
-        }
-        if self.parent:
-            data['relationships']['parent'] = {
-                'data': {
-                    'type': 'groups',
-                    'id': str(self.parent_id)
-                }
-            }
-        if self.room:
-            data['relationships']['room'] = {
-                'data': {
-                    'type': 'rooms',
-                    'id': str(self.room.id)
-                }
-            }
-
-        return data
-
 
 Index(Group.parent_id)

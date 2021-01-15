@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from tornado import web
 
-from ..models import Floor, Room, Group, Item
+from ..models import Floor, FloorTopic, Room, Group, Item
 
 
 class RequestBase(web.RequestHandler):
@@ -12,17 +12,17 @@ class RequestBase(web.RequestHandler):
         query = None
         class_ = None
         if types == 'rooms':
-            query = select(Room)
+            query = select(Room).options(selectinload(Room.floor), selectinload(Room.items))
             class_ = Room
         elif types == 'floors':
-            query = select(Floor).options(selectinload(Floor.rooms))
+            query = select(Floor).options(selectinload(Floor.rooms), selectinload(Floor.samples), selectinload(Floor.topics))
             class_ = Floor
-        elif types == 'groups':
-            query = select(Group).options(selectinload(Group.children))
-            class_ = Group
         elif types == 'items':
-            query = select(Item)
+            query = select(Item).options(selectinload(Item.room))
             class_ = Item
+        elif types == 'floor-topics':
+            query = select(FloorTopic).options(selectinload(FloorTopic.floor), selectinload(FloorTopic.room))
+            class_ = FloorTopic
         return (query, class_)
 
 
@@ -35,12 +35,19 @@ class APICollectionHandler(RequestBase):
                 for key, values in self.request.arguments.items():
                     if key.startswith('filter['):
                         column = key[key.find('[') + 1:key.find(']')]
-                        for value in values:
-                            split_values = value.decode().split(',')
-                            if len(split_values) == 1:
-                                query = query.filter(getattr(class_, column) == split_values[0])
-                            else:
-                                query = query.filter(getattr(class_, column).in_(split_values))
+                        if values == '':
+                            query = query.filter(getattr(class_, column).in_([]))
+                        else:
+                            for value in values:
+                                value = value.decode()
+                                if value == '':
+                                    query = query.filter(getattr(class_, column).in_([]))
+                                else:
+                                    split_values = value.split(',')
+                                    if len(split_values) == 1:
+                                        query = query.filter(getattr(class_, column) == split_values[0])
+                                    else:
+                                        query = query.filter(getattr(class_, column).in_(split_values))
                 result = await session.execute(query)
                 items = [item.as_jsonapi() for item in result.scalars()]
                 self.write({'data': items})

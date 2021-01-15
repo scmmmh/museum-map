@@ -1,19 +1,19 @@
 <template>
     <main>
         <header>
-            <h1>Museum Map<template v-if="currentRoom && currentGroup"> - {{ roomTitle }}</template></h1>
+            <h1>Museum Map<template v-if="currentRoom"> - {{ roomTitle }}</template></h1>
             <nav>
                 <ol>
                     <li><router-link to="/">Virtual Museum</router-link></li>
-                    <li v-if="currentRoom && currentFloor"><button>{{ currentFloor.attributes.label }}</button></li>
-                    <li v-if="currentRoom && currentGroup"><button>Room {{ roomTitle }}</button></li>
+                    <li v-if="currentFloor"><button @click="setMapFloorId(currentFloor.id)">{{ currentFloor.attributes.label }}</button></li>
+                    <li v-if="currentRoom"><button @click="setMapFloorId(currentFloor.id)">Room {{ roomTitle }}</button></li>
                 </ol>
             </nav>
         </header>
         <router-view></router-view>
         <footer>
             <div>
-                <a href="https://www.room3b.eu/pages/projects/digital-museum-map.html" target="_blank" rel="noopener">Find out more about how this works</a>
+                <a href="https://www.room3b.eu/pages/projects/digital-museum-map.html" target="_blank" rel="noopener">Find out more<span class="hide-for-small"> about how this works</span></a>
             </div>
             <div>
                 <a href="https://collections.vam.ac.uk/" target="_blank" rel="noopener">Objects, Images, and Meta-data provided by the V&amp;A</a>
@@ -22,6 +22,7 @@
                 <a href="http://www.getty.edu/research/tools/vocabularies/aat/" target="_blank" rel="noopener">Includes part of the AAT</a>
             </div>
         </footer>
+        <overview-map v-if="mapFloor"></overview-map>
         <div v-if="loading" id="loading">
             <div>Loading</div>
             <svg width="100" height="100" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#1e4b9b">
@@ -41,10 +42,12 @@
 import { Options } from 'vue-class-component';
 
 import { ComponentRoot } from '@/base';
-import { JSONAPIReference } from '@/store';
+import { JSONAPIItem, JSONAPIReference } from '@/store';
+import OverviewMap from '@/components/OverviewMap.vue';
 
 @Options({
     components: {
+        OverviewMap,
     },
     watch: {
         roomTitle: (newVal) => {
@@ -53,6 +56,14 @@ import { JSONAPIReference } from '@/store';
     }
 })
 export default class App extends ComponentRoot {
+    public get mapFloor() {
+        if (this.$store.state.ui.mapFloorId && this.$store.state.objects.floors[this.$store.state.ui.mapFloorId]) {
+            return this.$store.state.objects.floors[this.$store.state.ui.mapFloorId];
+        } else {
+            return null;
+        }
+    }
+
     public get loading() {
         return this.$store.state.ui.loadingCount > 0;
     }
@@ -69,23 +80,9 @@ export default class App extends ComponentRoot {
         return null;
     }
 
-    public get currentGroup() {
-        if (this.currentRoom) {
-            if (this.currentRoom.relationships && this.currentRoom.relationships.group) {
-                const gid = (this.currentRoom.relationships.group.data as JSONAPIReference).id;
-                if (this.$store.state.objects.groups[gid]) {
-                    return this.$store.state.objects.groups[gid];
-                }
-            }
-        }
-        return null;
-    }
-
     public get roomTitle() {
-        if (this.currentRoom && this.currentGroup) {
-            if (this.currentRoom.attributes && this.currentGroup.attributes) {
-                return this.currentRoom.attributes.number + ' - ' + this.currentGroup.attributes.label;
-            }
+        if (this.currentRoom && this.currentRoom.attributes) {
+            return this.currentRoom.attributes.number + ' - ' + this.currentRoom.attributes.label;
         }
         return 'Museum Map';
     }
@@ -103,7 +100,34 @@ export default class App extends ComponentRoot {
     }
 
     public created() {
-        this.$store.dispatch('fetchFloors');
+        this.$store.dispatch('fetchFloors').then((floors: JSONAPIItem[]) => {
+            const itemIds = [] as string[];
+            const topicIds = [] as string[];
+            floors.forEach((floor) => {
+                if (floor.relationships) {
+                    (floor.relationships.samples.data as JSONAPIReference[]).forEach((ref) => {
+                        if (!this.$store.state.objects.items[ref.id]) {
+                            itemIds.push(ref.id);
+                        }
+                    });
+                    (floor.relationships.topics.data as JSONAPIReference[]).forEach((ref) => {
+                        if (!this.$store.state.objects['floor-topics'][ref.id]) {
+                            topicIds.push(ref.id);
+                        }
+                    });
+                }
+            });
+            if (itemIds.length > 0) {
+                this.$store.dispatch('fetchItems', itemIds);
+            }
+            if (topicIds.length > 0) {
+                this.$store.dispatch('fetchFloorTopics', topicIds);
+            }
+        });
+    }
+
+    public setMapFloorId(floor: JSONAPIItem | null) {
+        this.$store.commit('setMapFloorId', floor);
     }
 }
 </script>
@@ -235,7 +259,7 @@ main {
                 padding: 0;
                 list-style-type: none;
 
-                li {
+                > li {
                     padding: 0 1rem 1.5rem 1rem;
 
                     h2 {
@@ -260,16 +284,57 @@ main {
                     ul {
                         list-style-type: none;
                         margin: 0;
-                        padding-left: 1rem;
 
-                        li {
-                            display: inline;
-                            padding: 0;
-                            margin: 0;
+                        &.samples {
+                            padding-left: 0;
 
-                            + li {
-                                &:before {
-                                    content: ', ';
+                            li {
+                                display: inline-block;
+                                margin-right: 1rem;
+
+                                figure {
+                                    width: 5rem;
+                                    height: 5rem;
+                                    background: #000000;
+                                    margin: 0;
+                                    display: flex;
+                                    justify-content: center;
+
+                                    img {
+                                        max-width: 100%;
+                                        max-height: 100%;
+                                    }
+                                }
+                            }
+                        }
+
+                        &.topics {
+                            padding-left: 0;
+                            padding-bottom: 1rem;
+                            margin-top: -0.3rem;
+
+                            li {
+                                display: inline;
+                                padding: 0;
+                                margin: 0;
+                                font-size: 1.1rem;
+
+                                + li {
+                                    &:before {
+                                        content: ', ';
+                                    }
+                                }
+
+                                button {
+                                    border: 0;
+                                    padding: 0;
+                                    color: #ffffff;
+                                    background: transparent;
+                                    cursor: pointer;
+
+                                    &:hover, &:focus {
+                                        text-decoration: underline;
+                                    }
                                 }
                             }
                         }
@@ -446,89 +511,154 @@ main {
         }
     }
 
-    #floors {
+    #map {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         z-index: 100;
-        background: #555555cc;
+        background: #222222cc;
 
         > div {
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 80%;
-            height: 80%;
-            max-height: 600px;
+            width: calc(100% - 6rem);
             transform: translate(-50%, -50%);
-            background: #555555;
+            background: #222222;
             display: flex;
             flex-direction: row;
-            box-shadow: 0 0 10px #000000;
+            box-shadow: 0 0 20px #000000;
 
-            > div {
-                height: 100%;
-
-                &:first-child {
-                    width: 33.33333%;
-                }
-                &:last-child {
-                    width: 66.66666%;
-                }
-            }
-        }
-
-        h2 {
-            margin: 0;
-            font-size: 22px;
-        }
-
-        h3 {
-            margin: 0;
-            font-size: 20px;
-            background: #0040adff;
-            color: #ffffff;
-        }
-
-        .map {
-            position: relative;
-            transform-origin: top left;
-
-            .base-layer {
+            button.close {
+                display: block;
                 position: absolute;
-                left: 1rem;
-                top: 1rem;
-                width: calc(100% - 2rem);
-                height: calc(100% - 2rem);
-                z-index: 1;
-            }
-
-            .room-layer {
-                position: absolute;
-                left: 1rem;
-                top: 1rem;
-                width: calc(100% - 2rem);
-                height: calc(100% - 2rem);
+                left: 0;
+                top: 0;
+                background: #222222cc;
+                color: #ffffff;
+                border: 0;
+                padding: 0.5rem 1rem;
+                font-size: 1.2rem;
+                cursor: pointer;
                 z-index: 2;
 
-                button {
-                    position: absolute;
-                    left: 240px;
-                    top: 81px;
-                    width: 58px;
-                    height: 238px;
-                    color: #222222;
-                    background: #ffffff;
-                    font-size: 0.7rem;
-                    border: 0;
-                    cursor: pointer;
-                    transition: color 0.1s, background-color 0.1s;
+                &:hover, &:focus {
+                    text-decoration: underline;
+                }
+            }
 
-                    &:hover, &:focus {
-                        background: #0040adff;
-                        color: #ffffff;
+            .description {
+                flex: 1 1 auto;
+                display: flex;
+                flex-direction: column;
+
+                h2 {
+                    margin: 0;
+                    padding: 0.5rem 1rem;
+                    display: flex;
+                    flex-direction: row;
+                    color: #ffffff;
+                    background: #0040ad;
+                    flex: 0 0 auto;
+
+                    span {
+                        flex: 1 1 auto;
+                    }
+
+                    button {
+                        flex: 0 0 auto;
+                        padding: 0 0.2rem;
+                        background: transparent;
+                        border: 0;
+                        cursor: pointer;
+
+                        svg {
+                            height: 24px;
+                            width: 24px;
+
+                            path {
+                                fill: #ffffff;
+                            }
+                        }
+                    }
+                }
+
+                > div {
+                    flex: 1 1 auto;
+                }
+
+                ul {
+                    list-style-type: none;
+                    padding: 1rem;
+                    margin: 0;
+
+                    li {
+                        display: inline-block;
+                        margin: 0;
+                        padding: 0;
+
+                        & + li {
+                            &:before {
+                                content: ', ';
+                            }
+                        }
+                    }
+                }
+
+                h3 {
+                    flex: 0 0 auto;
+                    margin: 0;
+                    padding: 0.5rem 1rem;
+                    color: #ffffff;
+                    background: #0040ad;
+                }
+
+                figure {
+                    background: #000000;
+                    text-align: center;
+                    margin: 0;
+                    height: 140px;
+
+                    img {
+                        max-width: 100%;
+                        max-height: 100%;
+                    }
+                }
+            }
+
+            .map {
+                flex: 0 0 auto;
+                background: #000000;
+                padding: 1rem;
+                font-family: Arial, Helvetica, sans-serif;
+
+                .wrapper {
+                    position: relative;
+
+                    a {
+                        display: flex;
+                        position: absolute;
+                        border: 0;
+                        background: #ffffff;
+                        color: #000000;
+                        padding: 0;
+                        transition: color 0.2s, background-color 0.2s;
+                        font-size: 8pt;
+                        cursor: pointer;
+                        align-items: center;
+
+                        span {
+                            flex: 1 1 auto;
+                            text-align: center;
+                        }
+
+                        &:hover, &:focus, &[aria-selected=true] {
+                            color: #ffffff;
+                            background: #0040ad;
+                            text-decoration: none;
+                        }
                     }
                 }
             }
@@ -536,9 +666,10 @@ main {
     }
 }
 
-a {
+a, button {
     color: #ffffff;
     text-decoration: none;
+    font-size: inherit;
 
     &:hover {
         text-decoration: underline;
@@ -588,5 +719,11 @@ figure {
 .invert {
     color: #222222;
     background: #ffffff;
+}
+
+@media screen and (max-width: 768px) {
+    .hide-for-small {
+        display: none;
+    }
 }
 </style>
