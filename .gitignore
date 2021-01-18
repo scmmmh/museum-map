@@ -10,5 +10,5 @@ cache
 .vscode
 *.sqlite
 *.sqlite-journal
-*.json
 *.dump
+aat.json
