@@ -12,3 +12,4 @@ cache
 *.sqlite-journal
 *.dump
 aat.json
+dist
