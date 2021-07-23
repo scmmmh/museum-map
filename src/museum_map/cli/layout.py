@@ -156,8 +156,27 @@ def summarise_floor(dbsession, floor):
     for room in floor.rooms:
         room.sample = choice(room.items)
     # Generate the topic list
-    if len(floor.topics) == 0:
-        groups = set()
+    if True or len(floor.topics) == 0:
+        floor_groups = {}
+        for room in floor.rooms:
+            group = room.group
+            size = count_items(group)
+            while group.split in ['time', 'similar', 'attribute', 'inner']:
+                group = group.parent
+            if group in floor_groups:
+                floor_groups[group] = floor_groups[group] + size
+            else:
+                floor_groups[group] = size
+        group_sizes = list(floor_groups.items())
+        group_sizes.sort(key=lambda g: g[1], reverse=True)
+        total = sum(floor_groups.values())
+        sub_total = 0
+        for group, size in group_sizes:
+            sub_total = sub_total + size
+            dbsession.add(FloorTopic(label=pluralize_label(group.label), group=group, floor=floor, size=size))
+            if sub_total / total > 0.66666:
+                break
+        """groups = set()
         group_rooms = {}
         for room in floor.rooms:
             groups.add(get_basic_group(room.group))
@@ -180,13 +199,14 @@ def summarise_floor(dbsession, floor):
                 if len(added.intersection(set([group] + get_ancestors(group)))) == 0:
                     dbsession.add(FloorTopic(label=pluralize_label(group.label), floor=floor, room=group_rooms[group]))
                     added.add(group)
-                    count = count + 1
+                    count = count + 1"""
 
 
 def generate_summaries_impl(ctx):
     engine = create_engine(ctx.obj['config'].get('db', 'uri'))
     Base.metadata.bind = engine
     dbsession = sessionmaker(bind=engine)()
+    dbsession.query(FloorTopic).delete()
     query = dbsession.query(Floor)
     with click.progressbar(query, length=query.count(), label='Generating floor summaries') as progress:
         for floor in progress:

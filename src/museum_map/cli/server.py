@@ -10,7 +10,7 @@ from tornado.web import Application, StaticFileHandler
 
 from ..models import Base, Item, Group
 
-from ..server.handlers import APICollectionHandler, APIItemHandler
+from ..server.handlers import APICollectionHandler, APIItemHandler, APIPickHandler
 
 
 @click.command()
@@ -21,6 +21,7 @@ def run(ctx, port):
     engine = create_async_engine(ctx.obj['config'].get('db', 'uri'))
     app = Application(
         [
+            ('/api/picks/([a-z\-]+)', APIPickHandler),
             ('/api/([a-z\-]+)', APICollectionHandler),
             ('/api/([a-z\-]+)/([0-9]+)', APIItemHandler),
             ('/images/(.*)', StaticFileHandler, {'path': ctx.obj['config'].get('images', 'basepath')}),

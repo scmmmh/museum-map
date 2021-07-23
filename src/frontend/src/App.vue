@@ -6,7 +6,7 @@
             <nav>
                 <ol>
                     <li><router-link :to="{name: 'lobby'}">Lobby</router-link></li>
-                    <li v-if="currentFloor"><button @click="setMapFloorId(currentFloor.id)">{{ currentFloor.attributes.label }}</button></li>
+                    <li v-if="currentFloor"><router-link :to="{name: 'floor', params: {fid: currentFloor.id}}">{{ currentFloor.attributes.label }}</router-link></li>
                     <li v-if="currentRoom && !isSmall"><button @click="setMapFloorId(currentFloor.id)">Room {{ roomTitle }}</button></li>
                 </ol>
             </nav>
@@ -23,7 +23,6 @@
                 <a href="http://www.getty.edu/research/tools/vocabularies/aat/" target="_blank" rel="noopener">Includes part of the AAT</a>
             </div>
         </footer>
-        <overview-map v-if="mapFloor"></overview-map>
         <div v-if="loading" id="loading">
             <div>Loading</div>
             <svg width="100" height="100" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#1e4b9b">
@@ -44,7 +43,7 @@ import { Options } from 'vue-class-component';
 
 import { ComponentRoot } from '@/base';
 import { JSONAPIItem, JSONAPIReference } from '@/store';
-import OverviewMap from '@/components/OverviewMap.vue';
+import OverviewMap from '@/components/FloorMap.vue';
 
 @Options({
     components: {
@@ -57,14 +56,6 @@ import OverviewMap from '@/components/OverviewMap.vue';
     }
 })
 export default class App extends ComponentRoot {
-    public get mapFloor() {
-        if (this.$store.state.ui.mapFloorId && this.$store.state.objects.floors[this.$store.state.ui.mapFloorId]) {
-            return this.$store.state.objects.floors[this.$store.state.ui.mapFloorId];
-        } else {
-            return null;
-        }
-    }
-
     public get loading() {
         return this.$store.state.ui.loadingCount > 0;
     }
@@ -96,6 +87,13 @@ export default class App extends ComponentRoot {
                     return this.$store.state.objects.floors[fid];
                 }
             }
+        } else if (this.$router.currentRoute) {
+            if (this.$router.currentRoute.value.params.fid) {
+                const fid = this.$router.currentRoute.value.params.fid as string;
+                if (this.$store.state.objects.floors[fid]) {
+                    return this.$store.state.objects.floors[fid];
+                }
+            }
         }
         return null;
     }
@@ -105,30 +103,7 @@ export default class App extends ComponentRoot {
     }
 
     public created() {
-        this.$store.dispatch('fetchFloors').then((floors: JSONAPIItem[]) => {
-            const itemIds = [] as string[];
-            const topicIds = [] as string[];
-            floors.forEach((floor) => {
-                if (floor.relationships) {
-                    (floor.relationships.samples.data as JSONAPIReference[]).forEach((ref) => {
-                        if (!this.$store.state.objects.items[ref.id]) {
-                            itemIds.push(ref.id);
-                        }
-                    });
-                    (floor.relationships.topics.data as JSONAPIReference[]).forEach((ref) => {
-                        if (!this.$store.state.objects['floor-topics'][ref.id]) {
-                            topicIds.push(ref.id);
-                        }
-                    });
-                }
-            });
-            if (itemIds.length > 0) {
-                this.$store.dispatch('fetchItems', itemIds);
-            }
-            if (topicIds.length > 0) {
-                this.$store.dispatch('fetchFloorTopics', topicIds);
-            }
-        });
+        this.$store.dispatch('fetchFloorTopics');
     }
 
     public setMapFloorId(floor: JSONAPIItem | null) {
@@ -141,17 +116,25 @@ export default class App extends ComponentRoot {
 body {
     margin: 0;
     padding: 0;
+    background: #333333;
+}
 
+.icon {
+    width: 1rem;
+    height: 1rem;
 }
 
 main {
     max-width: 1200px;
+    margin: 0 auto;
     height: 100vh;
     display: flex;
     flex-direction: column;
     background: #555555;
     color: #ffffff;
     position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 10px #000000;
 
     #loading {
         position: fixed;
@@ -160,7 +143,6 @@ main {
         width: 100vw;
         height: 100vh;
         z-index: 10000;
-        max-width: 1200px;
 
         div {
             position: absolute;
@@ -271,97 +253,309 @@ main {
         overflow: hidden;
 
         &.lobby {
-            ol {
-                height: 100%;
-                overflow: auto;
-                margin: 0;
-                padding: 0;
-                list-style-type: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            margin-bottom: 2rem;
+            overflow: auto;
 
-                > li {
-                    padding: 0.5rem 1rem 1rem 1rem;
+            @media screen and (max-width: 784px) and (min-width: 241px) {
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
 
-                    h2 {
-                        margin: 0;
+            .main-areas {
+                padding: 0 1rem;
+                display: flex;
+                flex-direction: column;
 
-                        button {
-                            border: 0;
-                            background: transparent;
-                            font-size: inherit;
-                            font-weight: inherit;
-                            color: inherit;
-                            padding: 0;
-                            margin: 0;
-                            cursor: pointer;
+                @media screen and (max-width: 784px) and (min-width: 241px) {
+                    order: 2;
+                }
 
-                            &:hover {
-                                text-decoration: underline;
-                            }
-                        }
+                h3 {
+                    margin: 0 0 0.3rem 0;
+                    flex: 0 0 auto;
+                }
+
+                ol {
+                    flex: 1 1 auto;
+                    list-style-type: none;
+                    margin: 0;
+                    padding: 0;
+                    column-count: 2;
+
+                    > li {
+                        break-inside: avoid-column;
+                        page-break-inside: avoid;
                     }
 
                     ul {
                         list-style-type: none;
-                        margin: 0;
+                        margin: 0 0 1rem 0;
+                        padding: 0;
 
-                        &.samples {
-                            padding-left: 0;
-                            overflow: hidden;
-                            display: flex;
-                            flex-direction: row;
-                            flex-wrap: nowrap;
+                        li {
+                            display: inline-block;
 
-                            li {
-                                display: inline-block;
-                                margin-right: 1rem;
-
-                                figure {
-                                    width: 5rem;
-                                    height: 5rem;
-                                    background: #000000;
-                                    margin: 0;
-                                    display: flex;
-                                    justify-content: center;
-
-                                    img {
-                                        max-width: 100%;
-                                        max-height: 100%;
-                                    }
-                                }
+                            &::after {
+                                content: ',';
+                                padding-right: 0.3rem;
                             }
-                        }
 
-                        &.topics {
-                            padding-left: 0;
-                            padding-bottom: 1rem;
-
-                            li {
-                                display: inline;
-                                padding: 0;
-                                margin: 0;
-                                font-size: 1.1rem;
-
-                                + li {
-                                    &:before {
-                                        content: ', ';
-                                    }
-                                }
-
-                                button {
-                                    border: 0;
-                                    padding: 0;
-                                    color: #ffffff;
-                                    background: transparent;
-                                    cursor: pointer;
-
-                                    &:hover, &:focus {
-                                        text-decoration: underline;
-                                    }
+                            &:last-child {
+                                &::after {
+                                    content: '';
                                 }
                             }
                         }
                     }
                 }
+
+                div {
+                    flex: 0 0 auto;
+                    padding: 1rem 0;
+                    text-align: center;
+
+                    a {
+                        display: inline-block;
+                        padding: 0.5rem 0.8rem;
+                        font-size: 130%;
+                        font-weight: bold;
+                        letter-spacing: 0.3rem;
+                        background: #0040ad;
+                        color: #ffffff;
+                    }
+                }
+            }
+
+            .todays-picks {
+                padding: 0 1rem;
+                display: flex;
+                flex-direction: column;
+
+                @media screen and (max-width: 784px) and (min-width: 241px) {
+                    height: 40vh;
+                    order: 1;
+                    flex: 0 0 auto;
+                }
+
+                h2 {
+                    flex: 0 0 auto;
+                }
+
+                div {
+                    flex: 1 1 auto;
+
+                        figure {
+                            display: block;
+                            width: 100%;
+                            height: 100%;
+                            position: relative;
+                            margin: 0;
+                            padding: 0;
+                            background: #000000;
+
+                            img {
+                                max-width: 100%;
+                                max-height: 100%;
+                                position: absolute;
+                                left: 50%;
+                                top: 50%;
+                                transform: translate(-50%, -50%);
+                            }
+
+                            figcaption {
+                                position: absolute;
+                                left: 0;
+                                bottom: 0;
+                                width: 100%;
+                                z-index: 1;
+                                background-color: #222222cc;
+                                display: block;
+                                box-sizing: border-box;
+                                padding: 0.5rem;
+                                opacity: 1;
+                                transition: opacity 0.3s;
+                            }
+
+                            @media screen and (max-width: 784px) and (min-width: 241px) {
+                                figcaption {
+                                    opacity: 0;
+                                }
+                            }
+                        }
+
+                        &:hover {
+                            figcaption {
+                                opacity: 1;
+                            }
+                        }
+                }
+            }
+
+            .random-picks {
+                padding: 0 1rem;
+                grid-column-start: 1;
+                grid-column-end: 3;
+                display: flex;
+                flex-direction: column;
+
+                @media screen and (max-width: 784px) and (min-width: 241px) {
+                    order: 3;
+                }
+
+                h2 {
+                    flex: 0 0 auto;
+                    display: flex;
+                    flex-direction: row;
+
+                    span {
+                        flex: 1 1 auto;
+                    }
+
+                    button {
+                        flex: 0 0 auto;
+                        cursor: pointer;
+                        background: transparent;
+                        border: 0;
+                        padding: 0.2rem 0.3rem;
+
+                        svg {
+                            fill: #ffffff;
+                        }
+
+                        &:hover {
+                            svg {
+                                fill: #dfdfdf;
+                            }
+                        }
+                    }
+                }
+
+                ul {
+                    flex: 1 1 auto;
+                    list-style-type: none;
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    margin: 0;
+                    padding: 0;
+
+                    @media screen and (max-width: 784px) and (min-width: 241px) {
+                        flex-direction: column;
+                    }
+
+                    li {
+                        margin: 0.5rem 0.5rem;
+                        padding: 0;
+                        flex: 1 1 auto;
+                        height: 100%;
+                        min-width: 240px;
+
+                        @media screen and (max-width: 784px) and (min-width: 241px) {
+                            height: 40vh;
+                            margin: 0.5rem 0;
+                        }
+
+                        figure {
+                            display: block;
+                            width: 100%;
+                            height: 100%;
+                            position: relative;
+                            margin: 0;
+                            padding: 0;
+                            background: #000000;
+
+                            img {
+                                max-width: 100%;
+                                max-height: 100%;
+                                position: absolute;
+                                left: 50%;
+                                top: 50%;
+                                transform: translate(-50%, -50%);
+                            }
+
+                            figcaption {
+                                position: absolute;
+                                left: 0;
+                                bottom: 0;
+                                width: 100%;
+                                z-index: 1;
+                                background-color: #222222cc;
+                                display: block;
+                                box-sizing: border-box;
+                                padding: 0.5rem;
+                                opacity: 0;
+                                transition: opacity 0.3s;
+                            }
+                        }
+
+                        &:hover {
+                            figcaption {
+                                opacity: 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        &.floor {
+            display: flex;
+            flex-direction: row;
+            margin: 1rem 0;
+            overflow-y: auto;
+
+            > ol {
+                flex: 0 0 auto;
+                list-style-type: none;
+                margin: 0;
+                padding: 0 2rem 0 1rem;
+                max-width: 25%;
+                overflow-y: auto;
+
+                a {
+                    display: block;
+
+                    &.router-link-exact-active {
+                        font-weight: bold;
+                    }
+
+                    > span {
+                        display: block;
+                        padding: 0 0 0 0.5rem;
+                        font-size: 90%;
+                        color: #cccccc;
+
+                        > span {
+                            display: inline-block;
+                            margin: 0;
+                            padding: 0;
+
+                            &:after {
+                                content: ',';
+                                padding-right: 0.3rem;
+                            }
+
+                            &:last-child {
+                                &:after {
+                                    content: '';
+                                }
+                            }
+                        }
+                    }
+                }
+
+                > li {
+                    margin-bottom: 0.5rem;
+                }
+            }
+
+            > #map {
+                flex: 1 1 auto;
+                padding-right: 1rem;
             }
         }
 
@@ -560,24 +754,29 @@ main {
     }
 
     #map {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 100;
-        background: #222222cc;
+        &.overlay {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            background: #222222cc;
+
+            > div {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: calc(100% - 6rem);
+                transform: translate(-50%, -50%);
+                background: #222222;
+                box-shadow: 0 0 20px #000000;
+            }
+        }
 
         > div {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: calc(100% - 6rem);
-            transform: translate(-50%, -50%);
-            background: #222222;
             display: flex;
             flex-direction: row;
-            box-shadow: 0 0 20px #000000;
 
             @media screen and (max-width: 784px) {
                 left: 0;
@@ -609,6 +808,7 @@ main {
                 flex: 1 1 auto;
                 display: flex;
                 flex-direction: column;
+                background: #222222;
 
                 h2 {
                     margin: 0;
@@ -619,7 +819,7 @@ main {
                     background: #0040ad;
                     flex: 0 0 auto;
 
-                    span {
+                    span, a {
                         flex: 1 1 auto;
 
                         @media screen and (max-width: 784px) {
@@ -672,9 +872,14 @@ main {
                             margin: 0;
                             padding: 0;
 
-                            & + li {
-                                &:before {
-                                    content: ', ';
+                            &:after {
+                                content: ',';
+                                padding-right: 0.3rem;
+                            }
+
+                            &:last-child {
+                                &:after {
+                                    content: '';
                                 }
                             }
                         }
@@ -690,7 +895,6 @@ main {
                 }
 
                 figure {
-                    background: #000000;
                     text-align: center;
                     margin: 0;
                     height: 140px;

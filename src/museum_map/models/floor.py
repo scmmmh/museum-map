@@ -67,31 +67,33 @@ class FloorTopic(Base):
     __tablename__ = 'floor_topics'
 
     id = Column(Integer, primary_key=True)
+    group_id = Column(Integer, ForeignKey('groups.id'))
     floor_id = Column(Integer, ForeignKey('floors.id'))
-    room_id = Column(Integer, ForeignKey('rooms.id'))
     label = Column(Unicode(255))
+    size = Column(Integer)
 
+    group = relationship('Group')
     floor = relationship('Floor', back_populates='topics')
-    room = relationship('Room')
 
     def as_jsonapi(self):
         return {
             'type': 'floor-topics',
             'id': str(self.id),
             'attributes': {
-                'label': self.label
+                'label': self.label,
+                'size': self.size,
             },
             'relationships': {
+                'group': {
+                    'data': {
+                        'type': 'groups',
+                        'id': str(self.group_id)
+                    }
+                },
                 'floor': {
                     'data': {
                         'type': 'floors',
                         'id': str(self.floor_id)
-                    }
-                },
-                'room': {
-                    'data': {
-                        'type': 'rooms',
-                        'id': str(self.room_id)
                     }
                 }
             }

@@ -6,6 +6,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import(/* webpackChunkName: "lobby" */ '../views/Lobby.vue')
     },
     {
+        path: '/floor/:fid',
+        name: 'floor',
+        component: () => import(/* webpackChunkName: "floor" */ '../views/Floor.vue'),
+        props: true,
+    },
+    {
         path: '/room/:rid',
         name: 'room',
         component: () => import(/* webpackChunkName: "room" */ '../views/Room.vue'),

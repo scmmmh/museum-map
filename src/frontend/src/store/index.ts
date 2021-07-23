@@ -51,6 +51,16 @@ interface FetchObjectsPayload {
     query?: string;
 }
 
+function getMissingIds(state: State, relationship: JSONAPIReference[]) {
+    return relationship.map((ref) => {
+        if (state.objects[ref.type][ref.id]) {
+            return null;
+        } else {
+            return ref.id;
+        }
+    }).filter((id) => { return id !== null; });
+}
+
 export default createStore({
     state: {
         objects: {
@@ -68,6 +78,12 @@ export default createStore({
     mutations: {
         storeObject(state, payload: JSONAPIItem) {
             state.objects[payload.type][payload.id] = payload;
+        },
+
+        storeObjects(state, payload: JSONAPIItem[]) {
+            payload.forEach((object) => {
+                state.objects[object.type][object.id] = object;
+            });
         },
 
         startLoading(state) {
@@ -93,9 +109,7 @@ export default createStore({
             const response = await fetch(url);
             if (response.status === 200 || response.status === 304) {
                 const objects = (await response.json()).data;
-                objects.forEach((object: JSONAPIItem) => {
-                    commit('storeObject', object);
-                });
+                commit('storeObjects', objects);
                 commit('completedLoading');
                 return objects;
             }
@@ -118,19 +132,47 @@ export default createStore({
             }
         },
 
-        async fetchRooms({ dispatch }, payload: string[] | null) {
+        async fetchRooms({ state, dispatch }, payload: string[] | null) {
             const params = {type: 'rooms'} as FetchObjectsPayload;
             if (payload) {
                 params.query = '?filter[id]=' + payload.join(',');
             }
-            return await dispatch('fetchObjects', params);
+            const rooms = await dispatch('fetchObjects', params) as JSONAPIItem[];
+            let missingIds = rooms.map((room) => {
+                if (room.relationships) {
+                    if (!state.objects.items[(room.relationships.sample.data as JSONAPIReference).id]) {
+                        return (room.relationships.sample.data as JSONAPIReference).id;
+                    }
+                }
+                return null;
+            }).filter((id) => { return id !== null; });
+            if (missingIds.length > 0) {
+                dispatch('fetchItems', missingIds);
+            }
+            missingIds = rooms.map((room) => {
+                if (room.relationships) {
+                    if (!state.objects.floors[(room.relationships.floor.data as JSONAPIReference).id]) {
+                        return (room.relationships.floor.data as JSONAPIReference).id;
+                    }
+                }
+                return null;
+            }).filter((id) => { return id !== null; });
+            if (missingIds.length > 0) {
+                dispatch('fetchFloors', missingIds);
+            }
+            return rooms;
         },
 
         async fetchRoom({ state, dispatch }, payload: string) {
             if (!state.objects.rooms[payload]) {
                 const room = await dispatch('fetchObject', {type: 'rooms', id: payload});
                 if (room.relationships) {
-                    await dispatch('fetchFloor', room.relationships.floor.data.id);
+                    if (!state.objects.floors[(room.relationships.floor.data as JSONAPIReference).id]) {
+                        dispatch('fetchFloor', (room.relationships.floor.data as JSONAPIReference).id);
+                    }
+                    if (!state.objects.items[(room.relationships.sample.data as JSONAPIReference).id]) {
+                        dispatch('fetchItem', (room.relationships.sample.data as JSONAPIReference).id);
+                    }
                 }
                 return room;
             } else {
@@ -138,17 +180,48 @@ export default createStore({
             }
         },
 
-        async fetchFloors({ dispatch }, payload: string[] | null) {
+        async fetchFloors({ state, dispatch }, payload: string[] | null) {
             const params = {type: 'floors'} as FetchObjectsPayload;
             if (payload) {
                 params.query = '?filter[id]=' + payload.join(',');
             }
-            return await dispatch('fetchObjects', params);
+            const floors = await dispatch('fetchObjects', params) as JSONAPIItem[];
+            floors.forEach((floor) => {
+                if (floor.relationships) {
+                    let missingIds = getMissingIds(state, floor.relationships.rooms.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchRooms', missingIds);
+                    }
+                    missingIds = getMissingIds(state, floor.relationships.samples.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchItems', missingIds);
+                    }
+                    missingIds = getMissingIds(state, floor.relationships.topics.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchFloorTopics', missingIds);
+                    }
+                }
+            })
+            return floors;
         },
 
         async fetchFloor({ state, dispatch }, payload: string) {
             if (!state.objects.floors[payload]) {
                 const floor = await dispatch('fetchObject', {type: 'floors', id: payload});
+                if (floor.relationships) {
+                    let missingIds = getMissingIds(state, floor.relationships.rooms.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchRooms', missingIds);
+                    }
+                    missingIds = getMissingIds(state, floor.relationships.samples.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchItems', missingIds);
+                    }
+                    missingIds = getMissingIds(state, floor.relationships.topics.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchFloorTopics', missingIds);
+                    }
+                }
                 return floor;
             } else {
                 return state.objects.floors[payload];
@@ -178,6 +251,21 @@ export default createStore({
                 params.query = '?filter[id]=' + payload.join(',');
             }
             return await dispatch('fetchObjects', params);
+        },
+
+        async fetchItemPicks({ commit }, payload: string) {
+            commit('startLoading');
+            const url = '/api/picks/' + payload;
+            const response = await fetch(url);
+            if (response.status === 200 || response.status === 304) {
+                const objects = (await response.json()).data;
+                objects.forEach((object: JSONAPIItem) => {
+                    commit('storeObject', object);
+                });
+                commit('completedLoading');
+                return objects;
+            }
+            commit('completedLoading');
         },
     },
     modules: {

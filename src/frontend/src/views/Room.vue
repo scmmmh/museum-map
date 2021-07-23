@@ -2,14 +2,10 @@
     <article class="room">
         <ol>
             <li v-for="item in items" :key="item.id">
-                <router-link :to="'/room/' + rid + '/' + item.id">
-                    <figure>
-                        <img :src="thumbImageURL(item.attributes.images[0])" alt=""/>
-                        <figcaption v-html="item.attributes.title ? processParagraph(item.attributes.title) : '[untitled]'"></figcaption>
-                    </figure>
-                </router-link>
+                <item-thumbnail :rid="rid" :item="item"/>
             </li>
         </ol>
+        <floor-map v-if="mapFloor" :floor="mapFloor" :overlay="true"></floor-map>
         <router-view></router-view>
     </article>
 </template>
@@ -19,9 +15,13 @@ import { Options } from 'vue-class-component';
 
 import { ComponentRoot } from '@/base';
 import { JSONAPIReference } from '@/store';
+import ItemThumbnail from '../components/ItemThumbnail.vue';
+import FloorMap from '../components/FloorMap.vue';
 
 @Options({
     components: {
+        ItemThumbnail,
+        FloorMap,
     },
     props: ['rid'],
     watch: {
@@ -48,6 +48,14 @@ export default class Room extends ComponentRoot {
     $props!: {
         rid: string;
     };
+
+    public get mapFloor() {
+        if (this.$store.state.ui.mapFloorId && this.$store.state.objects.floors[this.$store.state.ui.mapFloorId]) {
+            return this.$store.state.objects.floors[this.$store.state.ui.mapFloorId];
+        } else {
+            return null;
+        }
+    }
 
     public get room() {
         if (this.$store.state.objects.rooms[this.$props.rid]) {
@@ -89,33 +97,6 @@ export default class Room extends ComponentRoot {
                 }
             }
         });
-    }
-
-    public thumbImageURL(imageId: string) {
-        if (imageId) {
-            if (window.innerWidth <= 784) {
-                return '/images/' + imageId.split('').join('/') + '/' + imageId + '-320.jpg';
-            } else {
-                return '/images/' + imageId.split('').join('/') + '/' + imageId + '-240.jpg';
-            }
-        } else {
-            return '';
-        }
-    }
-
-    public processParagraph(paragraph: string) {
-        return paragraph
-            .replace(/<[iI]>/g, '\\begin{em}')
-            .replace(/<\/[iI]>/g, '\\end{em}')
-            .replace(/<[uU]>/g, '\\begin{em}')
-            .replace(/<\/[uU]>/g, '\\end{em}')
-            .replace(/<[bB]>/g, '\\begin{strong}')
-            .replace(/<\/[bB]>/g, '\\end{strong}')
-            .replace(/<\/?[a-zA-Z]+>/g, '')
-            .replace(/\\begin\{em\}/g, '<em>')
-            .replace(/\\end\{em\}/g, '</em>')
-            .replace(/\\begin\{strong\}/g, '<strong>')
-            .replace(/\\end\{strong\}/g, '</strong>');
     }
 }
 </script>
