@@ -5,6 +5,7 @@ Changelog
 =====
 
 * **Update**: Work from python 3.9
+* **Bugfix**: Fixed issues required for asyncpg
 
 0.2.1
 =====

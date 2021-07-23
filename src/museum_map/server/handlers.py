@@ -47,7 +47,7 @@ class APICollectionHandler(RequestBase):
                                 if value == '':
                                     query = query.filter(getattr(class_, column).in_([]))
                                 else:
-                                    split_values = value.split(',')
+                                    split_values = [int(v) for v in value.split(',')]
                                     if len(split_values) == 1:
                                         query = query.filter(getattr(class_, column) == split_values[0])
                                     else:
@@ -65,7 +65,7 @@ class APIItemHandler(RequestBase):
         async with AsyncSession(self.application.settings['engine']) as session:
             query, class_ = self.setup_query(types)
             if query is not None and class_ is not None:
-                query = query.filter(getattr(class_, 'id') == identifier)
+                query = query.filter(getattr(class_, 'id') == int(identifier))
                 item = (await session.execute(query)).scalars().first()
                 if item is not None:
                     self.write({'data': item.as_jsonapi()})
