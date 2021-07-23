@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.1
+=====
+
+* **Bugfix**: Deploy the production code
+
 0.2.0
 =====
 
