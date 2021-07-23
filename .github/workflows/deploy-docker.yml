@@ -24,6 +24,11 @@ jobs:
         echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
         echo "PIPX_BIN_DIR=$HOME/.local/bin" >> $GITHUB_ENV
 
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
     - name: Install Base Dependencies
       run: |
         sudo apt-get update

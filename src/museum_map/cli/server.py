@@ -8,8 +8,6 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from tornado.ioloop import  IOLoop
 from tornado.web import Application, StaticFileHandler
 
-from ..models import Base, Item, Group
-
 from ..server.handlers import APICollectionHandler, APIItemHandler, APIPickHandler
 
 

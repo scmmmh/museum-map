@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.2
+=====
+
+* **Update**: Work from python 3.9
+
 0.2.1
 =====
 

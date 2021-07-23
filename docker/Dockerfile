@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.9
 
 ARG MM_USER="museum-map"
 ARG MM_UID="10000"
@@ -18,7 +18,7 @@ COPY museum_map-0.1.0-py3-none-any.whl /tmp/
 COPY production.ini /etc/museum-map/production.ini
 
 # Install the application
-RUN python -m pip install /tmp/museum_map-0.1.0-py3-none-any.whl[postgres]
+RUN python -m pip install /tmp/museum_map-0.2.2-py3-none-any.whl[postgres]
 COPY start_museum_map.sh /usr/bin/
 RUN chmod a+x /usr/bin/start_museum_map.sh && \
     mkdir /var/lib/museum-map && \
