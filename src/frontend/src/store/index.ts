@@ -46,20 +46,15 @@ interface UIState {
     mapFloorId: string | null;
 }
 
+interface FetchObjectPayload {
+    ref: JSONAPIReference;
+    fetchRelationships: boolean;
+}
+
 interface FetchObjectsPayload {
     type: string;
     query?: string;
-    background?: boolean;
-}
-
-function getMissingIds(state: State, relationship: JSONAPIReference[]) {
-    return relationship.map((ref) => {
-        if (state.objects[ref.type][ref.id]) {
-            return null;
-        } else {
-            return ref.id;
-        }
-    }).filter((id) => { return id !== null; });
+    fetchRelationships: boolean;
 }
 
 export default createStore({
@@ -68,6 +63,7 @@ export default createStore({
             rooms: {},
             floors: {},
             items: {},
+            groups: {},
             'floor-topics': {},
         },
         ui: {
@@ -101,35 +97,85 @@ export default createStore({
     },
 
     actions: {
-        async fetchObjects({ commit }, payload: FetchObjectsPayload) {
-            if (!payload.background) {
-                commit('startLoading');
-            }
+        async fetchRelationships({ state, dispatch }, payload: JSONAPIItem[]) {
+            const toFetch = {} as {[x: string]: string[]}
+            payload.forEach((object) => {
+                if (object.relationships) {
+                    Object.values(object.relationships as JSONAPIRelationships).forEach((relationship) => {
+                        if ((relationship.data as JSONAPIReference[]).length) {
+                            if ((relationship.data as JSONAPIReference[]).length > 0) {
+                                const missingIds = (relationship.data as JSONAPIReference[]).map((ref) => {
+                                    if (state.objects[ref.type][ref.id]) {
+                                        return null;
+                                    } else {
+                                        if (!toFetch[ref.type] || toFetch[ref.type].indexOf(ref.id) < 0)  {
+                                            return ref.id;
+                                        } else {
+                                            return null;
+                                        }
+                                    }
+                                }).filter((id) => { return id !== null});
+                                if (missingIds.length > 0) {
+                                    if (toFetch[(relationship.data as JSONAPIReference[])[0].type]) {
+                                        toFetch[(relationship.data as JSONAPIReference[])[0].type] = toFetch[(relationship.data as JSONAPIReference[])[0].type].concat(missingIds as string[]);
+                                    } else {
+                                        toFetch[(relationship.data as JSONAPIReference[])[0].type] = missingIds as string[];
+                                    }
+                                }
+                            }
+                        } else {
+                            if (!state.objects[(relationship.data as JSONAPIReference).type][(relationship.data as JSONAPIReference).id]) {
+                                if (!toFetch[(relationship.data as JSONAPIReference).type]) {
+                                    toFetch[(relationship.data as JSONAPIReference).type] = [(relationship.data as JSONAPIReference).id]
+                                } else if (toFetch[(relationship.data as JSONAPIReference).type].indexOf((relationship.data as JSONAPIReference).id) < 0) {
+                                    toFetch[(relationship.data as JSONAPIReference).type].push((relationship.data as JSONAPIReference).id);
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+            Object.entries(toFetch).forEach(([type, ids]) => {
+                dispatch('fetchObjects', {
+                    type: type,
+                    query: '?filter[id]=' + ids.join(','),
+                    fetchRelationships: false,
+                });
+            });
+        },
+
+        async fetchObjects({ dispatch, commit }, payload: FetchObjectsPayload) {
+            commit('startLoading');
             let url = '/api/' + payload.type;
             if (payload.query) {
                 url = url + payload.query;
             }
             const response = await fetch(url);
             if (response.status === 200 || response.status === 304) {
-                const objects = (await response.json()).data;
+                const objects = (await response.json()).data as JSONAPIItem[];
                 commit('storeObjects', objects);
-                if (!payload.background) {
-                    commit('completedLoading');
+                if (payload.fetchRelationships) {
+                    dispatch('fetchRelationships', objects);
                 }
+                commit('completedLoading');
                 return objects;
             }
             commit('completedLoading');
         },
 
-        async fetchObject({ state, commit }, payload: JSONAPIReference) {
-            if (state.objects[payload.type] && state.objects[payload.type][payload.id]) {
-                return state.objects[payload.type][payload.id];
+        async fetchObject({ state, dispatch, commit }, payload: FetchObjectPayload) {
+            if (state.objects[payload.ref.type] && state.objects[payload.ref.type][payload.ref.id]) {
+                dispatch('fetchRelationships', [state.objects[payload.ref.type][payload.ref.id]]);
+                return state.objects[payload.ref.type][payload.ref.id];
             } else {
                 commit('startLoading');
-                const response = await fetch('/api/' + payload.type + '/' + payload.id);
+                const response = await fetch('/api/' + payload.ref.type + '/' + payload.ref.id);
                 if (response.status === 200 || response.status === 304) {
                     const object = (await response.json()).data;
                     commit('storeObject', object);
+                    if (payload.fetchRelationships) {
+                        dispatch('fetchRelationships', [object]);
+                    }
                     commit('completedLoading');
                     return object;
                 }
@@ -137,152 +183,78 @@ export default createStore({
             }
         },
 
-        async fetchRooms({ state, dispatch }, payload: string[] | null) {
-            const params = {type: 'rooms'} as FetchObjectsPayload;
+        async fetchRooms({ dispatch }, payload: string[] | null) {
+            const params = {
+                type: 'rooms',
+                fetchRelationships: true
+            } as FetchObjectsPayload;
             if (payload) {
                 params.query = '?filter[id]=' + payload.join(',');
             }
-            const rooms = await dispatch('fetchObjects', params) as JSONAPIItem[];
-            let missingIds = rooms.map((room) => {
-                if (room.relationships) {
-                    if (!state.objects.items[(room.relationships.sample.data as JSONAPIReference).id]) {
-                        return (room.relationships.sample.data as JSONAPIReference).id;
-                    }
-                }
-                return null;
-            }).filter((id) => { return id !== null; });
-            if (missingIds.length > 0) {
-                dispatch('fetchItems', missingIds);
-            }
-            missingIds = rooms.map((room) => {
-                if (room.relationships) {
-                    if (!state.objects.floors[(room.relationships.floor.data as JSONAPIReference).id]) {
-                        return (room.relationships.floor.data as JSONAPIReference).id;
-                    }
-                }
-                return null;
-            }).filter((id) => { return id !== null; });
-            if (missingIds.length > 0) {
-                dispatch('fetchFloors', missingIds);
-            }
-            rooms.forEach((room) => {
-                if (room.relationships) {
-                    const missingIds = getMissingIds(state, room.relationships.items.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchItems', missingIds);
-                    }
-                }
-            })
-            return rooms;
+            return await dispatch('fetchObjects', params) as JSONAPIItem[];
         },
 
-        async fetchRoom({ state, dispatch }, payload: string) {
-            if (!state.objects.rooms[payload]) {
-                const room = await dispatch('fetchObject', {type: 'rooms', id: payload});
-                if (room.relationships) {
-                    if (!state.objects.floors[(room.relationships.floor.data as JSONAPIReference).id]) {
-                        dispatch('fetchFloor', (room.relationships.floor.data as JSONAPIReference).id);
-                    }
-                    if (!state.objects.items[(room.relationships.sample.data as JSONAPIReference).id]) {
-                        dispatch('fetchItem', (room.relationships.sample.data as JSONAPIReference).id);
-                    }
-                    const missingIds = getMissingIds(state, room.relationships.items.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchItems', missingIds);
-                    }
-                }
-                return room;
-            } else {
-                return state.objects.rooms[payload];
-            }
+        async fetchRoom({ dispatch }, payload: string) {
+            return await dispatch('fetchObject', {
+                ref: {
+                    type: 'rooms',
+                    id: payload
+                },
+                fetchRelationships: true
+            });
         },
 
-        async fetchFloors({ state, dispatch }, payload: string[] | null) {
-            const params = {type: 'floors'} as FetchObjectsPayload;
+        async fetchFloors({ dispatch }, payload: string[] | null) {
+            const params = {
+                type: 'floors',
+                fetchRelationships: true
+            } as FetchObjectsPayload;
             if (payload) {
                 params.query = '?filter[id]=' + payload.join(',');
             }
-            const floors = await dispatch('fetchObjects', params) as JSONAPIItem[];
-            floors.forEach((floor) => {
-                if (floor.relationships) {
-                    let missingIds = getMissingIds(state, floor.relationships.rooms.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchRooms', missingIds);
-                    }
-                    missingIds = getMissingIds(state, floor.relationships.samples.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchItems', missingIds);
-                    }
-                    missingIds = getMissingIds(state, floor.relationships.topics.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchFloorTopics', missingIds);
-                    }
-                }
-            })
-            return floors;
+            return await dispatch('fetchObjects', params) as JSONAPIItem[];
         },
 
-        async fetchFloor({ state, dispatch }, payload: string) {
-            if (!state.objects.floors[payload]) {
-                const floor = await dispatch('fetchObject', {type: 'floors', id: payload});
-                if (floor.relationships) {
-                    let missingIds = getMissingIds(state, floor.relationships.rooms.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchRooms', missingIds);
-                    }
-                    missingIds = getMissingIds(state, floor.relationships.samples.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchItems', missingIds);
-                    }
-                    missingIds = getMissingIds(state, floor.relationships.topics.data as JSONAPIReference[])
-                    if (missingIds.length > 0) {
-                        dispatch('fetchFloorTopics', missingIds);
-                    }
-                }
-                return floor;
-            } else {
-                return state.objects.floors[payload];
-            }
+        async fetchFloor({ dispatch }, payload: string) {
+            return await dispatch('fetchObject', {
+                ref: {
+                    type: 'floors',
+                    id: payload
+                },
+                fetchRelationships: true
+            });
         },
 
         async fetchItems({ dispatch }, payload: string[]) {
-            const params = {type: 'items'} as FetchObjectsPayload;
+            const params = {
+                type: 'items',
+                fetchRelationships: true
+            } as FetchObjectsPayload;
             if (payload) {
                 params.query = '?filter[id]=' + payload.join(',');
             }
             return await dispatch('fetchObjects', params);
         },
 
-        async fetchItem({ state, dispatch }, payload: string) {
-            if (!state.objects.items[payload]) {
-                const item = await dispatch('fetchObject', {type: 'items', id: payload});
-                return item;
-            } else {
-                return state.objects.items[payload];
-            }
+        async fetchItem({ dispatch }, payload: string) {
+            const item = await dispatch('fetchObject', {
+                ref: {
+                    type: 'items',
+                    id: payload},
+                fetchRelationships: true
+            });
+            return item;
         },
 
-        async fetchFloorTopics({ state, dispatch }, payload: string[]) {
-            const params = {type: 'floor-topics'} as FetchObjectsPayload;
+        async fetchFloorTopics({ dispatch }, payload: string[]) {
+            const params = {
+                type: 'floor-topics',
+                fetchRelationships: true
+            } as FetchObjectsPayload;
             if (payload) {
                 params.query = '?filter[id]=' + payload.join(',');
             }
-            const topics = await dispatch('fetchObjects', params) as JSONAPIItem[];
-            const missingIds = topics.map((topic) => {
-                if (topic.relationships) {
-                    if (state.objects.floors[(topic.relationships.floor.data as JSONAPIReference).id]) {
-                        return null;
-                    } else {
-                        return (topic.relationships.floor.data as JSONAPIReference).id;
-                    }
-                } else {
-                    return null;
-                }
-            }).filter((id) => { return id !== null; });
-            if (missingIds.length > 0) {
-                dispatch('fetchFloors', missingIds);
-            }
-            return topics;
+            return await dispatch('fetchObjects', params) as JSONAPIItem[];
         },
 
         async fetchItemPicks({ commit }, payload: string) {

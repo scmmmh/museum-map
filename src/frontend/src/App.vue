@@ -1,8 +1,21 @@
 <template>
     <main>
         <header>
-            <h1 v-if="isSmall"><button v-if="currentFloor && currentRoom" @click="setMapFloorId(currentFloor.id)">{{ roomTitle }}</button><template v-else>Museum Map</template></h1>
-            <h1 v-else>Museum Map<template v-if="currentRoom"> - {{ roomTitle }}</template></h1>
+            <template v-if="isSmall">
+                <h1><button v-if="currentFloor && currentRoom" @click="setMapFloorId(currentFloor.id)">{{ roomTitle }}</button><template v-else>Museum Map</template></h1>
+            </template>
+            <div v-else>
+                <h1>Museum Map<template v-if="currentRoom"> - {{ roomTitle }}</template></h1>
+                <svg v-if="loading" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
+                    <g fill="none" fill-rule="evenodd">
+                        <g transform="translate(1 1)" stroke-width="3">
+                            <path d="M36 18c0-9.94-8.06-18-18-18">
+                                <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1.5s" repeatCount="indefinite"/>
+                            </path>
+                        </g>
+                    </g>
+                </svg>
+            </div>
             <nav>
                 <ol>
                     <li><router-link :to="{name: 'lobby'}">Lobby</router-link></li>
@@ -23,18 +36,6 @@
                 <a href="http://www.getty.edu/research/tools/vocabularies/aat/" target="_blank" rel="noopener">Includes part of the AAT</a>
             </div>
         </footer>
-        <div v-if="loading" id="loading">
-            <div>Loading</div>
-            <svg width="100" height="100" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#1e4b9b">
-                <g fill="none" fill-rule="evenodd">
-                    <g transform="translate(1 1)" stroke-width="2">
-                        <path d="M36 18c0-9.94-8.06-18-18-18">
-                            <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1.5s" repeatCount="indefinite"/>
-                        </path>
-                    </g>
-                </g>
-            </svg>
-        </div>
     </main>
 </template>
 
@@ -171,10 +172,27 @@ main {
         font-size: 18px;
         margin: 0;
         padding: 0.3rem 0.5rem;
-        border-bottom: 1px solid #666666;
     }
 
     header {
+        > div {
+            display: flex;
+            flex-direction: row;
+            border-bottom: 1px solid #666666;
+            align-items: center;
+
+            > h1 {
+                flex: 1 1 auto;
+            }
+
+            > svg {
+                flex: 0 0 auto;
+                width: 1.5rem;
+                height: 1.5rem;
+                padding-right: 0.3rem;
+            }
+        }
+
         h1 {
             button {
                 cursor: pointer;

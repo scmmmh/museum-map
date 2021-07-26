@@ -55,7 +55,12 @@ import { ComponentRoot } from '@/base';
 import { JSONAPIItem, JSONAPIReference } from '@/store';
 
 @Options({
-    props: ['floor', 'overlay']
+    props: ['floor', 'overlay'],
+    watch: {
+        async floor(newValue: JSONAPIItem) {
+            await this.$store.dispatch('fetchFloor', newValue.id);
+        }
+    }
 })
 export default class FloorMap extends ComponentRoot {
     $props!: {
@@ -108,7 +113,7 @@ export default class FloorMap extends ComponentRoot {
     }
 
     public created() {
-        this.$store.dispatch('fetchFloors');
+        this.$store.dispatch('fetchFloor', this.$props.floor.id);
     }
 
     public get isSmall() {

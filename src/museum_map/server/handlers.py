@@ -27,6 +27,9 @@ class RequestBase(web.RequestHandler):
         elif types == 'floor-topics':
             query = select(FloorTopic).options(selectinload(FloorTopic.group), selectinload(FloorTopic.floor))
             class_ = FloorTopic
+        elif types == 'groups':
+            query = select(Group)
+            class_ = Group
         return (query, class_)
 
 

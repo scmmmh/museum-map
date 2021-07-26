@@ -26,7 +26,7 @@ import { JSONAPIItem, JSONAPIReference } from '@/store';
     },
     props: ['fid']
 })
-export default class Room extends ComponentRoot {
+export default class Floor extends ComponentRoot {
     $props!: {
         fid: string;
     };

@@ -20,5 +20,16 @@ class Group(Base):
     items = relationship('Item', back_populates='group')
     room = relationship('Room', back_populates='group', uselist=False)
 
+    def as_jsonapi(self):
+        return {
+            'type': 'groups',
+            'id': str(self.id),
+            'attributes': {
+                'value': self.value,
+                'label': self.label,
+                'split': self.split,
+            }
+        }
+
 
 Index(Group.parent_id)
