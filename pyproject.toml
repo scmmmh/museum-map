@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "museum-map"
-version = "0.2.2"
+version = "0.2.3"
 description = ""
 authors = ["Mark Hall <mark.hall@work.room3b.eu>"]
 license = "MIT"
@@ -17,9 +17,9 @@ spacy = "^2.3.2"
 en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.3.1/en_core_web_sm-2.3.1.tar.gz"}
 gensim = "^4.0.0b0"
 scipy = "^1.5.4"
-psycopg2 = {version = "^2.8.6", optional = true}
+psycopg2 = {version = "^0.2.3", optional = true}
 tornado = "^6.1"
-asyncpg = {version = "^0.23.0", optional = true}
+asyncpg = {version = "^0.2.3", optional = true}
 
 [tool.poetry.dev-dependencies]
 

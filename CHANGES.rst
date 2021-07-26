@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.3
+=====
+
+* **Update**: Performance improvements
+
 0.2.2
 =====
 
