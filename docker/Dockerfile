@@ -14,11 +14,11 @@ RUN apt-get update && \
     apt-get install -y tini
 
 # Copy the application and configuration file
-COPY museum_map-0.2.4-py3-none-any.whl /tmp/
+COPY museum_map-0.2.5-py3-none-any.whl /tmp/
 COPY production.ini /etc/museum-map/production.ini
 
 # Install the application
-RUN python -m pip install /tmp/museum_map-0.2.4-py3-none-any.whl[postgres]
+RUN python -m pip install /tmp/museum_map-0.2.5-py3-none-any.whl[postgres]
 COPY start_museum_map.sh /usr/bin/
 RUN chmod a+x /usr/bin/start_museum_map.sh && \
     mkdir /var/lib/museum-map && \
