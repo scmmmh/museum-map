@@ -1,7 +1,7 @@
 import re
 
 
-VERSION = '0.2.3'
+VERSION = '0.2.4'
 
 
 def readlines(filename: str) -> list[str]:
@@ -14,11 +14,9 @@ def writelines(filename: str, lines: list[str]):
         out_f.write(''.join(lines))
 
 
-def update_version(filename: str, version: str):
+def update_version(filename: str, pattern: str, version: str):
     def replace_version(line: str) -> str:
-        if 'version' in line:
-            return re.sub('[0-9]+\.[0-9]+\.[0-9]+', version, line)
-        elif 'museum_map-' in line:
+        if re.match(pattern, line):
             return re.sub('[0-9]+\.[0-9]+\.[0-9]+', version, line)
         else:
             return line
@@ -26,7 +24,7 @@ def update_version(filename: str, version: str):
     writelines(filename, map(replace_version, readlines(filename)))
 
 
-update_version('package.json', VERSION)
-update_version('src/frontend/package.json', VERSION)
-update_version('pyproject.toml', VERSION)
-update_version('docker/Dockerfile', VERSION)
+update_version('package.json', '^  "version": "[0-9]+\.[0-9]+\.[0-9]",$', VERSION)
+update_version('src/frontend/package.json', '^  "version": "[0-9]+\.[0-9]+\.[0-9]",$', VERSION)
+update_version('pyproject.toml', '^version = "[0-9]+\.[0-9]+\.[0-9]+"$',  VERSION)
+update_version('docker/Dockerfile', '^.*museum_map-[0-9]+\.[0-9]+\.[0-9]+-py3.*$', VERSION)
