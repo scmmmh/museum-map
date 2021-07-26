@@ -36,3 +36,4 @@ class Item(Base):
 
 
 Index(Item.group_id)
+Index(Item.room_id)

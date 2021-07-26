@@ -3,7 +3,7 @@ import math
 from datetime import datetime
 from random import randint
 from sqlalchemy import select, func
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, noload
 from sqlalchemy.ext.asyncio import AsyncSession
 from tornado import web
 
@@ -15,11 +15,15 @@ class RequestBase(web.RequestHandler):
     def setup_query(self, types):
         query = None
         class_ = None
+        if self.get_argument('relationships', 'true').lower() == 'false':
+            multi_loader = noload
+        else:
+            multi_loader = selectinload
         if types == 'rooms':
-            query = select(Room).options(selectinload(Room.floor), selectinload(Room.items))
+            query = select(Room).options(selectinload(Room.floor), multi_loader(Room.items), selectinload(Room.sample))
             class_ = Room
         elif types == 'floors':
-            query = select(Floor).options(selectinload(Floor.rooms), selectinload(Floor.samples), selectinload(Floor.topics))
+            query = select(Floor).options(multi_loader(Floor.rooms), multi_loader(Floor.samples), multi_loader(Floor.topics))
             class_ = Floor
         elif types == 'items':
             query = select(Item).options(selectinload(Item.room))
@@ -56,7 +60,7 @@ class APICollectionHandler(RequestBase):
                                     else:
                                         query = query.filter(getattr(class_, column).in_(split_values))
                 result = await session.execute(query)
-                items = [item.as_jsonapi() for item in result.scalars()]
+                items = [item.as_jsonapi() for item in result.unique().scalars()]
                 self.write({'data': items})
             else:
                 self.send_error(status_code=404)

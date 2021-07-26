@@ -1,6 +1,8 @@
 Changelog
 =========
 
+* **Update**: Performance improvements
+
 0.2.5
 -----
 

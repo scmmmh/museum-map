@@ -62,13 +62,6 @@ class Room(Base):
         return data
 
 
-class RoomLink(Base):
-
-    __tablename__ = 'room_links'
-
-    id = Column(Integer, primary_key=True)
-    from_id = Column(Integer, ForeignKey('rooms.id'))
-    to_id = Column(Integer, ForeignKey('rooms.id'))
-    position = Column(Unicode(16))
-    order = Column(Integer)
-    link = Column(Unicode(16))
+Index(Room.floor_id)
+Index(Room.group_id)
+Index(Room.item_id)

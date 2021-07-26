@@ -98,3 +98,7 @@ class FloorTopic(Base):
                 }
             }
         }
+
+
+Index(FloorTopic.group_id)
+Index(FloorTopic.floor_id)

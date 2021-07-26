@@ -25,7 +25,7 @@ export interface JSONAPIItem {
 }
 
 interface JSONAPIAttributes {
-    [x: string]: string | number | string[];
+    [x: string]: string | number | string[] | boolean;
 }
 
 interface JSONAPIRelationships {
@@ -150,9 +150,25 @@ export default createStore({
             if (payload.query) {
                 url = url + payload.query;
             }
+            if (!payload.fetchRelationships) {
+                if (url.indexOf('?') >= 0) {
+                    url = url + '&relationships=false';
+                } else {
+                    url = url + '?relationships=false';
+                }
+            }
             const response = await fetch(url);
             if (response.status === 200 || response.status === 304) {
                 const objects = (await response.json()).data as JSONAPIItem[];
+                if (!payload.fetchRelationships) {
+                    objects.forEach((obj) => {
+                        if (obj.attributes) {
+                            obj.attributes['_partial'] = true;
+                        } else {
+                            obj.attributes= {'_partial': true};
+                        }
+                    });
+                }
                 commit('storeObjects', objects);
                 if (payload.fetchRelationships) {
                     dispatch('fetchRelationships', objects);
@@ -164,12 +180,18 @@ export default createStore({
         },
 
         async fetchObject({ state, dispatch, commit }, payload: FetchObjectPayload) {
-            if (state.objects[payload.ref.type] && state.objects[payload.ref.type][payload.ref.id]) {
-                dispatch('fetchRelationships', [state.objects[payload.ref.type][payload.ref.id]]);
+            if (state.objects[payload.ref.type] && state.objects[payload.ref.type][payload.ref.id] && (!state.objects[payload.ref.type][payload.ref.id].attributes || (!state.objects[payload.ref.type][payload.ref.id].attributes?._partial))) {
+                if (payload.fetchRelationships) {
+                    dispatch('fetchRelationships', [state.objects[payload.ref.type][payload.ref.id]]);
+                }
                 return state.objects[payload.ref.type][payload.ref.id];
             } else {
                 commit('startLoading');
-                const response = await fetch('/api/' + payload.ref.type + '/' + payload.ref.id);
+                let url = '/api/' + payload.ref.type + '/' + payload.ref.id;
+                if (!payload.fetchRelationships) {
+                    url = url + '?relationships=false';
+                }
+                const response = await fetch(url);
                 if (response.status === 200 || response.status === 304) {
                     const object = (await response.json()).data;
                     commit('storeObject', object);
