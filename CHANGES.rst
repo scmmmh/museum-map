@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.5
+-----
+
+* **Bugfix**: Fix dependency versions
+
 0.2.4
 =====
 
