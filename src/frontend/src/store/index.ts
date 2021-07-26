@@ -49,6 +49,7 @@ interface UIState {
 interface FetchObjectsPayload {
     type: string;
     query?: string;
+    background?: boolean;
 }
 
 function getMissingIds(state: State, relationship: JSONAPIReference[]) {
@@ -101,7 +102,9 @@ export default createStore({
 
     actions: {
         async fetchObjects({ commit }, payload: FetchObjectsPayload) {
-            commit('startLoading');
+            if (!payload.background) {
+                commit('startLoading');
+            }
             let url = '/api/' + payload.type;
             if (payload.query) {
                 url = url + payload.query;
@@ -110,7 +113,9 @@ export default createStore({
             if (response.status === 200 || response.status === 304) {
                 const objects = (await response.json()).data;
                 commit('storeObjects', objects);
-                commit('completedLoading');
+                if (!payload.background) {
+                    commit('completedLoading');
+                }
                 return objects;
             }
             commit('completedLoading');
@@ -160,6 +165,14 @@ export default createStore({
             if (missingIds.length > 0) {
                 dispatch('fetchFloors', missingIds);
             }
+            rooms.forEach((room) => {
+                if (room.relationships) {
+                    const missingIds = getMissingIds(state, room.relationships.items.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchItems', missingIds);
+                    }
+                }
+            })
             return rooms;
         },
 
@@ -172,6 +185,10 @@ export default createStore({
                     }
                     if (!state.objects.items[(room.relationships.sample.data as JSONAPIReference).id]) {
                         dispatch('fetchItem', (room.relationships.sample.data as JSONAPIReference).id);
+                    }
+                    const missingIds = getMissingIds(state, room.relationships.items.data as JSONAPIReference[])
+                    if (missingIds.length > 0) {
+                        dispatch('fetchItems', missingIds);
                     }
                 }
                 return room;
@@ -245,12 +262,27 @@ export default createStore({
             }
         },
 
-        async fetchFloorTopics({ dispatch }, payload: string[]) {
+        async fetchFloorTopics({ state, dispatch }, payload: string[]) {
             const params = {type: 'floor-topics'} as FetchObjectsPayload;
             if (payload) {
                 params.query = '?filter[id]=' + payload.join(',');
             }
-            return await dispatch('fetchObjects', params);
+            const topics = await dispatch('fetchObjects', params) as JSONAPIItem[];
+            const missingIds = topics.map((topic) => {
+                if (topic.relationships) {
+                    if (state.objects.floors[(topic.relationships.floor.data as JSONAPIReference).id]) {
+                        return null;
+                    } else {
+                        return (topic.relationships.floor.data as JSONAPIReference).id;
+                    }
+                } else {
+                    return null;
+                }
+            }).filter((id) => { return id !== null; });
+            if (missingIds.length > 0) {
+                dispatch('fetchFloors', missingIds);
+            }
+            return topics;
         },
 
         async fetchItemPicks({ commit }, payload: string) {

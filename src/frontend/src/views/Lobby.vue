@@ -70,17 +70,19 @@ export default class Lobby extends ComponentRoot {
                 if (topic.relationships && topic.relationships.group && topic.relationships.floor && topic.attributes) {
                     const existingTopic = topics.filter((t) => { return topic.relationships && topic.relationships.group && t.groupId === (topic.relationships.group.data as JSONAPIReference).id});
                     const floor = this.$store.state.objects.floors[(topic.relationships.floor.data as JSONAPIReference).id];
-                    if (existingTopic.length === 0) {
-                        topics.push({
-                            id: topic.id,
-                            label: topic.attributes.label as string,
-                            size: topic.attributes.size as number,
-                            groupId: (topic.relationships.group.data as JSONAPIReference).id,
-                            floors: [floor]
-                        });
-                    } else {
-                        existingTopic[0].size = existingTopic[0].size + (topic.attributes.size as number);
-                        existingTopic[0].floors.push(floor);
+                    if (floor) {
+                        if (existingTopic.length === 0) {
+                            topics.push({
+                                id: topic.id,
+                                label: topic.attributes.label as string,
+                                size: topic.attributes.size as number,
+                                groupId: (topic.relationships.group.data as JSONAPIReference).id,
+                                floors: [floor]
+                            });
+                        } else {
+                            existingTopic[0].size = existingTopic[0].size + (topic.attributes.size as number);
+                            existingTopic[0].floors.push(floor);
+                        }
                     }
                 }
             });
@@ -110,7 +112,8 @@ export default class Lobby extends ComponentRoot {
     }
 
     public created() {
-        this.$store.dispatch('fetchFloors');
+        this.$store.dispatch('fetchFloorTopics');
+        //this.$store.dispatch('fetchFloors');
         this.$store.dispatch('fetchItemPicks', 'random').then((data) => {
             this.randomPicks = data;
         });

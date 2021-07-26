@@ -102,10 +102,6 @@ export default class App extends ComponentRoot {
         return window.innerWidth <= 784;
     }
 
-    public created() {
-        this.$store.dispatch('fetchFloorTopics');
-    }
-
     public setMapFloorId(floor: JSONAPIItem | null) {
         this.$store.commit('setMapFloorId', floor);
     }

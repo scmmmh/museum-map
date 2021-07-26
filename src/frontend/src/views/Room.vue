@@ -27,20 +27,6 @@ import FloorMap from '../components/FloorMap.vue';
     watch: {
         async rid(newValue: string) {
             const room = await this.$store.dispatch('fetchRoom', newValue);
-            if (room.relationships && room.relationships.items) {
-                const ids = (room.relationships.items.data as JSONAPIReference[]).map((ref) => {
-                    if (this.$store.state.objects.items[ref.id]) {
-                        return null;
-                    } else {
-                        return ref.id;
-                    }
-                }).filter((id) => {
-                    return id !== null;
-                });
-                if (ids.length > 0) {
-                    this.$store.dispatch('fetchItems', ids);
-                }
-            }
         }
     }
 })
@@ -81,22 +67,7 @@ export default class Room extends ComponentRoot {
     }
 
     public created() {
-        this.$store.dispatch('fetchRoom', this.$props.rid).then((room) => {
-            if (room.relationships && room.relationships.items) {
-                const ids = (room.relationships.items.data as JSONAPIReference[]).map((ref) => {
-                    if (this.$store.state.objects.items[ref.id]) {
-                        return null;
-                    } else {
-                        return ref.id;
-                    }
-                }).filter((id) => {
-                    return id !== null;
-                });
-                if (ids.length > 0) {
-                    this.$store.dispatch('fetchItems', ids);
-                }
-            }
-        });
+        this.$store.dispatch('fetchRoom', this.$props.rid);
     }
 }
 </script>

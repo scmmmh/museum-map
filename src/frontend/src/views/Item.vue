@@ -69,7 +69,7 @@ export default class Item extends ComponentRoot {
         ['Physical location', 'physical_location'],
     ];
 
-    public mounted() {
+    public created() {
         this.$store.dispatch('fetchItem', this.$props.iid).then((item) => {
             this.item = item;
         });
