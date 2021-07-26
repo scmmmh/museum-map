@@ -26,7 +26,7 @@ import FloorMap from '../components/FloorMap.vue';
     props: ['rid'],
     watch: {
         async rid(newValue: string) {
-            const room = await this.$store.dispatch('fetchRoom', newValue);
+            await this.$store.dispatch('fetchRoom', newValue);
         }
     }
 })
