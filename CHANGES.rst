@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.4
+=====
+
+* **Bugfix**: Fix an issue with the release preparation
+
 0.2.3
 =====
 
