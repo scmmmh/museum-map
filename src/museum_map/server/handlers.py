@@ -136,7 +136,6 @@ class FrontendHandler(web.RequestHandler):
         :param path: The path to the file to send
         :type path: list[str]
         """
-        print(resource, path)
         for part in path:
             resource = resource / part
         try:
