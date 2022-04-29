@@ -1,6 +1,9 @@
 import math
 
 from datetime import datetime
+from importlib import resources
+from importlib.abc import Traversable
+from mimetypes import guess_type
 from random import randint
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload, noload
@@ -102,3 +105,45 @@ class APIPickHandler(RequestBase):
                     self.send_error(status_code=404)
         else:
             self.send_error(status_code=404)
+
+
+class FrontendHandler(web.RequestHandler):
+    """Handler for the frontend application files."""
+
+    def get(self: 'FrontendHandler', path: str) -> None:
+        """Get the file at the given path.
+
+        :param path: The path to get.
+        :type: path: str
+        """
+        self.xsrf_token
+        if not path.strip():
+            path = '/'
+        base = resources.files('museum_map')
+        public = base / 'server' / 'frontend' / 'public'
+        try:
+            self._get_resource(public, path.split('/'))
+        except FileNotFoundError:
+            self._get_resource(public, ('index.html', ))
+
+    def _get_resource(self: 'FrontendHandler', resource: Traversable, path: list[str]) -> None:
+        """Send a file.
+
+        Performs mimetype guessing and sets the appropriate Content-Type header.
+
+        :param resource: The root resource to serve files from
+        :type resource: importlib.Traversable
+        :param path: The path to the file to send
+        :type path: list[str]
+        """
+        print(resource, path)
+        for part in path:
+            resource = resource / part
+        try:
+            data = resource.read_bytes()
+            mimetype = guess_type(path[-1])
+            if mimetype:
+                self.set_header('Content-Type', mimetype[0])
+            self.write(data)
+        except IsADirectoryError:
+            raise FileNotFoundError()

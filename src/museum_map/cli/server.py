@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from tornado.ioloop import  IOLoop
 from tornado.web import Application, StaticFileHandler
 
-from ..server.handlers import APICollectionHandler, APIItemHandler, APIPickHandler
+from ..server.handlers import APICollectionHandler, APIItemHandler, APIPickHandler, FrontendHandler
 
 
 @click.command()
@@ -23,7 +23,7 @@ def run(ctx, port):
             ('/api/([a-z\-]+)', APICollectionHandler),
             ('/api/([a-z\-]+)/([0-9]+)', APIItemHandler),
             ('/images/(.*)', StaticFileHandler, {'path': ctx.obj['config'].get('images', 'basepath')}),
-            ('/(.*)', StaticFileHandler, {'path': f'{basedir}/static', 'default_filename': 'index.html'})
+            ('/(.*)', FrontendHandler),
         ],
         autoreload=True,
         config=ctx.obj['config'],
