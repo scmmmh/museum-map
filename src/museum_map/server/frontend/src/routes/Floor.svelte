@@ -54,14 +54,14 @@
 
 {#if $currentFloor}
     <Header title="Museum Map - {$currentFloor.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}]}/>
-    <article class="flex-1 overflow-hidden flex flex-row px-4 py-2">
-        <nav class="flex-none w-1/4 overflow-auto">
-            <ol>
+    <article class="flex-1 overflow-hidden flex flex-col lg:flex-row px-4 py-2">
+        <nav class="flex-none lg:w-1/4 overflow-auto">
+            <ol class="flex lg:block flex-row flex-wrap">
                 {#each $floorsAndTopics as tuple}
-                    <li role="presentation">
+                    <li class="w-1/3 lg:w-full" role="presentation">
                         <Link to="/floor/{tuple.floor.id}" class="block hover-parent">
                             <span class="hover-child-underline text-md {tuple.floor.id === $currentFloor.id ? 'font-bold' : ''}">{tuple.floor.attributes.label}</span>
-                            <ul class="flex flex-row flex-wrap list-separator text-sm text-gray-300 gap-x-1 ml-2 mb-2">
+                            <ul class="hidden lg:flex flex-row flex-wrap list-separator text-sm text-gray-300 gap-x-1 ml-2 mb-2">
                                 {#each tuple.topics as topic}
                                     <li>{topic.attributes.label}</li>
                                 {/each}
@@ -71,8 +71,20 @@
                 {/each}
             </ol>
         </nav>
-        <div class="flex-1 flex flex-row justify-center">
-            <div class="flex-none flex flex-col justify-between">
+        <div class="mt-8 lg:mt-0 lg:hidden px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4">{$currentFloor.attributes.label}</div>
+        <div class="flex-1 lg:flex lg:flex-row lg:justify-center overflow-auto">
+            <div class="lg:hidden">
+                <ul>
+                    {#each $rooms as room}
+                        <li>
+                            <Link to="/room/{room.id}" class="block py-1">
+                                <span>{room.attributes.label}</span>
+                            </Link>
+                        </li>
+                    {/each}
+                </ul>
+            </div>
+            <div class="hidden flex-none lg:flex flex-col justify-between">
                 <div class="flex-none"></div>
                 <div class="flex-none relative">
                     <img src="/map.png" alt=""/>
@@ -86,9 +98,9 @@
                         {/each}
                     </ul>
                 </div>
-                <div class="px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4">{$currentFloor.attributes.label}</div>
+                <div class="flex-none px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4">{$currentFloor.attributes.label}</div>
             </div>
-            <div class="flex-none flex flex-col justify-between w-60 ml-8">
+            <div class="hidden flex-none lg:flex flex-col justify-between w-60 ml-8">
                 <div class="flex-none"></div>
                 <ul class="flex-none">
                     {#each $samples as sample}

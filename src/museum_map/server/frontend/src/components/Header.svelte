@@ -7,6 +7,8 @@
     export let title: string;
     export let nav: {path: string; label: string;}[];
 
+    let showNav = false;
+
     afterUpdate(() => {
         document.title = title;
     });
@@ -28,16 +30,21 @@
             </svg>
         {/if}
     </div>
-    <nav>
-        <ol class="flex flex-row child-separator">
-            <li role="presentation" class="flex-none">
+    <nav class="flex flex-row items-start">
+        <ol class="flex-1 flex flex-col md:flex-row md:child-separator">
+            <li role="presentation" class="flex-none {!showNav ? 'hidden md:block': ''}">
                 <Link to="/" class="inline-block px-2 py-1 hover:underline focus:underline">Lobby</Link>
             </li>
-            {#each nav as item}
-                <li role="presentation" class="flex-none">
+            {#each nav as item, idx}
+                <li role="presentation" class="flex-none {!showNav && idx < nav.length - 1 ? 'hidden md:block': ''}">
                     <Link to={item.path} class="inline-block px-2 py-1 hover:underline focus:underline">{item.label}</Link>
                 </li>
             {/each}
         </ol>
+        <button on:click={() => { showNav = !showNav; }} class="flex-none block px-2 py-1 md:hidden">
+            <svg viewBox="0 0 24 24" class="w-6 h-6">
+                <path fill="currentColor" d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
+            </svg>
+        </button>
     </nav>
 </header>

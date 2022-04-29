@@ -14,22 +14,22 @@
 
 <Header title="Museum Map - Lobby" nav={[]}/>
 <article class="flex-1 overflow-auto">
-    <div class="grid grid-cols-12 gap-8 p-4">
+    <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
         <section class="col-span-12">
             <p>Welcome to the museum map for part of the V&amp;A's digital collection.</p>
         </section>
         {#if $itemOfTheDay}
-            <section class="col-span-4 flex flex-col">
+            <section class="md:col-span-6 lg:col-span-4 flex flex-col">
                 <h2 class="flex-none text-xl font-bold mb-4">Item of the Day</h2>
                 <div class="flex-1">
                     <Thumnail item={$itemOfTheDay} hoverTitle={false}/>
                 </div>
             </section>
         {/if}
-        <section class="col-span-8 flex flex-col">
+        <section class="md:col-span-6 lg:col-span-8 flex flex-col">
             <h2 class="flex-none text-xl font-bold mb-4">Major Collections</h2>
             <div class="flex-1">
-                <ul class="grid grid-cols-3 gap-4">
+                <ul class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     {#each $majorCollections as collection}
                         <li>
                             <span class="font-bold text-lg">{collection.label}</span>
@@ -57,7 +57,7 @@
                     </svg>
                 </button>
             </div>
-            <ul class="grid grid-cols-4 gap-4">
+            <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {#each $randomItemsSelection as item}
                     <li><Thumnail item={item}/></li>
                 {/each}

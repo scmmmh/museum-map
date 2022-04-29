@@ -79,13 +79,13 @@
 </script>
 
 <section class="absolute left-0 top-0 w-full h-full bg-neutral-800 bg-opacity-80" on:click={() => { navigate('/room/' + $currentRoom.id); }}>
-    <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-5/6 h-5/6 flex flex-row bg-neutral-800 shadow-xl shadow-black" on:click={(ev) => { ev.stopPropagation(); }}>
+    <div class="absolute left-0 top-0 lg:left-1/2 lg:top-1/2 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 w-full lg:w-5/6 h-full lg:h-5/6 flex flex-col lg:flex-row bg-neutral-800 shadow-xl shadow-black overflow-auto lg:overflow-visible" on:click={(ev) => { ev.stopPropagation(); }}>
         {#if $currentItem}
-            <button on:click={() => { navigate('/room/' + $currentRoom.id); }} class="block absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg text-2xl w-10 h-10 bg-neutral-800 z-10">✖</button>
-            <div class="flex-1">
-                <Thumbnail item={$currentItem} hideTitle={true} size="large"/>
+            <button on:click={() => { navigate('/room/' + $currentRoom.id); }} class="block absolute right-0 top-0 lg:transform lg:translate-x-1/2 lg:-translate-y-1/2 rounded-full shadow-lg text-2xl w-10 h-10 bg-neutral-800 z-10">✖</button>
+            <div class="flex-none lg:flex-1">
+                <Thumbnail item={$currentItem} hideTitle={true} noLink={true} size="large"/>
             </div>
-            <div class="flex-1 flex flex-col overflow-hidden relative">
+            <div class="flex-none lg:flex-1 flex flex-col overflow-hidden relative">
                 <h2 class="flex-none px-6 py-4 bg-blue-900 text-lg font-bold">{$currentItem.attributes.title ? processParagraph($currentItem.attributes.title) : '[Untitled]'}</h2>
                 <div class="flex-1 px-6 py-2 overflow-auto">
                     {#if $currentItem.attributes.description}
@@ -101,8 +101,8 @@
                     <dl class="flex flex-row flex-wrap items-end gap-y-1">
                         {#each fields as field}
                             {#if $currentItem.attributes[field[1]] && $currentItem.attributes[field[1]].length}
-                                <dt class="flex-none w-1/6 text-sm text-neutral-300 text-right pr-2">{field[0]}</dt>
-                                <dd class="flex-none w-5/6 pl-2">{formatField($currentItem.attributes[field[1]])}</dd>
+                                <dt class="flex-none w-1/3 lg:w-1/6 text-sm text-neutral-300 text-right pr-2">{field[0]}</dt>
+                                <dd class="flex-none w-2/3 lg:w-5/6 pl-2">{formatField($currentItem.attributes[field[1]])}</dd>
                             {/if}
                         {/each}
                     </dl>

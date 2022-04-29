@@ -2380,7 +2380,7 @@ var app = (function () {
     }
 
     // (113:2) {:else}
-    function create_else_block(ctx) {
+    function create_else_block$1(ctx) {
     	let current;
     	const default_slot_template = /*#slots*/ ctx[17].default;
     	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[18], get_default_slot_context);
@@ -2428,7 +2428,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block.name,
+    		id: create_else_block$1.name,
     		type: "else",
     		source: "(113:2) {:else}",
     		ctx
@@ -2438,7 +2438,7 @@ var app = (function () {
     }
 
     // (105:2) {#if component !== null}
-    function create_if_block_1$3(ctx) {
+    function create_if_block_1$4(ctx) {
     	let switch_instance;
     	let switch_instance_anchor;
     	let current;
@@ -2533,7 +2533,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$3.name,
+    		id: create_if_block_1$4.name,
     		type: "if",
     		source: "(105:2) {#if component !== null}",
     		ctx
@@ -2548,7 +2548,7 @@ var app = (function () {
     	let if_block;
     	let if_block_anchor;
     	let current;
-    	const if_block_creators = [create_if_block_1$3, create_else_block];
+    	const if_block_creators = [create_if_block_1$4, create_else_block$1];
     	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
@@ -3396,11 +3396,12 @@ var app = (function () {
 
     function get_each_context$4(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[3] = list[i];
+    	child_ctx[5] = list[i];
+    	child_ctx[7] = i;
     	return child_ctx;
     }
 
-    // (14:8) {#if $isBusy}
+    // (15:8) {#if $isBusy}
     function create_if_block$5(ctx) {
     	let div;
     	let t1;
@@ -3422,28 +3423,28 @@ var app = (function () {
     			animateTransform = svg_element("animateTransform");
     			attr_dev(div, "class", "sr-only");
     			attr_dev(div, "role", "alert");
-    			add_location(div, file$7, 14, 12, 445);
+    			add_location(div, file$7, 15, 12, 466);
     			attr_dev(animateTransform, "attributeName", "transform");
     			attr_dev(animateTransform, "type", "rotate");
     			attr_dev(animateTransform, "from", "0 18 18");
     			attr_dev(animateTransform, "to", "360 18 18");
     			attr_dev(animateTransform, "dur", "1.5s");
     			attr_dev(animateTransform, "repeatCount", "indefinite");
-    			add_location(animateTransform, file$7, 19, 28, 861);
+    			add_location(animateTransform, file$7, 20, 28, 882);
     			attr_dev(path, "d", "M36 18c0-9.94-8.06-18-18-18");
-    			add_location(path, file$7, 18, 24, 794);
+    			add_location(path, file$7, 19, 24, 815);
     			attr_dev(g0, "transform", "translate(1 1)");
     			attr_dev(g0, "stroke-width", "3");
-    			add_location(g0, file$7, 17, 20, 722);
+    			add_location(g0, file$7, 18, 20, 743);
     			attr_dev(g1, "fill", "none");
     			attr_dev(g1, "fill-rule", "evenodd");
-    			add_location(g1, file$7, 16, 16, 666);
+    			add_location(g1, file$7, 17, 16, 687);
     			attr_dev(svg, "viewBox", "0 0 38 38");
     			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg, "stroke", "#ffffff");
     			attr_dev(svg, "class", "flex-none w-8 h-6 pr-2 self-center");
     			attr_dev(svg, "aria-hidden", "true");
-    			add_location(svg, file$7, 15, 12, 510);
+    			add_location(svg, file$7, 16, 12, 531);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -3465,14 +3466,14 @@ var app = (function () {
     		block,
     		id: create_if_block$5.name,
     		type: "if",
-    		source: "(14:8) {#if $isBusy}",
+    		source: "(15:8) {#if $isBusy}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (30:16) <Link to="/" class="inline-block px-2 py-1 hover:underline focus:underline">
+    // (31:16) <Link to="/" class="inline-block px-2 py-1 hover:underline focus:underline">
     function create_default_slot_1$3(ctx) {
     	let t;
 
@@ -3492,16 +3493,16 @@ var app = (function () {
     		block,
     		id: create_default_slot_1$3.name,
     		type: "slot",
-    		source: "(30:16) <Link to=\\\"/\\\" class=\\\"inline-block px-2 py-1 hover:underline focus:underline\\\">",
+    		source: "(31:16) <Link to=\\\"/\\\" class=\\\"inline-block px-2 py-1 hover:underline focus:underline\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (34:20) <Link to={item.path} class="inline-block px-2 py-1 hover:underline focus:underline">
+    // (35:20) <Link to={item.path} class="inline-block px-2 py-1 hover:underline focus:underline">
     function create_default_slot$5(ctx) {
-    	let t_value = /*item*/ ctx[3].label + "";
+    	let t_value = /*item*/ ctx[5].label + "";
     	let t;
 
     	const block = {
@@ -3512,7 +3513,7 @@ var app = (function () {
     			insert_dev(target, t, anchor);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*nav*/ 2 && t_value !== (t_value = /*item*/ ctx[3].label + "")) set_data_dev(t, t_value);
+    			if (dirty & /*nav*/ 2 && t_value !== (t_value = /*item*/ ctx[5].label + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(t);
@@ -3523,23 +3524,24 @@ var app = (function () {
     		block,
     		id: create_default_slot$5.name,
     		type: "slot",
-    		source: "(34:20) <Link to={item.path} class=\\\"inline-block px-2 py-1 hover:underline focus:underline\\\">",
+    		source: "(35:20) <Link to={item.path} class=\\\"inline-block px-2 py-1 hover:underline focus:underline\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (32:12) {#each nav as item}
+    // (33:12) {#each nav as item, idx}
     function create_each_block$4(ctx) {
     	let li;
     	let link;
     	let t;
+    	let li_class_value;
     	let current;
 
     	link = new Link$1({
     			props: {
-    				to: /*item*/ ctx[3].path,
+    				to: /*item*/ ctx[5].path,
     				class: "inline-block px-2 py-1 hover:underline focus:underline",
     				$$slots: { default: [create_default_slot$5] },
     				$$scope: { ctx }
@@ -3553,8 +3555,12 @@ var app = (function () {
     			create_component(link.$$.fragment);
     			t = space();
     			attr_dev(li, "role", "presentation");
-    			attr_dev(li, "class", "flex-none");
-    			add_location(li, file$7, 32, 16, 1396);
+
+    			attr_dev(li, "class", li_class_value = "flex-none " + (!/*showNav*/ ctx[2] && /*idx*/ ctx[7] < /*nav*/ ctx[1].length - 1
+    			? 'hidden md:block'
+    			: ''));
+
+    			add_location(li, file$7, 33, 16, 1513);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -3564,13 +3570,19 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const link_changes = {};
-    			if (dirty & /*nav*/ 2) link_changes.to = /*item*/ ctx[3].path;
+    			if (dirty & /*nav*/ 2) link_changes.to = /*item*/ ctx[5].path;
 
-    			if (dirty & /*$$scope, nav*/ 66) {
+    			if (dirty & /*$$scope, nav*/ 258) {
     				link_changes.$$scope = { dirty, ctx };
     			}
 
     			link.$set(link_changes);
+
+    			if (!current || dirty & /*showNav, nav*/ 6 && li_class_value !== (li_class_value = "flex-none " + (!/*showNav*/ ctx[2] && /*idx*/ ctx[7] < /*nav*/ ctx[1].length - 1
+    			? 'hidden md:block'
+    			: ''))) {
+    				attr_dev(li, "class", li_class_value);
+    			}
     		},
     		i: function intro(local) {
     			if (current) return;
@@ -3591,7 +3603,7 @@ var app = (function () {
     		block,
     		id: create_each_block$4.name,
     		type: "each",
-    		source: "(32:12) {#each nav as item}",
+    		source: "(33:12) {#each nav as item, idx}",
     		ctx
     	});
 
@@ -3609,9 +3621,16 @@ var app = (function () {
     	let ol;
     	let li;
     	let link;
+    	let li_class_value;
     	let t3;
+    	let t4;
+    	let button;
+    	let svg;
+    	let path;
     	let current;
-    	let if_block = /*$isBusy*/ ctx[2] && create_if_block$5(ctx);
+    	let mounted;
+    	let dispose;
+    	let if_block = /*$isBusy*/ ctx[3] && create_if_block$5(ctx);
 
     	link = new Link$1({
     			props: {
@@ -3654,18 +3673,31 @@ var app = (function () {
     				each_blocks[i].c();
     			}
 
+    			t4 = space();
+    			button = element("button");
+    			svg = svg_element("svg");
+    			path = svg_element("path");
     			attr_dev(h1, "class", "flex-1 text-lg font-bold px-2 py-1");
-    			add_location(h1, file$7, 12, 8, 351);
+    			add_location(h1, file$7, 13, 8, 372);
     			attr_dev(div, "class", "flex flex-row border-b border-b-neutral-500");
-    			add_location(div, file$7, 11, 4, 285);
+    			add_location(div, file$7, 12, 4, 306);
     			attr_dev(li, "role", "presentation");
-    			attr_dev(li, "class", "flex-none");
-    			add_location(li, file$7, 28, 12, 1182);
-    			attr_dev(ol, "class", "flex flex-row child-separator");
-    			add_location(ol, file$7, 27, 8, 1127);
-    			add_location(nav_1, file$7, 26, 4, 1113);
+    			attr_dev(li, "class", li_class_value = "flex-none " + (!/*showNav*/ ctx[2] ? 'hidden md:block' : ''));
+    			add_location(li, file$7, 29, 12, 1259);
+    			attr_dev(ol, "class", "flex-1 flex flex-col md:flex-row md:child-separator");
+    			add_location(ol, file$7, 28, 8, 1182);
+    			attr_dev(path, "fill", "currentColor");
+    			attr_dev(path, "d", "M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z");
+    			add_location(path, file$7, 40, 16, 1967);
+    			attr_dev(svg, "viewBox", "0 0 24 24");
+    			attr_dev(svg, "class", "w-6 h-6");
+    			add_location(svg, file$7, 39, 12, 1909);
+    			attr_dev(button, "class", "flex-none block px-2 py-1 md:hidden");
+    			add_location(button, file$7, 38, 8, 1803);
+    			attr_dev(nav_1, "class", "flex flex-row items-start");
+    			add_location(nav_1, file$7, 27, 4, 1134);
     			attr_dev(header, "class", "flex-none shadow-even shadow-black");
-    			add_location(header, file$7, 10, 0, 229);
+    			add_location(header, file$7, 11, 0, 250);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3688,12 +3720,21 @@ var app = (function () {
     				each_blocks[i].m(ol, null);
     			}
 
+    			append_dev(nav_1, t4);
+    			append_dev(nav_1, button);
+    			append_dev(button, svg);
+    			append_dev(svg, path);
     			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(button, "click", /*click_handler*/ ctx[4], false, false, false);
+    				mounted = true;
+    			}
     		},
     		p: function update(ctx, [dirty]) {
     			if (!current || dirty & /*title*/ 1) set_data_dev(t0, /*title*/ ctx[0]);
 
-    			if (/*$isBusy*/ ctx[2]) {
+    			if (/*$isBusy*/ ctx[3]) {
     				if (if_block) ; else {
     					if_block = create_if_block$5(ctx);
     					if_block.c();
@@ -3706,13 +3747,17 @@ var app = (function () {
 
     			const link_changes = {};
 
-    			if (dirty & /*$$scope*/ 64) {
+    			if (dirty & /*$$scope*/ 256) {
     				link_changes.$$scope = { dirty, ctx };
     			}
 
     			link.$set(link_changes);
 
-    			if (dirty & /*nav*/ 2) {
+    			if (!current || dirty & /*showNav*/ 4 && li_class_value !== (li_class_value = "flex-none " + (!/*showNav*/ ctx[2] ? 'hidden md:block' : ''))) {
+    				attr_dev(li, "class", li_class_value);
+    			}
+
+    			if (dirty & /*showNav, nav*/ 6) {
     				each_value = /*nav*/ ctx[1];
     				validate_each_argument(each_value);
     				let i;
@@ -3765,6 +3810,8 @@ var app = (function () {
     			if (if_block) if_block.d();
     			destroy_component(link);
     			destroy_each(each_blocks, detaching);
+    			mounted = false;
+    			dispose();
     		}
     	};
 
@@ -3782,11 +3829,12 @@ var app = (function () {
     function instance$8($$self, $$props, $$invalidate) {
     	let $isBusy;
     	validate_store(isBusy, 'isBusy');
-    	component_subscribe($$self, isBusy, $$value => $$invalidate(2, $isBusy = $$value));
+    	component_subscribe($$self, isBusy, $$value => $$invalidate(3, $isBusy = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('Header', slots, []);
     	let { title } = $$props;
     	let { nav } = $$props;
+    	let showNav = false;
 
     	afterUpdate(() => {
     		document.title = title;
@@ -3797,6 +3845,10 @@ var app = (function () {
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<Header> was created with unknown prop '${key}'`);
     	});
+
+    	const click_handler = () => {
+    		$$invalidate(2, showNav = !showNav);
+    	};
 
     	$$self.$$set = $$props => {
     		if ('title' in $$props) $$invalidate(0, title = $$props.title);
@@ -3809,19 +3861,21 @@ var app = (function () {
     		isBusy,
     		title,
     		nav,
+    		showNav,
     		$isBusy
     	});
 
     	$$self.$inject_state = $$props => {
     		if ('title' in $$props) $$invalidate(0, title = $$props.title);
     		if ('nav' in $$props) $$invalidate(1, nav = $$props.nav);
+    		if ('showNav' in $$props) $$invalidate(2, showNav = $$props.showNav);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [title, nav, $isBusy];
+    	return [title, nav, showNav, $isBusy, click_handler];
     }
 
     class Header extends SvelteComponentDev {
@@ -3868,8 +3922,88 @@ var app = (function () {
     /* src/components/Thumbnail.svelte generated by Svelte v3.47.0 */
     const file$6 = "src/components/Thumbnail.svelte";
 
-    // (24:0) {#if item !== null}
+    // (25:0) {#if item !== null}
     function create_if_block$4(ctx) {
+    	let current_block_type_index;
+    	let if_block;
+    	let if_block_anchor;
+    	let current;
+    	const if_block_creators = [create_if_block_1$3, create_else_block];
+    	const if_blocks = [];
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*noLink*/ ctx[3]) return 0;
+    		return 1;
+    	}
+
+    	current_block_type_index = select_block_type(ctx);
+    	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+
+    	const block = {
+    		c: function create() {
+    			if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		m: function mount(target, anchor) {
+    			if_blocks[current_block_type_index].m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type(ctx);
+
+    			if (current_block_type_index === previous_block_index) {
+    				if_blocks[current_block_type_index].p(ctx, dirty);
+    			} else {
+    				group_outros();
+
+    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    					if_blocks[previous_block_index] = null;
+    				});
+
+    				check_outros();
+    				if_block = if_blocks[current_block_type_index];
+
+    				if (!if_block) {
+    					if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    					if_block.c();
+    				} else {
+    					if_block.p(ctx, dirty);
+    				}
+
+    				transition_in(if_block, 1);
+    				if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if_blocks[current_block_type_index].d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$4.name,
+    		type: "if",
+    		source: "(25:0) {#if item !== null}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (33:4) {:else}
+    function create_else_block(ctx) {
     	let link;
     	let current;
 
@@ -3895,7 +4029,7 @@ var app = (function () {
     			const link_changes = {};
     			if (dirty & /*item*/ 1) link_changes.to = linkTo(/*item*/ ctx[0]);
 
-    			if (dirty & /*$$scope, hoverTitle, hideTitle, item*/ 39) {
+    			if (dirty & /*$$scope, hoverTitle, hideTitle, item*/ 71) {
     				link_changes.$$scope = { dirty, ctx };
     			}
 
@@ -3917,16 +4051,89 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$4.name,
-    		type: "if",
-    		source: "(24:0) {#if item !== null}",
+    		id: create_else_block.name,
+    		type: "else",
+    		source: "(33:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (25:4) <Link to={linkTo(item)} class="block h-full relative overflow-hidden bg-black">
+    // (26:4) {#if noLink}
+    function create_if_block_1$3(ctx) {
+    	let div;
+    	let figure;
+    	let img;
+    	let img_src_value;
+    	let t0;
+    	let figcaption;
+    	let t1_value = /*item*/ ctx[0].attributes.title + "";
+    	let t1;
+    	let figcaption_class_value;
+    	let figure_class_value;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			figure = element("figure");
+    			img = element("img");
+    			t0 = space();
+    			figcaption = element("figcaption");
+    			t1 = text(t1_value);
+    			if (!src_url_equal(img.src, img_src_value = /*imageLink*/ ctx[4](/*item*/ ctx[0].attributes.images[0]))) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", "");
+    			attr_dev(img, "class", "self-center max-w-full max-h-full");
+    			add_location(img, file$6, 28, 16, 826);
+    			attr_dev(figcaption, "class", figcaption_class_value = "absolute left-0 bottom-0 w-full px-2 py-1 bg-neutral-700 bg-opacity-80 " + (/*hideTitle*/ ctx[2] ? 'sr-only' : ''));
+    			add_location(figcaption, file$6, 29, 16, 941);
+    			attr_dev(figure, "class", figure_class_value = "flex flex-row w-full h-full justify-center " + (/*hoverTitle*/ ctx[1] ? 'title-hover' : ''));
+    			add_location(figure, file$6, 27, 12, 716);
+    			attr_dev(div, "class", "block h-full relative overflow-hidden bg-black");
+    			add_location(div, file$6, 26, 8, 643);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, figure);
+    			append_dev(figure, img);
+    			append_dev(figure, t0);
+    			append_dev(figure, figcaption);
+    			append_dev(figcaption, t1);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*item*/ 1 && !src_url_equal(img.src, img_src_value = /*imageLink*/ ctx[4](/*item*/ ctx[0].attributes.images[0]))) {
+    				attr_dev(img, "src", img_src_value);
+    			}
+
+    			if (dirty & /*item*/ 1 && t1_value !== (t1_value = /*item*/ ctx[0].attributes.title + "")) set_data_dev(t1, t1_value);
+
+    			if (dirty & /*hideTitle*/ 4 && figcaption_class_value !== (figcaption_class_value = "absolute left-0 bottom-0 w-full px-2 py-1 bg-neutral-700 bg-opacity-80 " + (/*hideTitle*/ ctx[2] ? 'sr-only' : ''))) {
+    				attr_dev(figcaption, "class", figcaption_class_value);
+    			}
+
+    			if (dirty & /*hoverTitle*/ 2 && figure_class_value !== (figure_class_value = "flex flex-row w-full h-full justify-center " + (/*hoverTitle*/ ctx[1] ? 'title-hover' : ''))) {
+    				attr_dev(figure, "class", figure_class_value);
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$3.name,
+    		type: "if",
+    		source: "(26:4) {#if noLink}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (34:8) <Link to={linkTo(item)} class="block h-full relative overflow-hidden bg-black">
     function create_default_slot$4(ctx) {
     	let figure;
     	let img;
@@ -3945,14 +4152,14 @@ var app = (function () {
     			t0 = space();
     			figcaption = element("figcaption");
     			t1 = text(t1_value);
-    			if (!src_url_equal(img.src, img_src_value = /*imageLink*/ ctx[3](/*item*/ ctx[0].attributes.images[0]))) attr_dev(img, "src", img_src_value);
+    			if (!src_url_equal(img.src, img_src_value = /*imageLink*/ ctx[4](/*item*/ ctx[0].attributes.images[0]))) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "");
     			attr_dev(img, "class", "self-center max-w-full max-h-full");
-    			add_location(img, file$6, 26, 12, 789);
+    			add_location(img, file$6, 35, 16, 1357);
     			attr_dev(figcaption, "class", figcaption_class_value = "absolute left-0 bottom-0 w-full px-2 py-1 bg-neutral-700 bg-opacity-80 " + (/*hideTitle*/ ctx[2] ? 'sr-only' : ''));
-    			add_location(figcaption, file$6, 27, 12, 900);
+    			add_location(figcaption, file$6, 36, 16, 1472);
     			attr_dev(figure, "class", figure_class_value = "flex flex-row w-full h-full justify-center " + (/*hoverTitle*/ ctx[1] ? 'title-hover' : ''));
-    			add_location(figure, file$6, 25, 8, 683);
+    			add_location(figure, file$6, 34, 12, 1247);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, figure, anchor);
@@ -3962,7 +4169,7 @@ var app = (function () {
     			append_dev(figcaption, t1);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*item*/ 1 && !src_url_equal(img.src, img_src_value = /*imageLink*/ ctx[3](/*item*/ ctx[0].attributes.images[0]))) {
+    			if (dirty & /*item*/ 1 && !src_url_equal(img.src, img_src_value = /*imageLink*/ ctx[4](/*item*/ ctx[0].attributes.images[0]))) {
     				attr_dev(img, "src", img_src_value);
     			}
 
@@ -3985,7 +4192,7 @@ var app = (function () {
     		block,
     		id: create_default_slot$4.name,
     		type: "slot",
-    		source: "(25:4) <Link to={linkTo(item)} class=\\\"block h-full relative overflow-hidden bg-black\\\">",
+    		source: "(34:8) <Link to={linkTo(item)} class=\\\"block h-full relative overflow-hidden bg-black\\\">",
     		ctx
     	});
 
@@ -4074,6 +4281,7 @@ var app = (function () {
     	let { item } = $$props;
     	let { hoverTitle = true } = $$props;
     	let { hideTitle = false } = $$props;
+    	let { noLink = false } = $$props;
     	let { size = 'small' } = $$props;
 
     	function imageLink(imageId) {
@@ -4084,7 +4292,7 @@ var app = (function () {
     		}
     	}
 
-    	const writable_props = ['item', 'hoverTitle', 'hideTitle', 'size'];
+    	const writable_props = ['item', 'hoverTitle', 'hideTitle', 'noLink', 'size'];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<Thumbnail> was created with unknown prop '${key}'`);
@@ -4094,7 +4302,8 @@ var app = (function () {
     		if ('item' in $$props) $$invalidate(0, item = $$props.item);
     		if ('hoverTitle' in $$props) $$invalidate(1, hoverTitle = $$props.hoverTitle);
     		if ('hideTitle' in $$props) $$invalidate(2, hideTitle = $$props.hideTitle);
-    		if ('size' in $$props) $$invalidate(4, size = $$props.size);
+    		if ('noLink' in $$props) $$invalidate(3, noLink = $$props.noLink);
+    		if ('size' in $$props) $$invalidate(5, size = $$props.size);
     	};
 
     	$$self.$capture_state = () => ({
@@ -4102,6 +4311,7 @@ var app = (function () {
     		item,
     		hoverTitle,
     		hideTitle,
+    		noLink,
     		size,
     		imageLink,
     		linkTo
@@ -4111,14 +4321,15 @@ var app = (function () {
     		if ('item' in $$props) $$invalidate(0, item = $$props.item);
     		if ('hoverTitle' in $$props) $$invalidate(1, hoverTitle = $$props.hoverTitle);
     		if ('hideTitle' in $$props) $$invalidate(2, hideTitle = $$props.hideTitle);
-    		if ('size' in $$props) $$invalidate(4, size = $$props.size);
+    		if ('noLink' in $$props) $$invalidate(3, noLink = $$props.noLink);
+    		if ('size' in $$props) $$invalidate(5, size = $$props.size);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [item, hoverTitle, hideTitle, imageLink, size];
+    	return [item, hoverTitle, hideTitle, noLink, imageLink, size];
     }
 
     class Thumbnail extends SvelteComponentDev {
@@ -4129,7 +4340,8 @@ var app = (function () {
     			item: 0,
     			hoverTitle: 1,
     			hideTitle: 2,
-    			size: 4
+    			noLink: 3,
+    			size: 5
     		});
 
     		dispatch_dev("SvelteRegisterComponent", {
@@ -4168,6 +4380,14 @@ var app = (function () {
     	}
 
     	set hideTitle(value) {
+    		throw new Error("<Thumbnail>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get noLink() {
+    		throw new Error("<Thumbnail>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set noLink(value) {
     		throw new Error("<Thumbnail>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
@@ -4228,11 +4448,11 @@ var app = (function () {
     			div = element("div");
     			create_component(thumnail.$$.fragment);
     			attr_dev(h2, "class", "flex-none text-xl font-bold mb-4");
-    			add_location(h2, file$5, 19, 16, 800);
+    			add_location(h2, file$5, 19, 16, 837);
     			attr_dev(div, "class", "flex-1");
-    			add_location(div, file$5, 20, 16, 882);
-    			attr_dev(section, "class", "col-span-4 flex flex-col");
-    			add_location(section, file$5, 18, 12, 741);
+    			add_location(div, file$5, 20, 16, 919);
+    			attr_dev(section, "class", "md:col-span-6 lg:col-span-4 flex flex-col");
+    			add_location(section, file$5, 18, 12, 761);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, section, anchor);
@@ -4326,7 +4546,7 @@ var app = (function () {
     			create_component(link.$$.fragment);
     			attr_dev(li, "class", "flex-none");
     			attr_dev(li, "role", "presentation");
-    			add_location(li, file$5, 34, 36, 1615);
+    			add_location(li, file$5, 34, 36, 1684);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -4405,10 +4625,10 @@ var app = (function () {
 
     			t2 = space();
     			attr_dev(span, "class", "font-bold text-lg");
-    			add_location(span, file$5, 31, 28, 1368);
+    			add_location(span, file$5, 31, 28, 1437);
     			attr_dev(ul, "class", "flex flex-row flex-wrap gap-2 list-separator");
-    			add_location(ul, file$5, 32, 28, 1454);
-    			add_location(li, file$5, 30, 24, 1335);
+    			add_location(ul, file$5, 32, 28, 1523);
+    			add_location(li, file$5, 30, 24, 1404);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -4511,7 +4731,7 @@ var app = (function () {
     			div = element("div");
     			create_component(link.$$.fragment);
     			attr_dev(div, "class", "mt-16 mb-8 text-center");
-    			add_location(div, file$5, 41, 20, 1981);
+    			add_location(div, file$5, 41, 20, 2050);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -4596,7 +4816,7 @@ var app = (function () {
     		c: function create() {
     			li = element("li");
     			create_component(thumnail.$$.fragment);
-    			add_location(li, file$5, 58, 20, 3061);
+    			add_location(li, file$5, 58, 20, 3160);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -4733,33 +4953,33 @@ var app = (function () {
     				each_blocks[i].c();
     			}
 
-    			add_location(p, file$5, 15, 12, 603);
+    			add_location(p, file$5, 15, 12, 623);
     			attr_dev(section0, "class", "col-span-12");
-    			add_location(section0, file$5, 14, 8, 561);
+    			add_location(section0, file$5, 14, 8, 581);
     			attr_dev(h20, "class", "flex-none text-xl font-bold mb-4");
-    			add_location(h20, file$5, 26, 12, 1098);
-    			attr_dev(ul0, "class", "grid grid-cols-3 gap-4");
-    			add_location(ul0, file$5, 28, 16, 1215);
+    			add_location(h20, file$5, 26, 12, 1152);
+    			attr_dev(ul0, "class", "grid grid-cols-2 lg:grid-cols-3 gap-4");
+    			add_location(ul0, file$5, 28, 16, 1269);
     			attr_dev(div0, "class", "flex-1");
-    			add_location(div0, file$5, 27, 12, 1178);
-    			attr_dev(section1, "class", "col-span-8 flex flex-col");
-    			add_location(section1, file$5, 25, 8, 1043);
+    			add_location(div0, file$5, 27, 12, 1232);
+    			attr_dev(section1, "class", "md:col-span-6 lg:col-span-8 flex flex-col");
+    			add_location(section1, file$5, 25, 8, 1080);
     			attr_dev(h21, "class", "flex-1 text-xl font-bold mb-4");
-    			add_location(h21, file$5, 49, 16, 2407);
+    			add_location(h21, file$5, 49, 16, 2476);
     			attr_dev(path, "d", "M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z");
-    			add_location(path, file$5, 52, 24, 2635);
+    			add_location(path, file$5, 52, 24, 2704);
     			attr_dev(svg, "viewBox", "0 0 24 24");
     			attr_dev(svg, "class", "w-6 h-6 fill-white");
-    			add_location(svg, file$5, 51, 20, 2558);
+    			add_location(svg, file$5, 51, 20, 2627);
     			attr_dev(button, "class", "flex-none px-2 py-2");
-    			add_location(button, file$5, 50, 16, 2501);
+    			add_location(button, file$5, 50, 16, 2570);
     			attr_dev(div1, "class", "flex flex-row");
-    			add_location(div1, file$5, 48, 12, 2363);
-    			attr_dev(ul1, "class", "grid grid-cols-4 gap-4");
-    			add_location(ul1, file$5, 56, 12, 2951);
+    			add_location(div1, file$5, 48, 12, 2432);
+    			attr_dev(ul1, "class", "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4");
+    			add_location(ul1, file$5, 56, 12, 3020);
     			attr_dev(section2, "class", "col-span-12");
-    			add_location(section2, file$5, 47, 8, 2321);
-    			attr_dev(div2, "class", "grid grid-cols-12 gap-8 p-4");
+    			add_location(section2, file$5, 47, 8, 2390);
+    			attr_dev(div2, "class", "flex flex-col md:grid md:grid-cols-12 gap-8 p-4");
     			add_location(div2, file$5, 13, 4, 511);
     			attr_dev(article, "class", "flex-1 overflow-auto");
     			add_location(article, file$5, 12, 0, 468);
@@ -5044,13 +5264,19 @@ var app = (function () {
 
     function get_each_context_2$1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[19] = list[i];
+    	child_ctx[16] = list[i];
     	return child_ctx;
     }
 
     function get_each_context_3(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[22] = list[i];
+    	child_ctx[21] = list[i];
+    	return child_ctx;
+    }
+
+    function get_each_context_4(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[24] = list[i];
     	return child_ctx;
     }
 
@@ -5062,25 +5288,32 @@ var app = (function () {
     	let nav;
     	let ol;
     	let t1;
-    	let div6;
-    	let div3;
     	let div0;
+    	let t2_value = /*$currentFloor*/ ctx[0].attributes.label + "";
     	let t2;
-    	let div1;
-    	let img;
-    	let img_src_value;
     	let t3;
+    	let div8;
+    	let div1;
     	let ul0;
     	let t4;
-    	let div2;
-    	let t5_value = /*$currentFloor*/ ctx[0].attributes.label + "";
-    	let t5;
-    	let t6;
     	let div5;
-    	let div4;
-    	let t7;
+    	let div2;
+    	let t5;
+    	let div3;
+    	let img;
+    	let img_src_value;
+    	let t6;
     	let ul1;
+    	let t7;
+    	let div4;
+    	let t8_value = /*$currentFloor*/ ctx[0].attributes.label + "";
     	let t8;
+    	let t9;
+    	let div7;
+    	let div6;
+    	let t10;
+    	let ul2;
+    	let t11;
     	let current;
 
     	header = new Header({
@@ -5096,7 +5329,19 @@ var app = (function () {
     			$$inline: true
     		});
 
-    	let each_value_2 = /*$floorsAndTopics*/ ctx[1];
+    	let each_value_3 = /*$floorsAndTopics*/ ctx[1];
+    	validate_each_argument(each_value_3);
+    	let each_blocks_3 = [];
+
+    	for (let i = 0; i < each_value_3.length; i += 1) {
+    		each_blocks_3[i] = create_each_block_3(get_each_context_3(ctx, each_value_3, i));
+    	}
+
+    	const out = i => transition_out(each_blocks_3[i], 1, 1, () => {
+    		each_blocks_3[i] = null;
+    	});
+
+    	let each_value_2 = /*$rooms*/ ctx[2];
     	validate_each_argument(each_value_2);
     	let each_blocks_2 = [];
 
@@ -5104,7 +5349,7 @@ var app = (function () {
     		each_blocks_2[i] = create_each_block_2$1(get_each_context_2$1(ctx, each_value_2, i));
     	}
 
-    	const out = i => transition_out(each_blocks_2[i], 1, 1, () => {
+    	const out_1 = i => transition_out(each_blocks_2[i], 1, 1, () => {
     		each_blocks_2[i] = null;
     	});
 
@@ -5116,7 +5361,7 @@ var app = (function () {
     		each_blocks_1[i] = create_each_block_1$1(get_each_context_1$1(ctx, each_value_1, i));
     	}
 
-    	const out_1 = i => transition_out(each_blocks_1[i], 1, 1, () => {
+    	const out_2 = i => transition_out(each_blocks_1[i], 1, 1, () => {
     		each_blocks_1[i] = null;
     	});
 
@@ -5128,7 +5373,7 @@ var app = (function () {
     		each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
     	}
 
-    	const out_2 = i => transition_out(each_blocks[i], 1, 1, () => {
+    	const out_3 = i => transition_out(each_blocks[i], 1, 1, () => {
     		each_blocks[i] = null;
     	});
 
@@ -5142,63 +5387,80 @@ var app = (function () {
     			nav = element("nav");
     			ol = element("ol");
 
+    			for (let i = 0; i < each_blocks_3.length; i += 1) {
+    				each_blocks_3[i].c();
+    			}
+
+    			t1 = space();
+    			div0 = element("div");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			div8 = element("div");
+    			div1 = element("div");
+    			ul0 = element("ul");
+
     			for (let i = 0; i < each_blocks_2.length; i += 1) {
     				each_blocks_2[i].c();
     			}
 
-    			t1 = space();
-    			div6 = element("div");
+    			t4 = space();
+    			div5 = element("div");
+    			div2 = element("div");
+    			t5 = space();
     			div3 = element("div");
-    			div0 = element("div");
-    			t2 = space();
-    			div1 = element("div");
     			img = element("img");
-    			t3 = space();
-    			ul0 = element("ul");
+    			t6 = space();
+    			ul1 = element("ul");
 
     			for (let i = 0; i < each_blocks_1.length; i += 1) {
     				each_blocks_1[i].c();
     			}
 
-    			t4 = space();
-    			div2 = element("div");
-    			t5 = text(t5_value);
-    			t6 = space();
-    			div5 = element("div");
-    			div4 = element("div");
     			t7 = space();
-    			ul1 = element("ul");
+    			div4 = element("div");
+    			t8 = text(t8_value);
+    			t9 = space();
+    			div7 = element("div");
+    			div6 = element("div");
+    			t10 = space();
+    			ul2 = element("ul");
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			t8 = space();
+    			t11 = space();
     			if (if_block) if_block.c();
-    			add_location(ol, file$4, 51, 12, 1908);
-    			attr_dev(nav, "class", "flex-none w-1/4 overflow-auto");
-    			add_location(nav, file$4, 50, 8, 1852);
-    			attr_dev(div0, "class", "flex-none");
-    			add_location(div0, file$4, 68, 16, 2843);
+    			attr_dev(ol, "class", "flex lg:block flex-row flex-wrap");
+    			add_location(ol, file$4, 51, 12, 1923);
+    			attr_dev(nav, "class", "flex-none lg:w-1/4 overflow-auto");
+    			add_location(nav, file$4, 50, 8, 1864);
+    			attr_dev(div0, "class", "mt-8 lg:mt-0 lg:hidden px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4");
+    			add_location(div0, file$4, 66, 8, 2801);
+    			add_location(ul0, file$4, 69, 16, 3066);
+    			attr_dev(div1, "class", "lg:hidden");
+    			add_location(div1, file$4, 68, 12, 3026);
+    			attr_dev(div2, "class", "flex-none");
+    			add_location(div2, file$4, 80, 16, 3514);
     			if (!src_url_equal(img.src, img_src_value = "/map.png")) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "");
-    			add_location(img, file$4, 70, 20, 2942);
-    			add_location(ul0, file$4, 71, 20, 2991);
-    			attr_dev(div1, "class", "flex-none relative");
-    			add_location(div1, file$4, 69, 16, 2889);
-    			attr_dev(div2, "class", "px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4");
-    			add_location(div2, file$4, 81, 16, 3702);
-    			attr_dev(div3, "class", "flex-none flex flex-col justify-between");
-    			add_location(div3, file$4, 67, 12, 2773);
-    			attr_dev(div4, "class", "flex-none");
-    			add_location(div4, file$4, 84, 16, 3922);
-    			attr_dev(ul1, "class", "flex-none");
-    			add_location(ul1, file$4, 85, 16, 3968);
-    			attr_dev(div5, "class", "flex-none flex flex-col justify-between w-60 ml-8");
-    			add_location(div5, file$4, 83, 12, 3842);
-    			attr_dev(div6, "class", "flex-1 flex flex-row justify-center");
-    			add_location(div6, file$4, 66, 8, 2711);
-    			attr_dev(article, "class", "flex-1 overflow-hidden flex flex-row px-4 py-2");
+    			add_location(img, file$4, 82, 20, 3613);
+    			add_location(ul1, file$4, 83, 20, 3662);
+    			attr_dev(div3, "class", "flex-none relative");
+    			add_location(div3, file$4, 81, 16, 3560);
+    			attr_dev(div4, "class", "flex-none px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4");
+    			add_location(div4, file$4, 93, 16, 4373);
+    			attr_dev(div5, "class", "hidden flex-none lg:flex flex-col justify-between");
+    			add_location(div5, file$4, 79, 12, 3434);
+    			attr_dev(div6, "class", "flex-none");
+    			add_location(div6, file$4, 96, 16, 4613);
+    			attr_dev(ul2, "class", "flex-none");
+    			add_location(ul2, file$4, 97, 16, 4659);
+    			attr_dev(div7, "class", "hidden flex-none lg:flex flex-col justify-between w-60 ml-8");
+    			add_location(div7, file$4, 95, 12, 4523);
+    			attr_dev(div8, "class", "flex-1 lg:flex lg:flex-row lg:justify-center overflow-auto");
+    			add_location(div8, file$4, 67, 8, 2941);
+    			attr_dev(article, "class", "flex-1 overflow-hidden flex flex-col lg:flex-row px-4 py-2");
     			add_location(article, file$4, 49, 4, 1779);
     		},
     		m: function mount(target, anchor) {
@@ -5208,39 +5470,50 @@ var app = (function () {
     			append_dev(article, nav);
     			append_dev(nav, ol);
 
-    			for (let i = 0; i < each_blocks_2.length; i += 1) {
-    				each_blocks_2[i].m(ol, null);
+    			for (let i = 0; i < each_blocks_3.length; i += 1) {
+    				each_blocks_3[i].m(ol, null);
     			}
 
     			append_dev(article, t1);
-    			append_dev(article, div6);
-    			append_dev(div6, div3);
-    			append_dev(div3, div0);
-    			append_dev(div3, t2);
-    			append_dev(div3, div1);
-    			append_dev(div1, img);
-    			append_dev(div1, t3);
+    			append_dev(article, div0);
+    			append_dev(div0, t2);
+    			append_dev(article, t3);
+    			append_dev(article, div8);
+    			append_dev(div8, div1);
     			append_dev(div1, ul0);
 
-    			for (let i = 0; i < each_blocks_1.length; i += 1) {
-    				each_blocks_1[i].m(ul0, null);
+    			for (let i = 0; i < each_blocks_2.length; i += 1) {
+    				each_blocks_2[i].m(ul0, null);
     			}
 
-    			append_dev(div3, t4);
-    			append_dev(div3, div2);
-    			append_dev(div2, t5);
-    			append_dev(div6, t6);
-    			append_dev(div6, div5);
-    			append_dev(div5, div4);
+    			append_dev(div8, t4);
+    			append_dev(div8, div5);
+    			append_dev(div5, div2);
+    			append_dev(div5, t5);
+    			append_dev(div5, div3);
+    			append_dev(div3, img);
+    			append_dev(div3, t6);
+    			append_dev(div3, ul1);
+
+    			for (let i = 0; i < each_blocks_1.length; i += 1) {
+    				each_blocks_1[i].m(ul1, null);
+    			}
+
     			append_dev(div5, t7);
-    			append_dev(div5, ul1);
+    			append_dev(div5, div4);
+    			append_dev(div4, t8);
+    			append_dev(div8, t9);
+    			append_dev(div8, div7);
+    			append_dev(div7, div6);
+    			append_dev(div7, t10);
+    			append_dev(div7, ul2);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(ul1, null);
+    				each_blocks[i].m(ul2, null);
     			}
 
-    			append_dev(div5, t8);
-    			if (if_block) if_block.m(div5, null);
+    			append_dev(div7, t11);
+    			if (if_block) if_block.m(div7, null);
     			current = true;
     		},
     		p: function update(ctx, dirty) {
@@ -5257,7 +5530,37 @@ var app = (function () {
     			header.$set(header_changes);
 
     			if (dirty & /*$floorsAndTopics, $currentFloor*/ 3) {
-    				each_value_2 = /*$floorsAndTopics*/ ctx[1];
+    				each_value_3 = /*$floorsAndTopics*/ ctx[1];
+    				validate_each_argument(each_value_3);
+    				let i;
+
+    				for (i = 0; i < each_value_3.length; i += 1) {
+    					const child_ctx = get_each_context_3(ctx, each_value_3, i);
+
+    					if (each_blocks_3[i]) {
+    						each_blocks_3[i].p(child_ctx, dirty);
+    						transition_in(each_blocks_3[i], 1);
+    					} else {
+    						each_blocks_3[i] = create_each_block_3(child_ctx);
+    						each_blocks_3[i].c();
+    						transition_in(each_blocks_3[i], 1);
+    						each_blocks_3[i].m(ol, null);
+    					}
+    				}
+
+    				group_outros();
+
+    				for (i = each_value_3.length; i < each_blocks_3.length; i += 1) {
+    					out(i);
+    				}
+
+    				check_outros();
+    			}
+
+    			if ((!current || dirty & /*$currentFloor*/ 1) && t2_value !== (t2_value = /*$currentFloor*/ ctx[0].attributes.label + "")) set_data_dev(t2, t2_value);
+
+    			if (dirty & /*$rooms*/ 4) {
+    				each_value_2 = /*$rooms*/ ctx[2];
     				validate_each_argument(each_value_2);
     				let i;
 
@@ -5271,14 +5574,14 @@ var app = (function () {
     						each_blocks_2[i] = create_each_block_2$1(child_ctx);
     						each_blocks_2[i].c();
     						transition_in(each_blocks_2[i], 1);
-    						each_blocks_2[i].m(ol, null);
+    						each_blocks_2[i].m(ul0, null);
     					}
     				}
 
     				group_outros();
 
     				for (i = each_value_2.length; i < each_blocks_2.length; i += 1) {
-    					out(i);
+    					out_1(i);
     				}
 
     				check_outros();
@@ -5299,20 +5602,20 @@ var app = (function () {
     						each_blocks_1[i] = create_each_block_1$1(child_ctx);
     						each_blocks_1[i].c();
     						transition_in(each_blocks_1[i], 1);
-    						each_blocks_1[i].m(ul0, null);
+    						each_blocks_1[i].m(ul1, null);
     					}
     				}
 
     				group_outros();
 
     				for (i = each_value_1.length; i < each_blocks_1.length; i += 1) {
-    					out_1(i);
+    					out_2(i);
     				}
 
     				check_outros();
     			}
 
-    			if ((!current || dirty & /*$currentFloor*/ 1) && t5_value !== (t5_value = /*$currentFloor*/ ctx[0].attributes.label + "")) set_data_dev(t5, t5_value);
+    			if ((!current || dirty & /*$currentFloor*/ 1) && t8_value !== (t8_value = /*$currentFloor*/ ctx[0].attributes.label + "")) set_data_dev(t8, t8_value);
 
     			if (dirty & /*$samples*/ 8) {
     				each_value = /*$samples*/ ctx[3];
@@ -5329,14 +5632,14 @@ var app = (function () {
     						each_blocks[i] = create_each_block$2(child_ctx);
     						each_blocks[i].c();
     						transition_in(each_blocks[i], 1);
-    						each_blocks[i].m(ul1, null);
+    						each_blocks[i].m(ul2, null);
     					}
     				}
 
     				group_outros();
 
     				for (i = each_value.length; i < each_blocks.length; i += 1) {
-    					out_2(i);
+    					out_3(i);
     				}
 
     				check_outros();
@@ -5348,7 +5651,7 @@ var app = (function () {
     				} else {
     					if_block = create_if_block_1$1(ctx);
     					if_block.c();
-    					if_block.m(div5, null);
+    					if_block.m(div7, null);
     				}
     			} else if (if_block) {
     				if_block.d(1);
@@ -5358,6 +5661,10 @@ var app = (function () {
     		i: function intro(local) {
     			if (current) return;
     			transition_in(header.$$.fragment, local);
+
+    			for (let i = 0; i < each_value_3.length; i += 1) {
+    				transition_in(each_blocks_3[i]);
+    			}
 
     			for (let i = 0; i < each_value_2.length; i += 1) {
     				transition_in(each_blocks_2[i]);
@@ -5375,6 +5682,12 @@ var app = (function () {
     		},
     		o: function outro(local) {
     			transition_out(header.$$.fragment, local);
+    			each_blocks_3 = each_blocks_3.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks_3.length; i += 1) {
+    				transition_out(each_blocks_3[i]);
+    			}
+
     			each_blocks_2 = each_blocks_2.filter(Boolean);
 
     			for (let i = 0; i < each_blocks_2.length; i += 1) {
@@ -5399,6 +5712,7 @@ var app = (function () {
     			destroy_component(header, detaching);
     			if (detaching) detach_dev(t0);
     			if (detaching) detach_dev(article);
+    			destroy_each(each_blocks_3, detaching);
     			destroy_each(each_blocks_2, detaching);
     			destroy_each(each_blocks_1, detaching);
     			destroy_each(each_blocks, detaching);
@@ -5418,23 +5732,23 @@ var app = (function () {
     }
 
     // (58:32) {#each tuple.topics as topic}
-    function create_each_block_3(ctx) {
+    function create_each_block_4(ctx) {
     	let li;
-    	let t_value = /*topic*/ ctx[22].attributes.label + "";
+    	let t_value = /*topic*/ ctx[24].attributes.label + "";
     	let t;
 
     	const block = {
     		c: function create() {
     			li = element("li");
     			t = text(t_value);
-    			add_location(li, file$4, 58, 36, 2480);
+    			add_location(li, file$4, 58, 36, 2570);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
     			append_dev(li, t);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*$floorsAndTopics*/ 2 && t_value !== (t_value = /*topic*/ ctx[22].attributes.label + "")) set_data_dev(t, t_value);
+    			if (dirty & /*$floorsAndTopics*/ 2 && t_value !== (t_value = /*topic*/ ctx[24].attributes.label + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(li);
@@ -5443,7 +5757,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_each_block_3.name,
+    		id: create_each_block_4.name,
     		type: "each",
     		source: "(58:32) {#each tuple.topics as topic}",
     		ctx
@@ -5453,19 +5767,19 @@ var app = (function () {
     }
 
     // (55:24) <Link to="/floor/{tuple.floor.id}" class="block hover-parent">
-    function create_default_slot_1$1(ctx) {
+    function create_default_slot_2$1(ctx) {
     	let span;
-    	let t0_value = /*tuple*/ ctx[19].floor.attributes.label + "";
+    	let t0_value = /*tuple*/ ctx[21].floor.attributes.label + "";
     	let t0;
     	let span_class_value;
     	let t1;
     	let ul;
-    	let each_value_3 = /*tuple*/ ctx[19].topics;
-    	validate_each_argument(each_value_3);
+    	let each_value_4 = /*tuple*/ ctx[21].topics;
+    	validate_each_argument(each_value_4);
     	let each_blocks = [];
 
-    	for (let i = 0; i < each_value_3.length; i += 1) {
-    		each_blocks[i] = create_each_block_3(get_each_context_3(ctx, each_value_3, i));
+    	for (let i = 0; i < each_value_4.length; i += 1) {
+    		each_blocks[i] = create_each_block_4(get_each_context_4(ctx, each_value_4, i));
     	}
 
     	const block = {
@@ -5479,13 +5793,13 @@ var app = (function () {
     				each_blocks[i].c();
     			}
 
-    			attr_dev(span, "class", span_class_value = "hover-child-underline text-md " + (/*tuple*/ ctx[19].floor.id === /*$currentFloor*/ ctx[0].id
+    			attr_dev(span, "class", span_class_value = "hover-child-underline text-md " + (/*tuple*/ ctx[21].floor.id === /*$currentFloor*/ ctx[0].id
     			? 'font-bold'
     			: ''));
 
-    			add_location(span, file$4, 55, 28, 2123);
-    			attr_dev(ul, "class", "flex flex-row flex-wrap list-separator text-sm text-gray-300 gap-x-1 ml-2 mb-2");
-    			add_location(ul, file$4, 56, 28, 2290);
+    			add_location(span, file$4, 55, 28, 2203);
+    			attr_dev(ul, "class", "hidden lg:flex flex-row flex-wrap list-separator text-sm text-gray-300 gap-x-1 ml-2 mb-2");
+    			add_location(ul, file$4, 56, 28, 2370);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -5498,26 +5812,26 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*$floorsAndTopics*/ 2 && t0_value !== (t0_value = /*tuple*/ ctx[19].floor.attributes.label + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*$floorsAndTopics*/ 2 && t0_value !== (t0_value = /*tuple*/ ctx[21].floor.attributes.label + "")) set_data_dev(t0, t0_value);
 
-    			if (dirty & /*$floorsAndTopics, $currentFloor*/ 3 && span_class_value !== (span_class_value = "hover-child-underline text-md " + (/*tuple*/ ctx[19].floor.id === /*$currentFloor*/ ctx[0].id
+    			if (dirty & /*$floorsAndTopics, $currentFloor*/ 3 && span_class_value !== (span_class_value = "hover-child-underline text-md " + (/*tuple*/ ctx[21].floor.id === /*$currentFloor*/ ctx[0].id
     			? 'font-bold'
     			: ''))) {
     				attr_dev(span, "class", span_class_value);
     			}
 
     			if (dirty & /*$floorsAndTopics*/ 2) {
-    				each_value_3 = /*tuple*/ ctx[19].topics;
-    				validate_each_argument(each_value_3);
+    				each_value_4 = /*tuple*/ ctx[21].topics;
+    				validate_each_argument(each_value_4);
     				let i;
 
-    				for (i = 0; i < each_value_3.length; i += 1) {
-    					const child_ctx = get_each_context_3(ctx, each_value_3, i);
+    				for (i = 0; i < each_value_4.length; i += 1) {
+    					const child_ctx = get_each_context_4(ctx, each_value_4, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(child_ctx, dirty);
     					} else {
-    						each_blocks[i] = create_each_block_3(child_ctx);
+    						each_blocks[i] = create_each_block_4(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(ul, null);
     					}
@@ -5527,7 +5841,7 @@ var app = (function () {
     					each_blocks[i].d(1);
     				}
 
-    				each_blocks.length = each_value_3.length;
+    				each_blocks.length = each_value_4.length;
     			}
     		},
     		d: function destroy(detaching) {
@@ -5540,7 +5854,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_default_slot_1$1.name,
+    		id: create_default_slot_2$1.name,
     		type: "slot",
     		source: "(55:24) <Link to=\\\"/floor/{tuple.floor.id}\\\" class=\\\"block hover-parent\\\">",
     		ctx
@@ -5550,6 +5864,109 @@ var app = (function () {
     }
 
     // (53:16) {#each $floorsAndTopics as tuple}
+    function create_each_block_3(ctx) {
+    	let li;
+    	let link;
+    	let t;
+    	let current;
+
+    	link = new Link$1({
+    			props: {
+    				to: "/floor/" + /*tuple*/ ctx[21].floor.id,
+    				class: "block hover-parent",
+    				$$slots: { default: [create_default_slot_2$1] },
+    				$$scope: { ctx }
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			li = element("li");
+    			create_component(link.$$.fragment);
+    			t = space();
+    			attr_dev(li, "class", "w-1/3 lg:w-full");
+    			attr_dev(li, "role", "presentation");
+    			add_location(li, file$4, 53, 20, 2039);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, li, anchor);
+    			mount_component(link, li, null);
+    			append_dev(li, t);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const link_changes = {};
+    			if (dirty & /*$floorsAndTopics*/ 2) link_changes.to = "/floor/" + /*tuple*/ ctx[21].floor.id;
+
+    			if (dirty & /*$$scope, $floorsAndTopics, $currentFloor*/ 134217731) {
+    				link_changes.$$scope = { dirty, ctx };
+    			}
+
+    			link.$set(link_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(link.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(link.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(li);
+    			destroy_component(link);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block_3.name,
+    		type: "each",
+    		source: "(53:16) {#each $floorsAndTopics as tuple}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (73:28) <Link to="/room/{room.id}" class="block py-1">
+    function create_default_slot_1$1(ctx) {
+    	let span;
+    	let t_value = /*room*/ ctx[16].attributes.label + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t = text(t_value);
+    			add_location(span, file$4, 73, 32, 3250);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*$rooms*/ 4 && t_value !== (t_value = /*room*/ ctx[16].attributes.label + "")) set_data_dev(t, t_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot_1$1.name,
+    		type: "slot",
+    		source: "(73:28) <Link to=\\\"/room/{room.id}\\\" class=\\\"block py-1\\\">",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (71:20) {#each $rooms as room}
     function create_each_block_2$1(ctx) {
     	let li;
     	let link;
@@ -5558,8 +5975,8 @@ var app = (function () {
 
     	link = new Link$1({
     			props: {
-    				to: "/floor/" + /*tuple*/ ctx[19].floor.id,
-    				class: "block hover-parent",
+    				to: "/room/" + /*room*/ ctx[16].id,
+    				class: "block py-1",
     				$$slots: { default: [create_default_slot_1$1] },
     				$$scope: { ctx }
     			},
@@ -5571,8 +5988,7 @@ var app = (function () {
     			li = element("li");
     			create_component(link.$$.fragment);
     			t = space();
-    			attr_dev(li, "role", "presentation");
-    			add_location(li, file$4, 53, 20, 1983);
+    			add_location(li, file$4, 71, 24, 3138);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -5582,9 +5998,9 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const link_changes = {};
-    			if (dirty & /*$floorsAndTopics*/ 2) link_changes.to = "/floor/" + /*tuple*/ ctx[19].floor.id;
+    			if (dirty & /*$rooms*/ 4) link_changes.to = "/room/" + /*room*/ ctx[16].id;
 
-    			if (dirty & /*$$scope, $floorsAndTopics, $currentFloor*/ 33554435) {
+    			if (dirty & /*$$scope, $rooms*/ 134217732) {
     				link_changes.$$scope = { dirty, ctx };
     			}
 
@@ -5609,14 +6025,14 @@ var app = (function () {
     		block,
     		id: create_each_block_2$1.name,
     		type: "each",
-    		source: "(53:16) {#each $floorsAndTopics as tuple}",
+    		source: "(71:20) {#each $rooms as room}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (75:32) <Link to="/room/{room.id}" class="absolute block text-xs bg-white text-black hover:bg-blue-800 hover:text-white focus:bg-blue-800 focus:text-white" style="{room.attributes.position}">
+    // (87:32) <Link to="/room/{room.id}" class="absolute block text-xs bg-white text-black hover:bg-blue-800 hover:text-white focus:bg-blue-800 focus:text-white" style="{room.attributes.position}">
     function create_default_slot$2(ctx) {
     	let span;
     	let t_value = shortenedLabel(/*room*/ ctx[16].attributes.label) + "";
@@ -5627,7 +6043,7 @@ var app = (function () {
     			span = element("span");
     			t = text(t_value);
     			attr_dev(span, "class", "absolute block left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center");
-    			add_location(span, file$4, 75, 36, 3375);
+    			add_location(span, file$4, 87, 36, 4046);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -5645,14 +6061,14 @@ var app = (function () {
     		block,
     		id: create_default_slot$2.name,
     		type: "slot",
-    		source: "(75:32) <Link to=\\\"/room/{room.id}\\\" class=\\\"absolute block text-xs bg-white text-black hover:bg-blue-800 hover:text-white focus:bg-blue-800 focus:text-white\\\" style=\\\"{room.attributes.position}\\\">",
+    		source: "(87:32) <Link to=\\\"/room/{room.id}\\\" class=\\\"absolute block text-xs bg-white text-black hover:bg-blue-800 hover:text-white focus:bg-blue-800 focus:text-white\\\" style=\\\"{room.attributes.position}\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (73:24) {#each $rooms as room}
+    // (85:24) {#each $rooms as room}
     function create_each_block_1$1(ctx) {
     	let li;
     	let link;
@@ -5681,7 +6097,7 @@ var app = (function () {
     			li = element("li");
     			create_component(link.$$.fragment);
     			t = space();
-    			add_location(li, file$4, 73, 28, 3071);
+    			add_location(li, file$4, 85, 28, 3742);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -5700,7 +6116,7 @@ var app = (function () {
     			if (dirty & /*$rooms*/ 4) link_changes.to = "/room/" + /*room*/ ctx[16].id;
     			if (dirty & /*$rooms*/ 4) link_changes.style = /*room*/ ctx[16].attributes.position;
 
-    			if (dirty & /*$$scope, $rooms*/ 33554436) {
+    			if (dirty & /*$$scope, $rooms*/ 134217732) {
     				link_changes.$$scope = { dirty, ctx };
     			}
 
@@ -5727,14 +6143,14 @@ var app = (function () {
     		block,
     		id: create_each_block_1$1.name,
     		type: "each",
-    		source: "(73:24) {#each $rooms as room}",
+    		source: "(85:24) {#each $rooms as room}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (87:20) {#each $samples as sample}
+    // (99:20) {#each $samples as sample}
     function create_each_block$2(ctx) {
     	let li;
     	let thumnail;
@@ -5753,7 +6169,7 @@ var app = (function () {
     			li = element("li");
     			create_component(thumnail.$$.fragment);
     			attr_dev(li, "class", "w-60 h-60");
-    			add_location(li, file$4, 87, 24, 4062);
+    			add_location(li, file$4, 99, 24, 4753);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -5784,14 +6200,14 @@ var app = (function () {
     		block,
     		id: create_each_block$2.name,
     		type: "each",
-    		source: "(87:20) {#each $samples as sample}",
+    		source: "(99:20) {#each $samples as sample}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (91:16) {#if $hoverRoom}
+    // (103:16) {#if $hoverRoom}
     function create_if_block_1$1(ctx) {
     	let div;
     	let t_value = /*$hoverRoom*/ ctx[4].attributes.label + "";
@@ -5802,7 +6218,7 @@ var app = (function () {
     			div = element("div");
     			t = text(t_value);
     			attr_dev(div, "class", "flex-none px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4");
-    			add_location(div, file$4, 91, 20, 4235);
+    			add_location(div, file$4, 103, 20, 4926);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -5820,7 +6236,7 @@ var app = (function () {
     		block,
     		id: create_if_block_1$1.name,
     		type: "if",
-    		source: "(91:16) {#if $hoverRoom}",
+    		source: "(103:16) {#if $hoverRoom}",
     		ctx
     	});
 
@@ -6094,6 +6510,7 @@ var app = (function () {
     			props: {
     				item: /*$currentItem*/ ctx[1],
     				hideTitle: true,
+    				noLink: true,
     				size: "large"
     			},
     			$$inline: true
@@ -6132,18 +6549,18 @@ var app = (function () {
     				each_blocks[i].c();
     			}
 
-    			attr_dev(button, "class", "block absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg text-2xl w-10 h-10 bg-neutral-800 z-10");
-    			add_location(button, file$3, 75, 12, 2701);
-    			attr_dev(div0, "class", "flex-1");
-    			add_location(div0, file$3, 76, 12, 2933);
+    			attr_dev(button, "class", "block absolute right-0 top-0 lg:transform lg:translate-x-1/2 lg:-translate-y-1/2 rounded-full shadow-lg text-2xl w-10 h-10 bg-neutral-800 z-10");
+    			add_location(button, file$3, 75, 12, 2795);
+    			attr_dev(div0, "class", "flex-none lg:flex-1");
+    			add_location(div0, file$3, 76, 12, 3036);
     			attr_dev(h2, "class", "flex-none px-6 py-4 bg-blue-900 text-lg font-bold");
-    			add_location(h2, file$3, 80, 16, 3140);
+    			add_location(h2, file$3, 80, 16, 3283);
     			attr_dev(dl, "class", "flex flex-row flex-wrap items-end gap-y-1");
-    			add_location(dl, file$3, 92, 20, 3913);
+    			add_location(dl, file$3, 92, 20, 4056);
     			attr_dev(div1, "class", "flex-1 px-6 py-2 overflow-auto");
-    			add_location(div1, file$3, 81, 16, 3320);
-    			attr_dev(div2, "class", "flex-1 flex flex-col overflow-hidden relative");
-    			add_location(div2, file$3, 79, 12, 3064);
+    			add_location(div1, file$3, 81, 16, 3463);
+    			attr_dev(div2, "class", "flex-none lg:flex-1 flex flex-col overflow-hidden relative");
+    			add_location(div2, file$3, 79, 12, 3194);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, button, anchor);
@@ -6344,7 +6761,7 @@ var app = (function () {
     		c: function create() {
     			p = element("p");
     			attr_dev(p, "class", "mb-2");
-    			add_location(p, file$3, 84, 28, 3544);
+    			add_location(p, file$3, 84, 28, 3687);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -6445,7 +6862,7 @@ var app = (function () {
     		c: function create() {
     			p = element("p");
     			attr_dev(p, "class", "mb-2");
-    			add_location(p, file$3, 89, 28, 3802);
+    			add_location(p, file$3, 89, 28, 3945);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -6484,10 +6901,10 @@ var app = (function () {
     			t0 = text(t0_value);
     			dd = element("dd");
     			t1 = text(t1_value);
-    			attr_dev(dt, "class", "flex-none w-1/6 text-sm text-neutral-300 text-right pr-2");
-    			add_location(dt, file$3, 95, 32, 4160);
-    			attr_dev(dd, "class", "flex-none w-5/6 pl-2");
-    			add_location(dd, file$3, 96, 32, 4277);
+    			attr_dev(dt, "class", "flex-none w-1/3 lg:w-1/6 text-sm text-neutral-300 text-right pr-2");
+    			add_location(dt, file$3, 95, 32, 4303);
+    			attr_dev(dd, "class", "flex-none w-2/3 lg:w-5/6 pl-2");
+    			add_location(dd, file$3, 96, 32, 4429);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, dt, anchor);
@@ -6573,7 +6990,7 @@ var app = (function () {
     			section = element("section");
     			div = element("div");
     			if (if_block) if_block.c();
-    			attr_dev(div, "class", "absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-5/6 h-5/6 flex flex-row bg-neutral-800 shadow-xl shadow-black");
+    			attr_dev(div, "class", "absolute left-0 top-0 lg:left-1/2 lg:top-1/2 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 w-full lg:w-5/6 h-full lg:h-5/6 flex flex-col lg:flex-row bg-neutral-800 shadow-xl shadow-black overflow-auto lg:overflow-visible");
     			add_location(div, file$3, 73, 4, 2469);
     			attr_dev(section, "class", "absolute left-0 top-0 w-full h-full bg-neutral-800 bg-opacity-80");
     			add_location(section, file$3, 72, 0, 2323);
@@ -6868,7 +7285,7 @@ var app = (function () {
 
     			t1 = space();
     			create_component(route.$$.fragment);
-    			attr_dev(ul, "class", "grid grid-cols-4 gap-8 p-6 overflow-auto h-full");
+    			attr_dev(ul, "class", "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-6 overflow-auto h-full");
     			add_location(ul, file$2, 38, 8, 1694);
     			attr_dev(article, "class", "flex-1 overflow-hidden relative");
     			add_location(article, file$2, 37, 4, 1636);
@@ -6997,7 +7414,7 @@ var app = (function () {
     		c: function create() {
     			li = element("li");
     			create_component(thumnail.$$.fragment);
-    			add_location(li, file$2, 40, 16, 1806);
+    			add_location(li, file$2, 40, 16, 1836);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -7295,27 +7712,27 @@ var app = (function () {
     			attr_dev(a0, "target", "_blank");
     			attr_dev(a0, "rel", "noopener");
     			attr_dev(a0, "class", "hover:underline focus:underline");
-    			add_location(a0, file$1, 4, 16, 190);
+    			add_location(a0, file$1, 4, 16, 227);
     			attr_dev(li0, "role", "presentation");
-    			attr_dev(li0, "class", "flex-1 text-center");
-    			add_location(li0, file$1, 3, 12, 122);
+    			attr_dev(li0, "class", "flex-none w-full md:w-1/3 text-center");
+    			add_location(li0, file$1, 3, 12, 140);
     			attr_dev(a1, "href", "https://collections.vam.ac.uk/");
     			attr_dev(a1, "target", "_blank");
     			attr_dev(a1, "rel", "noopener");
     			attr_dev(a1, "class", "hover:underline focus:underline");
-    			add_location(a1, file$1, 7, 16, 469);
+    			add_location(a1, file$1, 7, 16, 524);
     			attr_dev(li1, "role", "presentation");
-    			attr_dev(li1, "class", "flex-1 text-center");
-    			add_location(li1, file$1, 6, 12, 401);
+    			attr_dev(li1, "class", "flex-none w-1/2 md:w-1/3 text-center");
+    			add_location(li1, file$1, 6, 12, 438);
     			attr_dev(a2, "href", "http://www.getty.edu/research/tools/vocabularies/aat/");
     			attr_dev(a2, "target", "_blank");
     			attr_dev(a2, "rel", "noopener");
     			attr_dev(a2, "class", "hover:underline focus:underline");
-    			add_location(a2, file$1, 10, 16, 725);
+    			add_location(a2, file$1, 10, 16, 798);
     			attr_dev(li2, "role", "presentation");
-    			attr_dev(li2, "class", "flex-1 text-center");
-    			add_location(li2, file$1, 9, 12, 657);
-    			attr_dev(ul, "class", "flex flex-row");
+    			attr_dev(li2, "class", "flex-none w-1/2 md:w-1/3 text-center");
+    			add_location(li2, file$1, 9, 12, 712);
+    			attr_dev(ul, "class", "flex flex-row flex-wrap gap-y-1");
     			add_location(ul, file$1, 2, 8, 83);
     			add_location(nav, file$1, 1, 4, 69);
     			attr_dev(footer, "class", "flex-none shadow-even shadow-black text-sm py-1");
