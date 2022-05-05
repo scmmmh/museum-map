@@ -4,7 +4,7 @@
 
     import Header from '../components/Header.svelte';
     import Thumnail from '../components/Thumbnail.svelte';
-    import { config, fetchItemOfTheDay, itemOfTheDay, fetchRandomItemsSelection, randomItemsSelection, majorCollections, floors } from '../store';
+    import { config, fetchItemOfTheDay, itemOfTheDay, fetchRandomItemsSelection, randomItemsSelection, majorCollections, floors, localPreferences } from '../store';
 
     onMount(() => {
         fetchItemOfTheDay();
@@ -15,11 +15,12 @@
 <Header title="Museum Map - Lobby" nav={[]}/>
 <article class="flex-1 overflow-auto">
     <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
-        {#if $config && $config.attributes.intro}
+        {#if $config && $config.attributes.intro && (!$localPreferences.lobby  || !$localPreferences.lobby.hideWelcome)}
             <section class="col-span-12">
-                <div class="max-w-4xl mx-auto border border-neutral-500 shadow-xl px-2 py-2">
+                <div class="relative max-w-4xl mx-auto border border-neutral-500 shadow-xl px-2 py-2">
+                    <button on:click={() => { localPreferences.setPreference('lobby.hideWelcome', true); }} class="block absolute right-0 top-0 lg:transform lg:translate-x-1/2 lg:-translate-y-1/2 rounded-full shadow-lg text-lg w-8 h-8 bg-neutral-600 border border-neutral-500 z-10 shadow">✖</button>
                     {#each $config.attributes.intro.split('\n\n') as line}
-                        <p>{line}</p>
+                        <p>{@html line}</p>
                     {/each}
                 </div>
             </section>
