@@ -3,6 +3,7 @@ import { itemOfTheDay, fetchItemOfTheDay, randomItemsSelection, fetchRandomItems
 import { floorTopics, fetchFloorTopics, majorCollections, floors, fetchFloors} from './floors';
 import { cachedRooms, loadRooms } from './rooms';
 import { cachedItems, loadItems } from './items';
+import { config, fetchConfig } from './config';
 
 export {
     busyCounter,
@@ -24,4 +25,7 @@ export {
 
     cachedItems,
     loadItems,
+
+    config,
+    fetchConfig,
 };

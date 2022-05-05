@@ -1,9 +1,10 @@
 <script lang="ts">
 	import Root from './routes/Root.svelte';
-	import { fetchFloorTopics, fetchFloors } from './store';
+	import { fetchFloorTopics, fetchFloors, fetchConfig } from './store';
 
 	fetchFloorTopics();
 	fetchFloors();
+	fetchConfig();
 </script>
 
 <div class="bg-neutral-700 h-screen v-screen overflow-hidden">

@@ -1,5 +1,6 @@
 import math
 
+from configparser import ConfigParser
 from datetime import datetime
 from importlib import resources
 from importlib.abc import Traversable
@@ -83,6 +84,40 @@ class APIItemHandler(RequestBase):
                     self.send_error(status_code=404)
             else:
                 self.send_error(status_code=404)
+
+
+class APIConfigHandler(web.RequestHandler):
+
+    def initialize(self, config: ConfigParser) -> None:
+        self._config = config
+
+    async def get(self):
+        attributes = {
+            'intro': self._config.get('app', 'intro', fallback=None)
+        }
+        if self._config.has_option('app', 'footer.center'):
+            if 'footer' not in attributes:
+                attributes['footer'] = {}
+            attributes['footer']['center'] = {
+                'label': self._config.get('app', 'footer.center')
+            }
+            if self._config.has_option('app', 'footer.center.url'):
+                attributes['footer']['center']['url'] = self._config.get('app', 'footer.center.url')
+        if self._config.has_option('app', 'footer.right'):
+            if 'footer' not in attributes:
+                attributes['footer'] = {}
+            attributes['footer']['right'] = {
+                'label': self._config.get('app', 'footer.right')
+            }
+            if self._config.has_option('app', 'footer.right.url'):
+                attributes['footer']['right']['url'] = self._config.get('app', 'footer.right.url')
+        self.write({
+            'data': {
+                'id': 'all',
+                'type': 'configs',
+                'attributes': attributes
+            }
+        })
 
 
 class APIPickHandler(RequestBase):

@@ -4,7 +4,7 @@
 
     import Header from '../components/Header.svelte';
     import Thumnail from '../components/Thumbnail.svelte';
-    import { fetchItemOfTheDay, itemOfTheDay, fetchRandomItemsSelection, randomItemsSelection, majorCollections, floors } from '../store';
+    import { config, fetchItemOfTheDay, itemOfTheDay, fetchRandomItemsSelection, randomItemsSelection, majorCollections, floors } from '../store';
 
     onMount(() => {
         fetchItemOfTheDay();
@@ -15,9 +15,15 @@
 <Header title="Museum Map - Lobby" nav={[]}/>
 <article class="flex-1 overflow-auto">
     <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
-        <section class="col-span-12">
-            <p>Welcome to the museum map for part of the V&amp;A's digital collection.</p>
-        </section>
+        {#if $config && $config.attributes.intro}
+            <section class="col-span-12">
+                <div class="max-w-4xl mx-auto border border-neutral-500 shadow-xl px-2 py-2">
+                    {#each $config.attributes.intro.split('\n\n') as line}
+                        <p>{line}</p>
+                    {/each}
+                </div>
+            </section>
+        {/if}
         {#if $itemOfTheDay}
             <section class="md:col-span-6 lg:col-span-4 flex flex-col">
                 <h2 class="flex-none text-xl font-bold mb-4">Item of the Day</h2>

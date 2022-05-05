@@ -1,14 +1,30 @@
-<footer class="flex-none shadow-even shadow-black text-sm py-1">
+<script lang="ts">
+    import { config } from '../store';
+</script>
+
+<footer class="flex-none shadow-even shadow-black text-sm py-1 z-10">
     <nav>
         <ul class="flex flex-row flex-wrap gap-y-1">
             <li role="presentation" class="flex-none w-full md:w-1/3 text-center">
                 <a href="https://www.room3b.eu/pages/projects/digital-museum-map.html" target="_blank" rel="noopener" class="hover:underline focus:underline">Find out more about how this works</a>
             </li>
             <li role="presentation" class="flex-none w-1/2 md:w-1/3 text-center">
-                <a href="https://collections.vam.ac.uk/" target="_blank" rel="noopener" class="hover:underline focus:underline">Images, and Meta-data provided by the V&A</a>
+                {#if $config && $config.attributes.footer && $config.attributes.footer.center}
+                    {#if $config.attributes.footer.center.url}
+                        <a href="{$config.attributes.footer.center.url}" target="_blank" rel="noopener" class="hover:underline focus:underline">{@html $config.attributes.footer.center.label}</a>
+                    {:else}
+                        <span>{@html $config.attributes.footer.center.label}</span>
+                    {/if}
+                {/if}
             </li>
             <li role="presentation" class="flex-none w-1/2 md:w-1/3 text-center">
-                <a href="http://www.getty.edu/research/tools/vocabularies/aat/" target="_blank" rel="noopener" class="hover:underline focus:underline">Includes part of the AAT</a>
+                {#if $config && $config.attributes.footer && $config.attributes.footer.right}
+                    {#if $config.attributes.footer.right.url}
+                    <a href="{$config.attributes.footer.right.url}" target="_blank" rel="noopener" class="hover:underline focus:underline">{@html $config.attributes.footer.right.label}</a>
+                {:else}
+                    <span>{@html $config.attributes.footer.right.label}</span>
+                {/if}
+            {/if}
             </li>
         </ul>
     </nav>
