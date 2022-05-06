@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "museum-map"
-version = "0.3.5"
+version = "0.3.6"
 description = ""
 authors = ["Mark Hall <mark.hall@work.room3b.eu>"]
 license = "MIT"
