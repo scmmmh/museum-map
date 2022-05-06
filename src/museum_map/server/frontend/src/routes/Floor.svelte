@@ -87,7 +87,7 @@
             <div class="hidden flex-none lg:flex flex-col justify-between">
                 <div class="flex-none"></div>
                 <div class="flex-none relative">
-                    <img src="/map.png" alt=""/>
+                    <img src="/images/map.png" alt=""/>
                     <ul>
                         {#each $rooms as room}
                             <li on:mouseenter={() => { mouseOverRoom(room); }}>
