@@ -6,7 +6,7 @@ export const floorTopics = writable([] as JsonApiObject[]);
 
 export async function fetchFloorTopics() {
     busyCounter.start();
-    const response = await window.fetch('http://localhost:6543/api/floor-topics');
+    const response = await window.fetch('/api/floor-topics');
     if (response.status === 200) {
         const data = await response.json() as JsonApiResponse;
         floorTopics.set(data.data as JsonApiObject[]);
@@ -18,7 +18,7 @@ export const floors = writable([] as JsonApiObject[]);
 
 export async function fetchFloors() {
     busyCounter.start();
-    const response = await window.fetch('http://localhost:6543/api/floors');
+    const response = await window.fetch('/api/floors');
     if (response.status === 200) {
         const data = await response.json() as JsonApiResponse;
         floors.set(data.data as JsonApiObject[]);

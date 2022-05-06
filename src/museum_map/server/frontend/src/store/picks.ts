@@ -8,7 +8,7 @@ export const itemOfTheDay = writable(null as JsonApiObject | null);
 // Fetch the item of the day
 export async function fetchItemOfTheDay() {
     busyCounter.start();
-    const response = await window.fetch('http://localhost:6543/api/picks/todays');
+    const response = await window.fetch('/api/picks/todays');
     if (response.status === 200) {
         const data = await response.json() as JsonApiResponse;
         if ((data.data as JsonApiObject[]).length > 0) {
@@ -28,7 +28,7 @@ export const randomItemsSelection = writable([] as JsonApiObject[]);
 // Fetch a random selection of items
 export async function fetchRandomItemsSelection() {
     busyCounter.start();
-    const response = await window.fetch('http://localhost:6543/api/picks/random');
+    const response = await window.fetch('/api/picks/random');
     if (response.status === 200) {
         const data = await response.json() as JsonApiResponse;
         randomItemsSelection.set(data.data as JsonApiObject[]);
