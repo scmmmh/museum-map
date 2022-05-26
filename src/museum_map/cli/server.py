@@ -9,21 +9,21 @@ from ..server.handlers import APICollectionHandler, APIConfigHandler, APIItemHan
 
 
 @click.command()
-@click.option('-p', '--port', type=int, default=6543, help='Server port')
 @click.pass_context
-def run(ctx, port):
+def run(ctx):
+    config = ctx.obj['config']
     app = Application(
         [
             ('/api/picks/([a-z\-]+)', APIPickHandler),
-            ('/api/config/all', APIConfigHandler, {'config': ctx.obj['config']}),
+            ('/api/config/all', APIConfigHandler, {'config': config}),
             ('/api/([a-z\-]+)', APICollectionHandler),
             ('/api/([a-z\-]+)/([0-9]+)', APIItemHandler),
-            ('/images/(.*)', StaticFileHandler, {'path': ctx.obj['config']['images']['basepath']}),
+            ('/images/(.*)', StaticFileHandler, {'path': config['images']['basepath']}),
             ('/(.*)', FrontendHandler),
         ],
         autoreload=True,
-        config=ctx.obj['config'])
-    app.listen(port)
+        config=config)
+    app.listen(config['server']['port'], address=config['server']['host'])
     IOLoop.current().start()
 
 
