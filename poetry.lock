@@ -31,6 +31,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "cerberus"
+version = "1.3.4"
+description = "Lightweight, extensible schema and data validation tool for Python dictionaries."
+category = "main"
+optional = false
+python-versions = ">=2.7"
+
+[[package]]
 name = "certifi"
 version = "2021.10.8"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -577,7 +585,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "ee70241442df78cf7dee3fea77a6d6dc7432ec706a4cf906c54a577fb9a6fc3f"
+content-hash = "394a6f385ad27f20ef62f1b74371bc9711ff5e082d81ff4004d5ff6ccd56566c"
 
 [metadata.files]
 asyncpg = [
@@ -629,6 +637,9 @@ blis = [
 catalogue = [
     {file = "catalogue-2.0.7-py3-none-any.whl", hash = "sha256:cab4feda641fe05da1e6a1a9d123b0869d5ca324dcd93d4a5c384408ab62e7fb"},
     {file = "catalogue-2.0.7.tar.gz", hash = "sha256:535d33ae79ebd21ca298551d85da186ae8b8e1df36b0fb0246da774163ec2d6b"},
+]
+cerberus = [
+    {file = "Cerberus-1.3.4.tar.gz", hash = "sha256:d1b21b3954b2498d9a79edf16b3170a3ac1021df88d197dc2ce5928ba519237c"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
