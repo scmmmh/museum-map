@@ -29,15 +29,10 @@ CONFIG_SCHEMA = {
                 'type': 'integer',
                 'default': 6543
             },
-            'base': {
-                'type': 'string',
-                'default': 'http://127.0.0.1:6543'
-            }
         },
         'default': {
             'host': '127.0.0.1',
             'port': 6543,
-            'base': 'http://127.0.0.1:6543'
         }
     },
     'db': {
