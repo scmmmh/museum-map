@@ -3,26 +3,7 @@
     import { derived } from 'svelte/store';
 
     import Thumbnail from '../components/Thumbnail.svelte';
-    import { cachedItems, cachedRooms, loadItems, loadRooms } from '../store';
-
-    const fields = [
-        ['Object', 'object'],
-        ['Concepts', 'concepts'],
-        ['Materials', 'materials'],
-        ['Techniques', 'techniques'],
-        ['Styles', 'styles'],
-        ['Dimensions', 'dimensions'],
-        ['Date', 'date'],
-        ['Place made', 'place_made'],
-        ['Subjects', 'subjects'],
-        ['People', 'people'],
-        ['Organisations', 'organisations'],
-        ['Events', 'events'],
-        ['Marks', 'marks'],
-        ['Credit', 'credit'],
-        ['Collections', 'collections'],
-        ['Physical location', 'physical_location'],
-    ];
+    import { cachedItems, cachedRooms, loadItems, loadRooms, config } from '../store';
 
     const params = useParams();
     const navigate = useNavigate();
@@ -88,21 +69,18 @@
             <div class="flex-none lg:flex-1 flex flex-col overflow-hidden relative">
                 <h2 class="flex-none px-6 py-4 bg-blue-900 text-lg font-bold">{$currentItem.attributes.title ? processParagraph($currentItem.attributes.title) : '[Untitled]'}</h2>
                 <div class="flex-1 px-6 py-2 overflow-auto">
-                    {#if $currentItem.attributes.description}
-                        {#each processText($currentItem.attributes.description) as para}
-                            <p class="mb-2">{@html para}</p>
-                        {/each}
-                    {/if}
-                    {#if $currentItem.attributes.notes}
-                        {#each processText($currentItem.attributes.notes) as para}
-                            <p class="mb-2">{@html para}</p>
-                        {/each}
-                    {/if}
+                    {#each $config.attributes.item.texts as textConfig}
+                        {#if $currentItem.attributes[textConfig.name]}
+                            {#each processText($currentItem.attributes[textConfig.name]) as para}
+                                <p class="mb-2">{@html para}</p>
+                            {/each}
+                        {/if}
+                    {/each}
                     <dl class="flex flex-row flex-wrap items-end gap-y-1">
-                        {#each fields as field}
-                            {#if $currentItem.attributes[field[1]] && $currentItem.attributes[field[1]].length}
-                                <dt class="flex-none w-1/3 lg:w-1/6 text-sm text-neutral-300 text-right pr-2">{field[0]}</dt>
-                                <dd class="flex-none w-2/3 lg:w-5/6 pl-2">{formatField($currentItem.attributes[field[1]])}</dd>
+                        {#each $config.attributes.item.fields as fieldConfig}
+                            {#if $currentItem.attributes[fieldConfig.name] && $currentItem.attributes[fieldConfig.name].length}
+                                <dt class="flex-none w-1/3 lg:w-1/6 text-sm text-neutral-300 text-right pr-2">{fieldConfig.label}</dt>
+                                <dd class="flex-none w-2/3 lg:w-5/6 pl-2">{formatField($currentItem.attributes[fieldConfig.name])}</dd>
                             {/if}
                         {/each}
                     </dl>

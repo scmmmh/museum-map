@@ -11,7 +11,7 @@ from sqlalchemy.orm import selectinload, noload
 from sqlalchemy.ext.asyncio import AsyncSession
 from tornado import web
 
-from ..models import Floor, FloorTopic, Room, Group, Item
+from ..models import create_sessionmaker, Floor, FloorTopic, Room, Group, Item
 
 
 class RequestBase(web.RequestHandler):
@@ -44,7 +44,7 @@ class RequestBase(web.RequestHandler):
 class APICollectionHandler(RequestBase):
 
     async def get(self, types):
-        async with AsyncSession(self.application.settings['engine']) as session:
+        async with create_sessionmaker(self.application.settings['config'])() as session:
             query, class_ = self.setup_query(types)
             if query is not None and class_ is not None:
                 for key, values in self.request.arguments.items():
@@ -73,7 +73,7 @@ class APICollectionHandler(RequestBase):
 class APIItemHandler(RequestBase):
 
     async def get(self, types, identifier):
-        async with AsyncSession(self.application.settings['engine']) as session:
+        async with create_sessionmaker(self.application.settings['config'])() as session:
             query, class_ = self.setup_query(types)
             if query is not None and class_ is not None:
                 query = query.filter(getattr(class_, 'id') == int(identifier))
@@ -88,29 +88,24 @@ class APIItemHandler(RequestBase):
 
 class APIConfigHandler(web.RequestHandler):
 
-    def initialize(self, config: ConfigParser) -> None:
+    def initialize(self, config: dict) -> None:
         self._config = config
 
     async def get(self):
         attributes = {
-            'intro': self._config.get('app', 'intro', fallback=None)
+            'intro': self._config['app']['intro'],
+            'item': self._config['app']['item'],
         }
-        if self._config.has_option('app', 'footer.center'):
-            if 'footer' not in attributes:
-                attributes['footer'] = {}
-            attributes['footer']['center'] = {
-                'label': self._config.get('app', 'footer.center')
-            }
-            if self._config.has_option('app', 'footer.center.url'):
-                attributes['footer']['center']['url'] = self._config.get('app', 'footer.center.url')
-        if self._config.has_option('app', 'footer.right'):
-            if 'footer' not in attributes:
-                attributes['footer'] = {}
-            attributes['footer']['right'] = {
-                'label': self._config.get('app', 'footer.right')
-            }
-            if self._config.has_option('app', 'footer.right.url'):
-                attributes['footer']['right']['url'] = self._config.get('app', 'footer.right.url')
+        if 'footer' in self._config['app']:
+            for footer_location in ['center', 'right']:
+                if footer_location in self._config['app']['footer']:
+                    if 'footer' not in attributes:
+                        attributes['footer'] = {}
+                    attributes['footer'][footer_location] = {
+                        'label': self._config['app']['footer'][footer_location]['label']
+                    }
+                    if 'url' in self._config['app']['footer'][footer_location]:
+                        attributes['footer'][footer_location]['url'] = self._config['app']['footer'][footer_location]['url']
         self.write({
             'data': {
                 'id': 'all',
@@ -124,7 +119,7 @@ class APIPickHandler(RequestBase):
 
     async def get(self, type):
         if type in ['random', 'todays']:
-            async with AsyncSession(self.application.settings['engine']) as session:
+            async with create_sessionmaker(self.application.settings['config'])() as session:
                 query, class_ = self.setup_query('items')
                 if query is not None and class_ is not None:
                     if type == 'random':
