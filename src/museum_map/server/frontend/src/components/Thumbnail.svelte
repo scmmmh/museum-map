@@ -7,9 +7,9 @@
     export let noLink = false;
     export let size = 'small';
 
-    function imageLink(imageId: string | undefined): string {
+    function imageLink(imageId: string[] | undefined): string {
         if (imageId) {
-            return '/images/' + imageId.split('').join('/') + '/' + imageId + (size === 'large' ? '' : '-240') + '.jpg';
+            return '/images/' + imageId.join('/') + (size === 'large' ? '' : '-240') + '.jpg';
         } else {
             return '';
         }

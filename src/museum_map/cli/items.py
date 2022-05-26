@@ -24,12 +24,12 @@ async def tokenise_impl(config):
             for item in progress:
                 text = ''
                 for field in config['data']['topic_fields']:
-                    if item.attributes[field].strip():
+                    if field in item.attributes and item.attributes[field].strip():
                         if item.attributes[field].strip().endswith('.'):
                             text = f'{text} {item.attributes[field].strip()}'
                         else:
                             text = f'{text} {item.attributes[field].strip()}.'
-                item.attributes['tokens'] = [t.lemma_ for t in nlp(text) if not t.pos_ in ['PUNCT', 'SPACE']]
+                item.attributes['_tokens'] = [t.lemma_ for t in nlp(text) if not t.pos_ in ['PUNCT', 'SPACE']]
         await dbsession.commit()
 
 
@@ -232,11 +232,11 @@ async def generate_topic_vectors_impl(config):
             result = await dbsession.execute(select(Item))
             with click.progressbar(result.scalars(), length=count.scalar_one(), label=label) as progress:
                 for item in progress:
-                    if 'tokens' in item.attributes:
+                    if '_tokens' in item.attributes:
                         if dictionary:
-                            yield dictionary.doc2bow(item.attributes['tokens'])
+                            yield dictionary.doc2bow(item.attributes['_tokens'])
                         else:
-                            yield item.attributes['tokens']
+                            yield item.attributes['_tokens']
 
         dictionary = corpora.Dictionary()
         async for tokens in texts(label='Generating dictionary'):
@@ -253,8 +253,8 @@ async def generate_topic_vectors_impl(config):
         result = await dbsession.execute(select(Item))
         with click.progressbar(result.scalars(), length=count.scalar_one(), label='Generating topic vectors') as progress:
             for item in progress:
-                if 'tokens' in item.attributes:
-                    vec = model[dictionary.doc2bow(item.attributes['tokens'])]
+                if '_tokens' in item.attributes:
+                    vec = model[dictionary.doc2bow(item.attributes['_tokens'])]
                     item.attributes['lda_vector'] = [(wid, float(prob)) for wid, prob in vec]
         await dbsession.commit()
 

@@ -171,7 +171,7 @@ class FrontendHandler(web.RequestHandler):
         try:
             data = resource.read_bytes()
             mimetype = guess_type(path[-1])
-            if mimetype:
+            if mimetype and mimetype[0]:
                 self.set_header('Content-Type', mimetype[0])
             self.write(data)
         except IsADirectoryError:

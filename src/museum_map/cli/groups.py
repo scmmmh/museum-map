@@ -144,7 +144,7 @@ def split_by_year(config, dbsession, group):
     centuries = []
     with_year = 0
     for item in group.items:
-        if item.attributes[config['data']['year_field']]:
+        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
             years.append(item.attributes[config['data']['year_field']])
             with_year = with_year + 1
     if with_year / len(group.items) > 0.95:
@@ -159,7 +159,7 @@ def split_by_year(config, dbsession, group):
                 decades = []
                 for start_year in range(start_decade * 10, (end_decade + 1) * 10, 10):
                     for item in list(group.items):
-                        if item.attributes[config['data']['year_field']]:
+                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
                             if start_year <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < start_year + 10:
                                 if len(decades) == 0 or decades[-1][0][0] != start_year:
                                     decades.append([[start_year], 1])
@@ -176,7 +176,7 @@ def split_by_year(config, dbsession, group):
                 for years, _ in decades:
                     new_group = None
                     for item in list(group.items):
-                        if item.attributes[config['data']['year_field']]:
+                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
                             if years[0] <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < years[-1] + 10:
                                 if new_group is None:
                                     if len(years) == 1:
@@ -198,7 +198,7 @@ def split_by_year(config, dbsession, group):
                 centuries = []
                 for start_year in range(start_century * 100, (end_century + 1) * 100, 100):
                     for item in list(group.items):
-                        if item.attributes[config['data']['year_field']]:
+                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
                             if start_year <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < start_year + 100:
                                 if len(centuries) == 0 or centuries[-1][0][0] != start_year:
                                     centuries.append([[start_year], 1])
@@ -215,7 +215,7 @@ def split_by_year(config, dbsession, group):
                 for years, _ in centuries:
                     new_group = None
                     for item in list(group.items):
-                        if item.attributes[config['data']['year_field']]:
+                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
                             if years[0] <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < years[-1] + 100:
                                 if new_group is None:
                                     if len(years) == 1:
