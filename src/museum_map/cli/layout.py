@@ -1,5 +1,6 @@
 import asyncio
 import click
+import math
 
 from copy import deepcopy
 from inflection import pluralize
@@ -10,7 +11,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from .groups import fill_vector
-from ..models import Base, Group, Room, Floor, FloorTopic, create_sessionmaker
+from ..models import Item, Group, Room, Floor, FloorTopic, create_sessionmaker
 
 
 async def count_items(dbsession, group):
@@ -151,64 +152,48 @@ def get_ancestors(group):
         return []
 
 
-async def summarise_floor(dbsession, floor):
-    """Generate a summary for a floor."""
-    # Generate the sample images
-    stmt = select(Room).filter(Room.id.in_([room.id for room in sample(floor.rooms, min(15, len(floor.rooms)))])).options(selectinload(Room.items), selectinload(Room.sample))
-    result = await dbsession.execute(stmt)
-    floor.samples = [choice(room.items) for room in result.scalars()]
-    rooms_stmt = select(Room).filter(Room.id == floor.id).options(selectinload(Room.items), selectinload(Room.sample), selectinload(Room.group))
-    result = await dbsession.execute(rooms_stmt)
-    for room in result.scalars():
-        room.sample = choice(room.items)
-    # Generate the topic list
-    if True or len(floor.topics) == 0:
-        floor_groups = {}
-        result = await dbsession.execute(rooms_stmt)
-        for room in result.scalars():
-            stmt = select(Group).filter(Group.id == room.group_id).options(selectinload(Group.items), selectinload(Group.parent))
-            result = await dbsession.execute(stmt)
-            group = result.scalar_one()
-            size = await count_items(dbsession, group)
-            while group.split in ['time', 'similar', 'attribute', 'inner']:
-                group = group.parent
-            if group in floor_groups:
-                floor_groups[group] = floor_groups[group] + size
-            else:
-                floor_groups[group] = size
-        group_sizes = list(floor_groups.items())
-        group_sizes.sort(key=lambda g: g[1], reverse=True)
-        total = sum(floor_groups.values())
-        sub_total = 0
-        for group, size in group_sizes:
-            sub_total = sub_total + size
-            dbsession.add(FloorTopic(label=pluralize_label(group.label), group=group, floor=floor, size=size))
-            if sub_total / total > 0.66666:
-                break
-        """groups = set()
-        group_rooms = {}
-        for room in floor.rooms:
-            groups.add(get_basic_group(room.group))
-            if room.group not in group_rooms:
-                group_rooms[get_basic_group(room.group)] = room
-        if len(groups) <= 5:
-            for group in groups:
-                dbsession.add(FloorTopic(label=pluralize_label(group.label), floor=floor, room=group_rooms[group]))
-        else:
-            for group in list(groups):
-                if group.parent and depth(group.parent) > 3:
-                    groups.add(group.parent)
-                    group_rooms[group.parent] = group_rooms[group]
-            group_sizes = [(group, count_items(group)) for group in groups]
-            group_sizes.sort(key=lambda i: i[1])
-            added = set()
-            count = 0
-            while count < 5 and len(group_sizes) > 0:
-                group, _ = group_sizes.pop()
-                if len(added.intersection(set([group] + get_ancestors(group)))) == 0:
-                    dbsession.add(FloorTopic(label=pluralize_label(group.label), floor=floor, room=group_rooms[group]))
-                    added.add(group)
-                    count = count + 1"""
+async def summarise_rooms(dbsession):
+    """Generate the room summaries."""
+    rooms = await dbsession.execute(select(Room).options(selectinload(Room.items)))
+    rooms_count = await dbsession.execute(select(func.count(Room.id)))
+    with click.progressbar(rooms.scalars(), length=rooms_count.scalar_one(), label='Generating room summaries') as progress:
+        for room in progress:
+            room.sample = choice(room.items)
+            dbsession.add(room)
+    await dbsession.commit()
+
+
+async def summarise_floors(dbsession):
+    """Generate the floor summaries."""
+    floors = await dbsession.execute(select(Floor).options(selectinload(Floor.topics), selectinload(Floor.rooms), selectinload(Floor.samples)))
+    floors_count = await dbsession.execute(select(func.count(Floor.id)))
+    with click.progressbar(floors.scalars(), length=floors_count.scalar_one(), label='Generating floor summaries') as progress:
+        for floor in progress:
+            floor_groups = {}
+            if len(floor.topics) == 0:
+                groups = await dbsession.execute(select(Group).join(Group.room).filter(Room.floor_id == floor.id).options(selectinload(Group.items)))
+                for group in groups.scalars():
+                    size = await count_items(dbsession, group)
+                    while group.split in ['time', 'similar', 'attribute', 'inner']:
+                        parent_result = await dbsession.execute(select(Group).filter(Group.id == group.parent_id))
+                        group = parent_result.scalar_one()
+                    if group in floor_groups:
+                        floor_groups[group] = floor_groups[group] + size
+                    else:
+                        floor_groups[group] = size
+                group_sizes = list(floor_groups.items())
+                group_sizes.sort(key=lambda g: g[1], reverse=True)
+                total = sum(floor_groups.values())
+                sub_total = 0
+                for group, size in group_sizes:
+                    sub_total = sub_total + size
+                    dbsession.add(FloorTopic(label=pluralize_label(group.label), group=group, floor=floor, size=size))
+                    if sub_total / total > 0.66666:
+                        break
+            items_result = await dbsession.execute(select(Item).filter(Item.room_id.in_([room.id for room in floor.rooms])))
+            items = list(items_result.scalars())
+            floor.samples = [items[idx] for idx in range(0, len(items), math.floor(len(items) / 15))]
+            await dbsession.commit()
 
 
 async def generate_summaries_impl(config):
@@ -216,13 +201,8 @@ async def generate_summaries_impl(config):
     async with create_sessionmaker(config)() as dbsession:
         stmt = delete(FloorTopic)
         await dbsession.execute(stmt)
-        stmt = select(Floor).options(selectinload(Floor.rooms), selectinload(Floor.topics), selectinload(Floor.samples))
-        result = await dbsession.execute(stmt)
-        result_count = await dbsession.execute(select(func.count(Floor.id)))
-        with click.progressbar(result.scalars(), length=result_count.scalar_one(), label='Generating floor summaries') as progress:
-            for floor in progress:
-                await summarise_floor(dbsession, floor)
-    await dbsession.commit()
+        await summarise_rooms(dbsession)
+        await summarise_floors(dbsession)
 
 
 @click.command()
