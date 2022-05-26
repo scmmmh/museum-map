@@ -1,47 +1,47 @@
+import asyncio
 import click
-import inflection
 import json
-import math
 import os
 import requests
 import spacy
 
-from collections import Counter
 from gensim import corpora, models
 from lxml import etree
-from sqlalchemy import create_engine, and_
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import func
+from sqlalchemy.future import select
 
-from ..models import Base, Item, Group
+from ..models import create_sessionmaker, Item
+from .util import ClickIndeterminate
 
 
-def tokenise_impl(ctx):
-    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
-    Base.metadata.bind = engine
-    dbsession = sessionmaker(bind=engine)()
+async def tokenise_impl(config):
+    """Generate token lists for each item."""
     nlp = spacy.load("en_core_web_sm")
-    query = dbsession.query(Item)
-    with click.progressbar(query, length=query.count(), label='Tokenising items') as progress:
-        for item in progress:
-            text = ''
-            for field in ['title', 'description', 'physical_description', 'notes']:
-                if item.attributes[field].strip():
-                    if item.attributes[field].strip().endswith('.'):
-                        text = f'{text} {item.attributes[field].strip()}'
-                    else:
-                        text = f'{text} {item.attributes[field].strip()}.'
-            item.attributes['tokens'] = [t.lemma_ for t in nlp(text) if not t.pos_ in ['PUNCT', 'SPACE']]
-    dbsession.commit()
+    async with create_sessionmaker(config)() as dbsession:
+        count = await dbsession.execute(select(func.count(Item.id)))
+        result = await dbsession.execute(select(Item))
+        with click.progressbar(result.scalars(), length=count.scalar_one(), label='Tokenising items') as progress:
+            for item in progress:
+                text = ''
+                for field in config['data']['topic_fields']:
+                    if item.attributes[field].strip():
+                        if item.attributes[field].strip().endswith('.'):
+                            text = f'{text} {item.attributes[field].strip()}'
+                        else:
+                            text = f'{text} {item.attributes[field].strip()}.'
+                item.attributes['tokens'] = [t.lemma_ for t in nlp(text) if not t.pos_ in ['PUNCT', 'SPACE']]
+        await dbsession.commit()
 
 
 @click.command()
 @click.pass_context
 def tokenise(ctx):
     """Generate token lists for each item."""
-    tokenise_impl(ctx)
+    asyncio.run(tokenise_impl(ctx.obj['config']))
 
 
 def strip_article(text):
+    """Strip any indefinite article from the beginning of the text."""
     text = text.strip()
     if text.startswith('a '):
         return text[2:].strip().strip('()[]')
@@ -141,9 +141,7 @@ def apply_aat(category, merge=True):
             cache = json.load(in_f)
     else:
         cache = {}
-    if category in cache:
-        data = cache[category]
-    else:
+    if category not in cache:
         cache[category] = []
         response = requests.get('http://vocabsservices.getty.edu/AATService.asmx/AATGetTermMatch',
                                 params=[('term', f'"{category}"'),
@@ -201,71 +199,84 @@ def apply_aat(category, merge=True):
         return cache[category]
 
 
-def expand_categories_impl(ctx):
-    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
-    Base.metadata.bind = engine
-    dbsession = sessionmaker(bind=engine)()
-    query = dbsession.query(Item)
-    with click.progressbar(query, length=query.count(), label='Expanding categories') as progress:
-        for item in progress:
-            categories = [c.lower() for c in item.attributes['object']]
-            for category in item.attributes['object']:
-                categories = categories + apply_nlp(category.lower())
-            for category in list(categories):
-                categories = categories + apply_aat(category)
-            item.attributes['categories'] = categories
-    dbsession.commit()
+async def expand_categories_impl(config):
+    """Expand the object categories."""
+    async with create_sessionmaker(config)() as dbsession:
+        count = await dbsession.execute(select(func.count(Item.id)))
+        result = await dbsession.execute(select(Item))
+        with click.progressbar(result.scalars(), length=count.scalar_one(), label='Expanding categories') as progress:
+            for item in progress:
+                categories = [c.lower() for c in item.attributes[config['data']['hierarchy']['field']]]
+                if 'nlp' in config['data']['hierarchy']['expansions']:
+                    for category in item.attributes[config['data']['hierarchy']['field']]:
+                        categories = categories + apply_nlp(category.lower())
+                if 'aat' in config['data']['hierarchy']['expansions']:
+                    for category in list(categories):
+                        categories = categories + apply_aat(category)
+                item.attributes['categories'] = categories
+        await dbsession.commit()
 
 
 @click.command()
 @click.pass_context
 def expand_categories(ctx):
     """Expand the object categories."""
-    expand_categories_impl(ctx)
+    asyncio.run(expand_categories_impl(ctx.obj['config']))
 
 
-def generate_topic_vectors_impl(ctx):
-    engine = create_engine(ctx.obj['config'].get('db', 'uri'))
-    Base.metadata.bind = engine
-    dbsession = sessionmaker(bind=engine)()
+async def generate_topic_vectors_impl(config):
+    """Generate topic vectors for all items."""
+    async with create_sessionmaker(config)() as dbsession:
+        async def texts(dictionary=None, label=''):
+            count = await dbsession.execute(select(func.count(Item.id)))
+            result = await dbsession.execute(select(Item))
+            with click.progressbar(result.scalars(), length=count.scalar_one(), label=label) as progress:
+                for item in progress:
+                    if 'tokens' in item.attributes:
+                        if dictionary:
+                            yield dictionary.doc2bow(item.attributes['tokens'])
+                        else:
+                            yield item.attributes['tokens']
 
-    def texts(dictionary=None, label=''):
-        query = dbsession.query(Item)
-        with click.progressbar(query, length=query.count(), label=label) as progress:
+        dictionary = corpora.Dictionary()
+        async for tokens in texts(label='Generating dictionary'):
+            dictionary.add_documents([tokens])
+        dictionary.filter_extremes(keep_n=None)
+        corpus = []
+        async for bow in texts(dictionary=dictionary, label='Generating corpus'):
+            corpus.append(bow)
+        waiting = ClickIndeterminate('Generating model')
+        waiting.start()
+        model = models.LdaModel(corpus, num_topics=300, id2word=dictionary, update_every=0)
+        waiting.stop()
+        count = await dbsession.execute(select(func.count(Item.id)))
+        result = await dbsession.execute(select(Item))
+        with click.progressbar(result.scalars(), length=count.scalar_one(), label='Generating topic vectors') as progress:
             for item in progress:
                 if 'tokens' in item.attributes:
-                    if dictionary:
-                        yield dictionary.doc2bow(item.attributes['tokens'])
-                    else:
-                        yield item.attributes['tokens']
-
-    dictionary = corpora.Dictionary(texts(label='Generating dictionary'))
-    dictionary.filter_extremes(keep_n=None)
-    model = models.LdaModel(list(texts(dictionary=dictionary, label='Generating model')), num_topics=300, id2word=dictionary)
-    query = dbsession.query(Item)
-    with click.progressbar(query, length=query.count(), label='Generating topic vectors') as progress:
-        for item in progress:
-            if 'tokens' in item.attributes:
-                vec = model[dictionary.doc2bow(item.attributes['tokens'])]
-                item.attributes['lda_vector'] = [(wid, float(prob)) for wid, prob in vec]
-    dbsession.commit()
+                    vec = model[dictionary.doc2bow(item.attributes['tokens'])]
+                    item.attributes['lda_vector'] = [(wid, float(prob)) for wid, prob in vec]
+        await dbsession.commit()
 
 
 @click.command()
 @click.pass_context
 def generate_topic_vectors(ctx):
     """Generate topic vectors for all items."""
-    generate_topic_vectors_impl(ctx)
+    asyncio.run(generate_topic_vectors_impl(ctx.obj['config']))
 
+
+async def pipeline_impl(config):
+    """Run the items processing pipeline."""
+    await expand_categories_impl(config)
+    await tokenise_impl(config)
+    await generate_topic_vectors_impl(config)
 
 @click.command()
 @click.pass_context
 def pipeline(ctx):
     """Run the items processing pipeline."""
-    expand_categories_impl(ctx)
-    tokenise_impl(ctx)
-    generate_topic_vectors_impl(ctx)
-
+    asyncio.run(pipeline_impl(ctx.obj['config']))
 
 @click.group()
 def items():
