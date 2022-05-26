@@ -25,7 +25,7 @@ async def generate_groups_impl(config):
         categories = []
         with click.progressbar(result.scalars(), length=count.scalar_one(), label='Generating potential groups') as progress:
             for item in progress:
-                for category in item.attributes['categories']:
+                for category in item.attributes['_categories']:
                     categories.append(category.lower())
         counts = [(cat, count) for cat, count in Counter(categories).most_common() if count >= 15]
         counts.sort(key=lambda c: c[1])
@@ -41,13 +41,13 @@ async def generate_groups_impl(config):
                     dbsession.add(group)
                 result = await dbsession.execute(item_stmt)
                 for item in result.scalars():
-                    if category in item.attributes['categories']:
+                    if category in item.attributes['_categories']:
                         item.group = group
                 await dbsession.commit()
                 categories = []
                 result = await dbsession.execute(item_stmt)
                 for item in result.scalars():
-                    for category in item.attributes['categories']:
+                    for category in item.attributes['_categories']:
                         categories.append(category.lower())
                 old_counts = len(counts)
                 counts = [(cat, count) for cat, count in Counter(categories).most_common() if count >= 15]

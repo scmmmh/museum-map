@@ -213,7 +213,7 @@ async def expand_categories_impl(config):
                 if 'aat' in config['data']['hierarchy']['expansions']:
                     for category in list(categories):
                         categories = categories + apply_aat(category)
-                item.attributes['categories'] = categories
+                item.attributes['_categories'] = categories
         await dbsession.commit()
 
 
