@@ -2,8 +2,6 @@
     import { Link } from 'svelte-navigator';
 
     export let item: JsonApiObject;
-    export let hoverTitle = true;
-    export let hideTitle = false;
     export let noLink = false;
     export let size = 'small';
 
@@ -33,9 +31,9 @@
             </figure>
         </div>
     {:else}
-        <Link to={linkTo(item)} class="block h-full w-full underline-offset-2 hover:img-brightness hover:underline focus:underline">
+        <Link to={linkTo(item)} class="block h-full w-full overflow-hidden underline-offset-2 hover:img-brightness hover:underline focus:underline">
             <figure class="flex flex-col justify-center items-center h-full">
-                <img class="flex-none transition" src={imageLink(item.attributes.images[0])} alt=""/>
+                <img class="block flex-none max-h-[90%] transition" src={imageLink(item.attributes.images[0])} alt=""/>
                 <figcaption class="flex-none max-w-full pt-2 text-center text-sm">{item.attributes.title}</figcaption>
             </figure>
         </Link>
