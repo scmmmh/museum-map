@@ -7,8 +7,8 @@
 	fetchConfig();
 </script>
 
-<div class="bg-neutral-700 h-screen v-screen overflow-hidden">
-  <main class="flex flex-col container mx-auto h-full v-full overflow-hidden bg-neutral-600 text-white shadow-lg shadow-black font-serif">
+<div class="bg-neutral-700 min-h-screen">
+  <main class="container mx-auto bg-neutral-600 text-white shadow-lg shadow-black font-serif">
 	  <Root/>
   </main>
 </div>

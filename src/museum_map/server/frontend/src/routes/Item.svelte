@@ -59,8 +59,8 @@
     }
 </script>
 
-<section class="absolute left-0 top-0 w-full h-full bg-neutral-800 bg-opacity-80" on:click={() => { navigate('/room/' + $currentRoom.id); }}>
-    <div class="absolute left-0 top-0 lg:left-1/2 lg:top-1/2 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 w-full lg:w-5/6 h-full lg:h-5/6 flex flex-col lg:flex-row bg-neutral-800 shadow-xl shadow-black overflow-auto lg:overflow-visible" on:click={(ev) => { ev.stopPropagation(); }}>
+<section class="fixed left-0 top-0 w-screen h-screen bg-neutral-800 bg-opacity-80 z-20" on:click={() => { navigate('/room/' + $currentRoom.id); }}>
+    <div class="absolute left-0 top-0 lg:left-1/2 lg:top-1/2 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 w-full lg:w-4/6 h-full lg:h-4/6 flex flex-col lg:flex-row bg-neutral-800 shadow-xl shadow-black overflow-auto lg:overflow-visible" on:click={(ev) => { ev.stopPropagation(); }}>
         {#if $currentItem}
             <button on:click={() => { navigate('/room/' + $currentRoom.id); }} class="block absolute right-0 top-0 lg:transform lg:translate-x-1/2 lg:-translate-y-1/2 rounded-full shadow-lg text-2xl w-10 h-10 bg-neutral-800 z-10">✖</button>
             <div class="flex-none lg:flex-1">

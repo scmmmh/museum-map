@@ -14,7 +14,7 @@
     });
 </script>
 
-<header class="flex-none shadow-even shadow-black z-10">
+<header class="sticky top-0 shadow-even shadow-black z-10 bg-inherit">
     <div class="flex flex-row border-b border-b-neutral-500">
         <h1 class="flex-1 text-lg font-bold px-2 py-1">{title}</h1>
         {#if $isBusy}

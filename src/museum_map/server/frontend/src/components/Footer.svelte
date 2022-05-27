@@ -2,7 +2,7 @@
     import { config } from '../store';
 </script>
 
-<footer class="flex-none shadow-even shadow-black text-sm py-1 z-10">
+<footer class="sticky bottom-0 bg-inherit shadow-even shadow-black text-sm py-1 z-10">
     <nav>
         <ul class="flex flex-row flex-wrap gap-y-1">
             <li role="presentation" class="flex-none w-full md:w-1/3 text-center">

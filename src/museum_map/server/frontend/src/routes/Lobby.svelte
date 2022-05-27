@@ -13,7 +13,7 @@
 </script>
 
 <Header title="Museum Map - Lobby" nav={[]}/>
-<article class="flex-1 overflow-auto">
+<article>
     <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
         {#if $config && $config.attributes.intro && (!$localPreferences.lobby  || !$localPreferences.lobby.hideWelcome)}
             <section class="col-span-12">

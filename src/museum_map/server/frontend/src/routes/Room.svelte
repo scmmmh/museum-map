@@ -41,7 +41,7 @@
 
 {#if $currentRoom && $currentFloor}
     <Header title="Museum Map - {$currentFloor.attributes.label} - {$currentRoom.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}, {label: $currentRoom.attributes.label, path: '/room/' + $currentRoom.id}]}/>
-    <article class="flex-1 overflow-hidden relative">
+    <article>
         <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-6 overflow-auto h-full">
             {#each $items as item}
                 <li><Thumnail item={item}/></li>
