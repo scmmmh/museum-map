@@ -40,9 +40,9 @@
                     {#each $majorCollections as collection}
                         <li>
                             <span class="font-bold text-lg">{collection.label}</span>
-                            <ul class="flex flex-row flex-wrap gap-2 list-separator">
+                            <ul class="flex flex-row flex-wrap gap-2">
                                 {#each collection.floors as floor}
-                                    <li class="flex-none" role="presentation"><Link to={'/floor/' + floor.id} class="hover:underline focus:underline">{floor.attributes.label}</Link></li>
+                                    <li class="flex-none" role="presentation"><Link to={'/floor/' + floor.id} class="inline-block bg-neutral-600 px-1 rounded-lg underline-offset-2 hover:underline focus:underline">→ {floor.attributes.label}</Link></li>
                                 {/each}
                             </ul>
                         </li>
@@ -50,7 +50,7 @@
                 </ul>
                 {#if $floors.length > 0}
                     <div class="mt-16 mb-8 text-center">
-                        <Link to={'/floor/' + $floors[0].id} class="inline-block text-xl tracking-widest font-bold bg-blue-800 px-4 py-2 hover:underline focus:underline">Explore the whole collection →</Link>
+                        <Link to={'/floor/' + $floors[0].id} class="inline-block text-xl tracking-widest font-bold bg-blue-800 px-4 py-2 rounded-lg hover:underline focus:underline">Explore the whole collection →</Link>
                     </div>
                 {/if}
             </div>
