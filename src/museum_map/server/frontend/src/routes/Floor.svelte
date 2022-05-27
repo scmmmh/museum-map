@@ -53,7 +53,7 @@
 </script>
 
 {#if $currentFloor}
-    <Header title="Museum Map - {$currentFloor.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}]}/>
+    <Header title="{$currentFloor.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}]}/>
     <article class="flex flex-col lg:flex-row px-4 py-2">
         <nav class="flex-none lg:w-1/4 overflow-auto">
             <ol class="flex lg:block flex-row flex-wrap">
