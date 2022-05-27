@@ -42,7 +42,7 @@
                             <span class="font-bold text-lg">{collection.label}</span>
                             <ul class="flex flex-row flex-wrap gap-2">
                                 {#each collection.floors as floor}
-                                    <li class="flex-none" role="presentation"><Link to={'/floor/' + floor.id} class="inline-block bg-neutral-600 px-1 rounded-lg underline-offset-2 hover:underline focus:underline">→ {floor.attributes.label}</Link></li>
+                                    <li class="flex-none" role="presentation"><Link to={'/floor/' + floor.id} class="inline-block bg-neutral-600 px-1 rounded-lg underline-offset-2 hover:bg-blue-800 focus:bg-blue-800">→ {floor.attributes.label}</Link></li>
                                 {/each}
                             </ul>
                         </li>
