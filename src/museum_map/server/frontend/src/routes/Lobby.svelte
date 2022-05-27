@@ -26,9 +26,9 @@
             </section>
         {/if}
         {#if $itemOfTheDay}
-            <section class="md:col-span-6 lg:col-span-4 flex flex-col">
+            <section class="md:col-span-6 lg:col-span-4 flex flex-col h-[25rem]">
                 <h2 class="flex-none text-xl font-bold mb-4">Item of the Day</h2>
-                <div class="flex-1 max-h-[20rem]">
+                <div class="flex-1 overflow-hidden">
                     <Thumnail item={$itemOfTheDay} size="large"/>
                 </div>
             </section>

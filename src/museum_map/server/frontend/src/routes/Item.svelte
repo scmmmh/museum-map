@@ -124,8 +124,8 @@
                     <Link to="/room/{$currentRoom.id}/{$prevItemRel.id}" class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&laquo;</Link>
                 {/if}
             </div>
-            <div class="flex-none lg:flex-1">
-                <Thumbnail item={$currentItem} noLink={true} size="large"/>
+            <div class="flex-none lg:flex-1 py-4">
+                <Thumbnail item={$currentItem} noLink={true} noTitle={true} size="large"/>
             </div>
             <div class="flex-none lg:flex-1 flex flex-col overflow-hidden relative">
                 <h2 class="flex-none px-6 py-4 bg-blue-900 text-lg font-bold">{$currentItem.attributes.title ? processParagraph($currentItem.attributes.title) : '[Untitled]'}</h2>
