@@ -55,7 +55,7 @@
                 {/if}
             </div>
         </section>
-        <section class="col-span-12">
+        <section class="col-span-12 mt-4">
             <div class="flex flex-row">
                 <h2 class="flex-1 text-xl font-bold mb-4">Selection from our collections</h2>
                 <button on:click={() => { fetchRandomItemsSelection(); }} class="flex-none px-2 py-2" aria-label="Update the selection of items from the collection">
