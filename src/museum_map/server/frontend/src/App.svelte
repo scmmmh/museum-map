@@ -8,7 +8,7 @@
 </script>
 
 <div class="bg-neutral-600 min-h-screen">
-  <main class="container mx-auto bg-neutral-700 text-white shadow-lg shadow-black font-serif">
+  <main class="container mx-auto bg-neutral-700 text-white shadow-lg shadow-black font-serif tracking-default">
 	  <Root/>
   </main>
 </div>
