@@ -345,55 +345,56 @@ async def add_parent_groups_impl(config):
         result_count = await dbsession.execute(stmt)
         with click.progressbar(result.scalars(), length=result_count.scalar_one(), label='Adding parent groups') as progress:
             for group in progress:
-                categories = apply_aat(group.value, merge=False)
-                if categories:
-                    for category_list in categories:
+                if 'aat' in config['data']['hierarchy']['expansions']:
+                    categories = apply_aat(group.value, merge=False)
+                    if categories:
+                        for category_list in categories:
+                            mapped = False
+                            for category in category_list:
+                                stmt = select(Group).filter(Group.value == category)
+                                result = await dbsession.execute(stmt)
+                                parent_group = result.scalars().first()
+                                if not parent_group:
+                                    parent_group = Group(value=category, label=category[0].upper() + category[1:], split='parent')
+                                    dbsession.add(group)
+                                group.parent = parent_group
+                                mapped = True
+                                group = parent_group
+                                if group.parent_id:
+                                    break
+                            if mapped:
+                                break
+                    else:
                         mapped = False
-                        for category in category_list:
-                            stmt = select(Group).filter(Group.value == category)
+                        for category in apply_nlp(group.value):
+                            stmt = select(Group).filter(or_(Group.value == category, Group.value == inflection.pluralize(category)))
                             result = await dbsession.execute(stmt)
                             parent_group = result.scalars().first()
-                            if not parent_group:
-                                parent_group = Group(value=category, label=category[0].upper() + category[1:], split='parent')
-                                dbsession.add(group)
-                            group.parent = parent_group
-                            mapped = True
-                            group = parent_group
-                            if group.parent_id:
+                            if parent_group:
+                                group.parent = parent_group
+                                await dbsession.commit()
+                                mapped = True
                                 break
-                        if mapped:
-                            break
-                else:
-                    mapped = False
-                    for category in apply_nlp(group.value):
-                        stmt = select(Group).filter(or_(Group.value == category, Group.value == inflection.pluralize(category)))
-                        result = await dbsession.execute(stmt)
-                        parent_group = result.scalars().first()
-                        if parent_group:
-                            group.parent = parent_group
-                            await dbsession.commit()
-                            mapped = True
-                            break
-                    if not mapped:
-                        if group.value not in ['styles and periods']:
-                            for category in apply_nlp(group.value):
-                                hierarchies = apply_aat(category, merge=False)
-                                groups = []
-                                for hierarchy in hierarchies:
-                                    if group.value not in hierarchy:
-                                        stmt = select(Group).filter(Group.value.in_(hierarchy)).options(selectinload(Group.items))
-                                        result = await dbsession.execute(stmt)
-                                        for potential_group in result.scalars():
-                                            depth = 0
-                                            tmp = potential_group
-                                            while tmp:
-                                                depth = depth + 1
-                                                tmp = tmp.parent
-                                            groups.append((potential_group, depth, len(potential_group.items)))
-                                if groups:
-                                    groups.sort(key=lambda g: (g[1], g[2]), reverse=True)
-                                    group.parent = groups[0][0]
-                                    break
+                        if not mapped:
+                            if group.value not in ['styles and periods']:
+                                for category in apply_nlp(group.value):
+                                    hierarchies = apply_aat(category, merge=False)
+                                    groups = []
+                                    for hierarchy in hierarchies:
+                                        if group.value not in hierarchy:
+                                            stmt = select(Group).filter(Group.value.in_(hierarchy)).options(selectinload(Group.items))
+                                            result = await dbsession.execute(stmt)
+                                            for potential_group in result.scalars():
+                                                depth = 0
+                                                tmp = potential_group
+                                                while tmp:
+                                                    depth = depth + 1
+                                                    tmp = tmp.parent
+                                                groups.append((potential_group, depth, len(potential_group.items)))
+                                    if groups:
+                                        groups.sort(key=lambda g: (g[1], g[2]), reverse=True)
+                                        group.parent = groups[0][0]
+                                        break
         await dbsession.commit()
 
 
