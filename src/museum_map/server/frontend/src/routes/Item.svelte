@@ -137,14 +137,16 @@
                             {/each}
                         {/if}
                     {/each}
-                    <dl class="flex flex-row flex-wrap items-end gap-y-1">
+                    <table class="mt-8">
                         {#each $config.attributes.item.fields as fieldConfig}
                             {#if $currentItem.attributes[fieldConfig.name] && $currentItem.attributes[fieldConfig.name].length}
-                                <dt class="flex-none w-1/3 lg:w-1/6 text-sm text-neutral-300 text-right pr-2">{fieldConfig.label}</dt>
-                                <dd class="flex-none w-2/3 lg:w-5/6 pl-2">{formatField($currentItem.attributes[fieldConfig.name])}</dd>
+                                <tr>
+                                    <th scope="row" class="font-normal text-sm text-neutral-300 text-right pr-2 align-bottom">{fieldConfig.label}</th>
+                                    <td>{formatField($currentItem.attributes[fieldConfig.name])}</td>
+                                </tr>
                             {/if}
                         {/each}
-                    </dl>
+                    </table>
                 </div>
             </div>
             <div class="hidden lg:flex flex-none flex-col justify-center px-4">
