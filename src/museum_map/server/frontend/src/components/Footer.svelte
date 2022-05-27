@@ -5,7 +5,7 @@
 <footer class="sticky bottom-0 bg-inherit shadow-even shadow-black text-sm py-1 z-10">
     <nav>
         <ul class="flex flex-row flex-wrap gap-y-1">
-            <li role="presentation" class="flex-none w-full md:w-1/3 md:py-0 text-center md:text-left">
+            <li role="presentation" class="flex-none w-full md:w-1/3 px-2 text-center md:text-left">
                 <a href="https://www.room3b.eu/pages/projects/digital-museum-map.html" target="_blank" rel="noopener" class="hover:underline focus:underline">Find out more about how this works</a>
             </li>
             <li role="presentation" class="flex-none w-full md:w-1/3 pt-1 md:pt-0 md:py-0text-center">
