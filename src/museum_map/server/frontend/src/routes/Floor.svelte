@@ -104,7 +104,7 @@
                 <div class="flex-none"></div>
                 <ul class="flex-none">
                     {#each $samples as sample}
-                        <li class="w-60 h-60"><Thumnail item={sample} hideTitle={true}/></li>
+                        <li class="w-60 h-60"><Thumnail item={sample} hideTitle={true} noLink={true}/></li>
                     {/each}
                 </ul>
                 {#if $hoverRoom}

@@ -29,7 +29,7 @@
             <section class="md:col-span-6 lg:col-span-4 flex flex-col">
                 <h2 class="flex-none text-xl font-bold mb-4">Item of the Day</h2>
                 <div class="flex-1">
-                    <Thumnail item={$itemOfTheDay} hoverTitle={false}/>
+                    <Thumnail item={$itemOfTheDay} hoverTitle={false} size="large"/>
                 </div>
             </section>
         {/if}

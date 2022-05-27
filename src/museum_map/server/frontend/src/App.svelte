@@ -38,6 +38,10 @@
 		.hover-parent:hover .hover-child-underline, .hover-parent:focus .hover-child-underline {
 			@apply underline;
 		}
+
+		.img-brightness img {
+			@apply brightness-75;
+		}
 	}
 
 	@layer components {

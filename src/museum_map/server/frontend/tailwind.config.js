@@ -10,7 +10,10 @@ module.exports = {
       },
       letterSpacing: {
         default: '0.04em',
-      }
+      },
+      gridTemplateColumns: {
+        'items': 'repeat(auto-fill, 240px);',
+      },
     },
   },
   plugins: [],
