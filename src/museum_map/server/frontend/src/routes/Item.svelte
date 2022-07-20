@@ -116,20 +116,22 @@
 </script>
 
 <section on:touchstart={touchStart} on:touchend={touchEnd} class="fixed left-0 top-0 w-screen h-screen bg-neutral-800 bg-opacity-80 z-20" on:click={() => { navigate('/room/' + $currentRoom.id); }}>
-    <div class="absolute left-0 top-0 lg:left-1/2 lg:top-1/2 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 w-full lg:w-5/6 xl:w-4/6 h-full lg:h-5/6 xl:h-4/6 flex flex-col lg:flex-row bg-neutral-800 shadow-xl shadow-black overflow-auto lg:overflow-visible" on:click={(ev) => { ev.stopPropagation(); }}>
+    <div class="absolute left-0 top-0 lg:left-1/2 lg:top-1/2 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 w-full lg:w-5/6 xl:w-4/6 h-full lg:max-h-5/6 xl:max-h-4/6 flex flex-col bg-neutral-800 shadow-xl shadow-black overflow-auto lg:overflow-visible" on:click={(ev) => { ev.stopPropagation(); }}>
         {#if $currentItem}
             <button on:click={() => { navigate('/room/' + $currentRoom.id); }} class="block absolute right-0 top-0 lg:transform lg:translate-x-1/2 lg:-translate-y-1/2 rounded-full shadow-lg text-2xl w-10 h-10 bg-neutral-800 z-10">✖</button>
-            <div class="hidden lg:flex flex-none flex-col justify-center px-4">
-                {#if $prevItemRel}
-                    <Link to="/room/{$currentRoom.id}/{$prevItemRel.id}" class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&laquo;</Link>
-                {/if}
+            <div class="flex-none bg-blue-900">
+                <h2 class="px-4 py-2 text-lg font-bold">{$currentItem.attributes.title ? processParagraph($currentItem.attributes.title) : '[Untitled]'}</h2>
             </div>
-            <div class="flex-none lg:flex-1 py-4">
-                <Thumbnail item={$currentItem} noLink={true} noTitle={true} size="large"/>
-            </div>
-            <div class="flex-none lg:flex-1 flex flex-col overflow-hidden relative">
-                <h2 class="flex-none px-6 py-4 bg-blue-900 text-lg font-bold">{$currentItem.attributes.title ? processParagraph($currentItem.attributes.title) : '[Untitled]'}</h2>
-                <div class="flex-1 px-6 py-2 overflow-auto">
+            <div class="flex-none lg:flex-1 lg:flex lg:flex-row lg:overflow-hidden">
+                <div class="hidden lg:flex flex-none flex-col justify-center px-4">
+                    {#if $prevItemRel}
+                        <Link to="/room/{$currentRoom.id}/{$prevItemRel.id}" class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&laquo;</Link>
+                    {/if}
+                </div>
+                <div class="m-4 lg:flex-1 lg:self-start">
+                    <Thumbnail item={$currentItem} noLink={true} noTitle={true} size="large"/>
+                </div>
+                <div class="m-4 lg:flex-1 lg:overflow-auto">
                     {#each $config.attributes.item.texts as textConfig}
                         {#if $currentItem.attributes[textConfig.name]}
                             {#each processText($currentItem.attributes[textConfig.name]) as para}
@@ -148,9 +150,9 @@
                         {/each}
                     </table>
                 </div>
-            </div>
-            <div class="hidden lg:flex flex-none flex-col justify-center px-4">
-                <Link to="/room/{$currentRoom.id}/{$nextItemRel.id}" class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&raquo;</Link>
+                <div class="hidden lg:flex flex-none flex-col justify-center px-4">
+                    <Link to="/room/{$currentRoom.id}/{$nextItemRel.id}" class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&raquo;</Link>
+                </div>
             </div>
         {:else}
             <p class="self-center text-center w-full">Loading...</p>
