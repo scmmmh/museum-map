@@ -208,7 +208,7 @@ class FrontendHandler(web.RedirectHandler):
 
 def create_inject_item_html(config):
     """Inject Twitter card meta tags."""
-    async def inject_item_html(joke_id: str) -> str:
+    async def inject_item_html(room_id: str, joke_id: str) -> str:
         try:
             async with create_sessionmaker(config)() as session:
                 query, class_ = setup_query('items', False)
@@ -217,10 +217,14 @@ def create_inject_item_html(config):
                 if item:
                     return f'''<meta name="twitter:card" content="summary"/>
 <meta name="twitter:site" content="@Hallicek"/>
-<meta name="twitter:title" content="{item.attributes['title']}">
-<meta name="twitter:image" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg">
-<meta name="twitter:image:src" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg">
-<meta name="twitter:image:alt" content="">'''
+<meta name="twitter:title" content="{item.attributes['title']}"/>
+<meta name="twitter:image" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg"/>
+<meta name="twitter:image:src" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg"/>
+<meta name="twitter:image:alt" content="Image showing {item.attributes['title']}"/>
+<meta property="og:url"                content="{config['app']['base_url']}/room/{room_id}/{joke_id}" />
+<meta property="og:type"               content="article" />
+<meta property="og:title"              content="{item.attributes['title']}" />
+<meta property="og:image"              content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg" />'''
         except Exception:
             pass
         return ''

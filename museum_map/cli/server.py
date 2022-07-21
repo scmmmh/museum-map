@@ -22,7 +22,7 @@ def run(ctx):
             ('/api/([a-z\-]+)/([0-9]+)', APIItemHandler),
             ('/images/(.*)', StaticFileHandler, {'path': config['images']['basepath']}),
             ('/(.*)', FrontendHandler, {'base': resources.files('museum_map') / 'server' / 'frontend' / 'public',
-                                        'html_injectors': {r'room/[0-9]+/([0-9]+)': create_inject_item_html(config)}}),
+                                        'html_injectors': {r'room/([0-9]+)/([0-9]+)': create_inject_item_html(config)}}),
         ],
         autoreload=True,
         config=config)
