@@ -218,7 +218,7 @@ def create_inject_item_html(config):
                     return f'''<meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:site" content="@Hallicek"/>
 <meta name="twitter:title" content="{item.attributes['title']}">
-<meta name="twitter:image" content="/images/{'/'.join(item.attributes['images'][0])}.jpg">'''
+<meta name="twitter:image" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg">'''
         except Exception:
             pass
         return ''

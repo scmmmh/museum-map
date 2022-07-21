@@ -142,6 +142,11 @@ CONFIG_SCHEMA = {
         'type': 'dict',
         'required': True,
         'schema': {
+            'base_url': {
+                'type': 'string',
+                'required': True,
+                'empty': False,
+            },
             'intro': {
                 'type': 'string',
                 'required': True,
