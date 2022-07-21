@@ -1,4 +1,6 @@
+import logging
 import math
+import re
 
 from configparser import ConfigParser
 from datetime import datetime
@@ -14,15 +16,16 @@ from tornado import web
 from ..models import create_sessionmaker, Floor, FloorTopic, Room, Group, Item
 
 
-class RequestBase(web.RequestHandler):
+logger = logging.getLogger(__name__)
 
-    def setup_query(self, types):
+
+def setup_query(types, multi_load):
         query = None
         class_ = None
-        if self.get_argument('relationships', 'true').lower() == 'false':
-            multi_loader = noload
-        else:
+        if multi_load:
             multi_loader = selectinload
+        else:
+            multi_loader = noload
         if types == 'rooms':
             query = select(Room).options(selectinload(Room.floor), multi_loader(Room.items), selectinload(Room.sample))
             class_ = Room
@@ -39,6 +42,12 @@ class RequestBase(web.RequestHandler):
             query = select(Group)
             class_ = Group
         return (query, class_)
+
+
+class RequestBase(web.RequestHandler):
+
+    def setup_query(self, types):
+        return setup_query(types, not self.get_argument('relationships', 'true').lower() == 'false')
 
 
 class APICollectionHandler(RequestBase):
@@ -137,10 +146,19 @@ class APIPickHandler(RequestBase):
             self.send_error(status_code=404)
 
 
-class FrontendHandler(web.RequestHandler):
+class FrontendHandler(web.RedirectHandler):
     """Handler for the frontend application files."""
 
-    def get(self: 'FrontendHandler', path: str) -> None:
+    def initialize(self: 'FrontendHandler', base: Traversable, html_injectors: dict = None) -> None:
+        """Initialise the frontend handler."""
+        self._base = base
+        if html_injectors:
+            self._html_injectors = html_injectors
+        else:
+            self._html_injectors = {}
+
+
+    async def get(self: 'FrontendHandler', path: str) -> None:
         """Get the file at the given path.
 
         :param path: The path to get.
@@ -149,14 +167,14 @@ class FrontendHandler(web.RequestHandler):
         self.xsrf_token
         if not path.strip():
             path = '/'
-        base = resources.files('museum_map')
-        public = base / 'server' / 'frontend' / 'public'
         try:
-            self._get_resource(public, path.split('/'))
+            logger.debug(f'Attempting to send {path}')
+            await self._get_resource(self._base, path.split('/'))
         except FileNotFoundError:
-            self._get_resource(public, ('index.html', ))
+            logger.debug('Sending index.html')
+            await self._get_resource(self._base, ('index.html', ), orig_path=path)
 
-    def _get_resource(self: 'FrontendHandler', resource: Traversable, path: list[str]) -> None:
+    async def _get_resource(self: 'FrontendHandler', resource: Traversable, path: list[str], orig_path: str = None) -> None:  # noqa: E501
         """Send a file.
 
         Performs mimetype guessing and sets the appropriate Content-Type header.
@@ -165,14 +183,44 @@ class FrontendHandler(web.RequestHandler):
         :type resource: importlib.Traversable
         :param path: The path to the file to send
         :type path: list[str]
+        :param orig_path: The original path, if this is sending the default index.html
+        :type orig_path: str
         """
         for part in path:
             resource = resource / part
         try:
             data = resource.read_bytes()
+            if orig_path:
+                for key, injector in self._html_injectors.items():
+                    match = re.match(key, orig_path)
+                    if match:
+                        html = data.decode('utf-8')
+                        split_idx = html.find('</head>')
+                        html = f'{html[:split_idx]}{await injector(*match.groups())}{html[split_idx:]}'
+                        data = html.encode('utf-8')
             mimetype = guess_type(path[-1])
             if mimetype and mimetype[0]:
                 self.set_header('Content-Type', mimetype[0])
             self.write(data)
         except IsADirectoryError:
             raise FileNotFoundError()
+
+
+def create_inject_item_html(config):
+    """Inject Twitter card meta tags."""
+    async def inject_item_html(joke_id: str) -> str:
+        try:
+            async with create_sessionmaker(config)() as session:
+                query, class_ = setup_query('items', False)
+                query = query.filter(getattr(class_, 'id') == int(joke_id))
+                item = (await session.execute(query)).scalar()
+                if item:
+                    return f'''<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@Hallicek"/>
+<meta name="twitter:title" content="{item.attributes['title']}">
+<meta name="twitter:image" content="/images/{'/'.join(item.attributes['images'][0])}.jpg">'''
+        except Exception:
+            pass
+        return ''
+
+    return inject_item_html
