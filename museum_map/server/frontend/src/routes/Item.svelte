@@ -134,7 +134,7 @@
                         <Link to="/room/{$currentRoom.id}/{$prevItemRel.id}" class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&laquo;</Link>
                     {/if}
                 </div>
-                <div class="m-4 lg:flex-1 lg:self-start">
+                <div class="p-4 lg:flex-1 lg:h-full lg:self-start lg:overflow-hidden">
                     <Thumbnail item={$currentItem} noLink={true} noTitle={true} size="large"/>
                 </div>
                 <div class="m-4 lg:flex-1 lg:overflow-auto">
