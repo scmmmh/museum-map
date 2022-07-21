@@ -215,16 +215,16 @@ def create_inject_item_html(config):
                 query = query.filter(getattr(class_, 'id') == int(joke_id))
                 item = (await session.execute(query)).scalar()
                 if item:
-                    return f'''<meta name="twitter:card" content="summary"/>
+                    return f'''<meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:site" content="@Hallicek"/>
 <meta name="twitter:title" content="{item.attributes['title']}"/>
 <meta name="twitter:image" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg"/>
-<meta name="twitter:image:src" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg"/>
 <meta name="twitter:image:alt" content="Image showing {item.attributes['title']}"/>
-<meta property="og:url"                content="{config['app']['base_url']}/room/{room_id}/{joke_id}" />
-<meta property="og:type"               content="article" />
-<meta property="og:title"              content="{item.attributes['title']}" />
-<meta property="og:image"              content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg" />'''
+<meta property="og:url" content="{config['app']['base_url']}/room/{room_id}/{joke_id}" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="{item.attributes['title']}" />
+<meta property="og:image" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg" />
+<meta name="og:image:alt" content="Image showing {item.attributes['title']}"/>'''
         except Exception:
             pass
         return ''
