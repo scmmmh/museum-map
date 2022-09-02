@@ -3,6 +3,7 @@
     import { derived } from 'svelte/store';
 
     import Header from '../components/Header.svelte';
+    import Footer from '../components/Footer.svelte'
     import Thumnail from '../components/Thumbnail.svelte';
     import Item from './Item.svelte';
     import { floors, cachedRooms, loadRooms, cachedItems, loadItems } from '../store';
@@ -49,4 +50,5 @@
         </ul>
         <Route path=":iid"><Item/></Route>
     </article>
+    <Footer/>
 {/if}

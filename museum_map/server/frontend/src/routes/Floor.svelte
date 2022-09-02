@@ -53,8 +53,16 @@
 </script>
 
 {#if $currentFloor}
-    <Header title="{$currentFloor.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}]}/>
-    <article class="flex flex-col lg:flex-row px-4 py-2">
+    <div class="flex flex-col h-screen">
+        <Header title="{$currentFloor.attributes.label}" nav={null}/>
+        <article class="flex-1 ">
+
+        </article>
+        <div class="hidden lg:block">
+            <Header title="{$currentFloor.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}]}/>
+        </div>
+    </div>
+    <!--<article class="flex flex-col lg:flex-row px-4 py-2">
         <nav class="flex-none lg:w-1/4 overflow-auto">
             <ol class="flex lg:block flex-row flex-wrap">
                 {#each $floorsAndTopics as tuple}
@@ -112,5 +120,5 @@
                 {/if}
             </div>
         </div>
-    </article>
+    </article>-->
 {/if}

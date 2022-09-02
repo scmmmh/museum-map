@@ -3,6 +3,7 @@
     import { Link } from 'svelte-navigator';
 
     import Header from '../components/Header.svelte';
+    import Footer from '../components/Footer.svelte'
     import Thumnail from '../components/Thumbnail.svelte';
     import { config, fetchItemOfTheDay, itemOfTheDay, fetchRandomItemsSelection, randomItemsSelection, majorCollections, floors, localPreferences } from '../store';
 
@@ -72,3 +73,4 @@
         </section>
     </div>
 </article>
+<Footer/>
