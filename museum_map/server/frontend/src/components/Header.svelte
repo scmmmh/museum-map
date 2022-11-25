@@ -16,7 +16,7 @@
 
 <header class="sticky top-0 shadow-even shadow-black z-20 bg-inherit">
     <div class="flex flex-row border-b border-b-neutral-500">
-        <h1 class="flex-1 text-lg font-bold px-2 py-1">{title}</h1>
+        <h1 class="flex-1 text-lg font-bold px-2 py-2">{title}</h1>
         {#if $isBusy}
             <div class="sr-only" role="alert">Loading data</div>
             <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" class="flex-none w-8 h-6 pr-2 self-center" aria-hidden="true">
@@ -30,23 +30,28 @@
             </svg>
         {/if}
     </div>
-    {#if nav}
-        <nav class="flex flex-row items-start">
-            <ol class="flex-1 flex flex-col md:flex-row md:child-separator">
-                <li role="presentation" class="flex-none {!showNav ? 'hidden md:block': ''}">
-                    <Link to="/" class="inline-block px-2 py-1 hover:underline focus:underline">Lobby</Link>
-                </li>
+    <nav class="flex flex-row items-start" aria-label="Main">
+        <ol class="flex-1 flex flex-col md:flex-row md:child-separator">
+            <li class="flex-none {!showNav && nav.length > 0 ? 'hidden md:block': ''}">
+                <Link to="/" class="inline-block px-2 py-3 hover:underline focus:underline">Lobby</Link>
+            </li>
+            {#if nav}
                 {#each nav as item, idx}
-                    <li role="presentation" class="flex-none {!showNav && idx < nav.length - 1 ? 'hidden md:block': ''}">
-                        <Link to={item.path} class="inline-block px-2 py-1 hover:underline focus:underline">{item.label}</Link>
+                    <li class="flex-none {!showNav && idx < nav.length - 1 ? 'hidden md:block': ''}">
+                        <button on:click={() => { showNav = !showNav; }} class="{ showNav ? 'hidden' : 'block'} flex-none text-left px-2 py-3 md:hidden" aria-label="Toggle the main navigation">{item.label}</button>
+                        <Link to={item.path} class="{showNav ? 'inline-block': ' hidden md:inline-block'} px-2 py-3 hover:underline focus:underline">{item.label}</Link>
                     </li>
                 {/each}
-            </ol>
-            <button on:click={() => { showNav = !showNav; }} class="flex-none block px-2 py-1 md:hidden">
-                <svg viewBox="0 0 24 24" class="w-6 h-6">
-                    <path fill="currentColor" d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
-                </svg>
-            </button>
-        </nav>
-    {/if}
+            {/if}
+        </ol>
+        <button on:click={() => { showNav = !showNav; }} class="flex-none block px-2 py-2 md:hidden" aria-label="Toggle the main navigation">
+            <svg viewBox="0 0 24 24" class="w-8 h-8">
+                {#if showNav}
+                    <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                {:else}
+                    <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+                {/if}
+            </svg>
+        </button>
+    </nav>
 </header>

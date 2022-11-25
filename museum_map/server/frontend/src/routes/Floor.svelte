@@ -1,14 +1,221 @@
 <script lang="ts">
-    import { Link, useParams } from 'svelte-navigator';
+    import { Link, useParams, useNavigate } from 'svelte-navigator';
     import { derived, writable } from 'svelte/store';
+    import { onDestroy, onMount, tick } from 'svelte';
+    import Phaser from 'phaser';
 
     import Header from '../components/Header.svelte';
+    import Footer from '../components/Footer.svelte';
     import Thumnail from '../components/Thumbnail.svelte';
-    import { floors, floorTopics, loadRooms, loadItems } from '../store';
+    import { floors, loadRooms, busyCounter } from '../store';
 
+    const navigate = useNavigate();
     const params = useParams();
+
+    type MapObject = {
+        position: { x: number, y: number, width: number, height: number },
+        rect: Phaser.GameObjects.Rectangle,
+        text: Phaser.GameObjects.Text,
+    };
+
+    class FloorScene extends Phaser.Scene {
+        floor: JsonApiObject;
+        roomObjects: MapObject[];
+        baseMap: Phaser.GameObjects.Image;
+        zoom: number;
+        cameraPosition: { x: number, y: number };
+
+        constructor(floor: JsonApiObject) {
+            super('floor-' + floor.id);
+            this.floor = floor;
+        }
+
+        preload() {
+            this.load.svg('basemap', '/images/basemap.svg');
+        }
+
+        create() {
+            this.roomObjects = [];
+            this.zoom = 1;
+            this.baseMap = this.add.image(0, 0, 'basemap');
+            this.baseMap.setOrigin(0, 0);
+            loadRooms((this.floor.relationships.rooms.data as JsonApiObjectReference[]).map((ref) => { return ref.id; })).then((rooms) => {
+                busyCounter.start();
+                for (let room of rooms) {
+                    const rect = this.add.rectangle(room.attributes.position.x,
+                                                    room.attributes.position.y,
+                                                    room.attributes.position.width,
+                                                    room.attributes.position.height,
+                                                    0xffffff);
+                    rect.setOrigin(0,0);
+                    rect.setData('room_id', room.id);
+                    rect.setInteractive({useHandCursor: true});
+
+                    const text = this.add.text(room.attributes.position.x + room.attributes.position.width / 2,
+                                               room.attributes.position.y + room.attributes.position.height / 2,
+                                               room.attributes.label.replace(' - ', '\n'),
+                                               {
+                                                   color: '#000000',
+                                                   fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+                                                   align: 'center',
+                                               });
+                    text.setOrigin(0.5, 0.5);
+
+                    this.roomObjects.push({
+                        position: room.attributes.position,
+                        rect: rect,
+                        text: text,
+                    });
+                }
+                this.scaleObjects(false);
+                busyCounter.stop();
+            });
+
+            this.cameraPosition = {
+                x: -this.game.canvas.width / 2 + this.baseMap.width / 2,
+                y: -this.game.canvas.height / 2 + this.baseMap.height / 2
+            };
+            this.zoom = Math.min(this.game.canvas.width / this.baseMap.width * 0.9, this.game.canvas.height / this.baseMap.height * 0.9);
+            this.scaleObjects(true);
+
+            let pointerX = 0;
+            let pointerY = 0;
+            let baseZoom = 0;
+            let mousePointerDown = false;
+            let pointer1Down = false;
+            let pointer2Down = false;
+
+            this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, objectsClicked: Phaser.GameObjects.GameObject[]) => {
+                pointerX = pointer.x;
+                pointerY = pointer.y;
+                mousePointerDown = mousePointerDown || pointer === this.input.mousePointer;
+                pointer1Down = pointer1Down || pointer === this.input.pointer1;
+                pointer2Down = pointer2Down || pointer === this.input.pointer2;
+                baseZoom = this.zoom;
+            });
+            this.input.on('pointermove', (pointer: Phaser.Input.Pointer, objectsClicked: Phaser.GameObjects.GameObject[]) => {
+                if ((mousePointerDown || pointer1Down) && !pointer2Down) {
+                    if (Math.sqrt(Math.pow(pointer.downX - pointer.upX, 2) + Math.pow(pointer.downY - pointer.upY, 2)) >= 5) {
+                        this.cameraPosition.x = this.cameraPosition.x + pointerX - pointer.x;
+                        this.cameraPosition.y = this.cameraPosition.y + pointerY - pointer.y;
+                        this.scaleObjects(false);
+                        pointerX = pointer.x;
+                        pointerY = pointer.y;
+                    }
+                }
+                if (pointer1Down && pointer2Down) {
+                    const startDelta = (Math.sqrt(Math.pow(this.input.pointer1.downX - this.input.pointer2.downX, 2) + Math.pow(this.input.pointer1.downY - this.input.pointer2.downY, 2)));
+                    const endDelta = (Math.sqrt(Math.pow(this.input.pointer1.x - this.input.pointer2.x, 2) + Math.pow(this.input.pointer1.y - this.input.pointer2.y, 2)));
+                    const steps = (endDelta - startDelta) / 20;
+                    if (steps > 0) {
+                        this.zoom = Math.min(baseZoom + 0.1 * steps, 4);
+                    } else {
+                        this.zoom = Math.max(baseZoom - 0.1 * Math.abs(steps), 0.5);
+                    }
+                    const baseWidth = this.baseMap.displayWidth;
+                    const baseHeight = this.baseMap.displayHeight;
+                    this.baseMap.setScale(this.zoom);
+                    const newWidth = this.baseMap.displayWidth;
+                    const newHeight = this.baseMap.displayHeight;
+                    const centerX = this.input.pointer1.x + (this.input.pointer2.x - this.input.pointer1.x) / 2;
+                    const centerY = this.input.pointer1.y + (this.input.pointer2.y - this.input.pointer1.y) / 2;
+                    this.cameraPosition.x = this.cameraPosition.x + (newWidth - baseWidth) * ((centerX + this.cameraPosition.x) / this.baseMap.displayWidth);
+                    this.cameraPosition.y = this.cameraPosition.y + (newHeight - baseHeight) * ((centerY + this.cameraPosition.y) / this.baseMap.displayHeight);
+                    this.scaleObjects(false);
+                }
+            });
+            this.input.on('pointerup', (pointer: Phaser.Input.Pointer, objectsClicked: Phaser.GameObjects.GameObject[]) => {
+                if ((mousePointerDown || pointer1Down) && !pointer2Down) {
+                    if (Math.sqrt(Math.pow(pointer.downX - pointer.upX, 2) + Math.pow(pointer.downY - pointer.upY, 2)) < 5) {
+                        if (objectsClicked.length > 0) {
+                            navigate('/room/' + objectsClicked[0].getData('room_id'));
+                        }
+                    }
+                }
+                mousePointerDown = false;
+                pointer1Down = false;
+                pointer2Down = false;
+            });
+            this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
+                if (deltaY > 0) {
+                    this.zoom = Math.max(this.zoom - 0.1, 0.5);
+                } else if (deltaY < 0) {
+                    this.zoom = Math.min(this.zoom + 0.1, 4);
+                }
+                const baseWidth = this.baseMap.displayWidth;
+                const baseHeight = this.baseMap.displayHeight;
+                this.baseMap.setScale(this.zoom);
+                const newWidth = this.baseMap.displayWidth;
+                const newHeight = this.baseMap.displayHeight;
+                this.cameraPosition.x = this.cameraPosition.x + (newWidth - baseWidth) * ((pointer.x + this.cameraPosition.x) / this.baseMap.displayWidth);
+                this.cameraPosition.y = this.cameraPosition.y + (newHeight - baseHeight) * ((pointer.y + this.cameraPosition.y) / this.baseMap.displayHeight);
+                this.scaleObjects(false);
+            });
+        }
+
+        scaleObjects(center: boolean) {
+            this.baseMap.setScale(this.zoom);
+            if (center) {
+                this.cameraPosition = {
+                    x: -this.game.canvas.width / 2 + this.baseMap.displayWidth / 2,
+                    y: -this.game.canvas.height / 2 + this.baseMap.displayHeight / 2
+                };
+            }
+            this.cameras.main.setScroll(this.cameraPosition.x, this.cameraPosition.y);
+            for (const obj of this.roomObjects) {
+                obj.rect.x = obj.position.x * this.zoom;
+                obj.rect.y = obj.position.y * this.zoom;
+                obj.rect.width = obj.position.width * this.zoom;
+                obj.rect.height = obj.position.height * this.zoom;
+                obj.rect.input.hitArea.setTo(0, 0, obj.position.width * this.zoom, obj.position.height * this.zoom);
+                obj.text.x = obj.rect.x + obj.rect.width / 2;
+                obj.text.y = obj.rect.y + obj.rect.height / 2;
+                obj.text.setFontSize(this.zoom > 1 ? 16 : 13);
+                let fontSize = this.zoom > 1 ? 15 : 12;
+                if (obj.position.height > obj.position.width) {
+                    obj.text.setRotation(1.5708);
+                    while (obj.text.width > obj.rect.height - 4 && fontSize >= 4) {
+                        obj.text.setFontSize(fontSize);
+                        fontSize = fontSize - 1;
+                    }
+                } else {
+                    while (obj.text.width > obj.rect.width - 4 && fontSize >= 4) {
+                        obj.text.setFontSize(fontSize);
+                        fontSize = fontSize - 1;
+                    }
+                }
+            }
+        }
+    }
+
+    let sceneConfig = {
+        type: Phaser.AUTO,
+        parent: 'game',
+        transparent: true,
+        scale: {
+            width: 200,
+            height: 300,
+            mode: Phaser.Scale.RESIZE,
+            autoCenter: Phaser.Scale.CENTER_BOTH
+        },
+        input: {
+            activePointers: 3
+        }
+    }
+
     const hoverRoom = writable(null as JsonApiObject | null);
     const samples = writable([] as JsonApiObject[]);
+    let game = null as Phaser.Game;
+
+    onMount(() => {
+        game = new Phaser.Game(sceneConfig);
+        if ($currentFloor) {
+            if (!game.scene.getScene('floor-' + $currentFloor.id)) {
+                game.scene.add('floor-' + $currentFloor.id, new FloorScene($currentFloor));
+            }
+            game.scene.start('floor-' + $currentFloor.id);
+        }
+    });
 
     const currentFloor = derived([params, floors], ([params, floors]) => {
         const floor = floors.filter((floor) => {
@@ -22,103 +229,89 @@
         return null;
     }, null);
 
-    const floorsAndTopics = derived([floors, floorTopics], ([floors, floorTopics]) => {
-        return floors.map((floor) => {
-            const topicIds = (floor.relationships.topics.data as JsonApiObjectReference[]).map((ref) => { return ref.id });
-            return {
-                floor: floor,
-                topics: floorTopics.filter((floorTopic) => { return topicIds.indexOf(floorTopic.id) >= 0}),
+    const previousFloor = derived([currentFloor, floors], ([currentFloor, floors]) => {
+        if (currentFloor) {
+            let previousFloor = null;
+            for (const floor of floors) {
+                if (floor === currentFloor) {
+                    return previousFloor;
+                }
+                previousFloor = floor;
             }
-        });
+        } else {
+            return null;
+        }
     });
 
-    const rooms = derived(currentFloor, async (currentFloor, set) => {
-        if (currentFloor !== null) {
-            set(await loadRooms((currentFloor.relationships.rooms.data as JsonApiObjectReference[]).map((ref) => { return ref.id; })));
-        }
-    }, []);
-
-    function shortenedLabel(label: string) {
-        if (label.indexOf('-') >= 0) {
-            return label.substring(0, label.indexOf('-')).trim();
+    const nextFloor = derived([currentFloor, floors], ([currentFloor, floors]) => {
+        if (currentFloor) {
+            let found = false;
+            for (const floor of floors) {
+                if (found) {
+                    return floor;
+                }
+                if (floor === currentFloor) {
+                    found = true;
+                }
+            }
+            return null;
         } else {
-            return label;
+            return null;
         }
-    }
+    });
 
-    async function mouseOverRoom(room: JsonApiObject) {
-        hoverRoom.set(room);
-        samples.set(await loadItems([(room.relationships.sample.data as JsonApiObjectReference).id]));
-    }
+    const currentFloorUnsubscribe = currentFloor.subscribe((currentFloor) => {
+        if (currentFloor && game) {
+            if (!game.scene.getScene('floor-' + currentFloor.id)) {
+                game.scene.add('floor-' + currentFloor.id, new FloorScene(currentFloor));
+            }
+            for (const scene of game.scene.getScenes()) {
+                if (game.scene.isActive(scene)) {
+                    game.scene.stop(scene);
+                }
+            }
+            game.scene.start('floor-' + currentFloor.id);
+        }
+    });
+
+    onDestroy(currentFloorUnsubscribe);
 </script>
 
-{#if $currentFloor}
-    <div class="flex flex-col h-screen">
-        <Header title="{$currentFloor.attributes.label}" nav={null}/>
-        <article class="flex-1 ">
-
-        </article>
-        <div class="hidden lg:block">
-            <Header title="{$currentFloor.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}]}/>
+<div class="flex flex-col h-screen">
+    <Header title="{$currentFloor ? $currentFloor.attributes.label : 'Loading...'}" nav={[{label: $currentFloor ? $currentFloor.attributes.label : 'Loading...', path: '/floor/' + ($currentFloor ? $currentFloor.id : '0')}]}/>
+    <div class="flex-none flex flex-row">
+        <div class="flex-none ml-2 lg:ml-4 mt-2 lg:mt-4">
+            {#if $previousFloor}
+                <Link to="/floor/{$previousFloor.id}" class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">⇧ {$previousFloor.attributes.label}</Link>
+            {:else}
+                <span class="inline-block px-4 py-3 lg:py-2 rounded-lg">&nbsp;</span>
+            {/if}
+        </div>
+        <div class="flex-1"></div>
+        <div class="flex-none mr-2 lg:mr-4 mt-2 lg:mt-4">
+            <button class="inline-block bg-neutral-600 px-3 py-3 lg:py-3 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">
+                <svg class="w-6 h-6" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M15,19L9,16.89V5L15,7.11M20.5,3C20.44,3 20.39,3 20.34,3L15,5.1L9,3L3.36,4.9C3.15,4.97 3,5.15 3,5.38V20.5A0.5,0.5 0 0,0 3.5,21C3.55,21 3.61,21 3.66,20.97L9,18.9L15,21L20.64,19.1C20.85,19 21,18.85 21,18.62V3.5A0.5,0.5 0 0,0 20.5,3Z" />
+                </svg>
+            </button>
+        </div>
+        <div class="flex-none mr-2 lg:mr-4 mt-2 lg:mt-4">
+            <button class="inline-block bg-neutral-600 px-3 py-3 lg:py-3 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">
+                <svg class="w-6 h-6" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M7,5H21V7H7V5M7,13V11H21V13H7M4,4.5A1.5,1.5 0 0,1 5.5,6A1.5,1.5 0 0,1 4,7.5A1.5,1.5 0 0,1 2.5,6A1.5,1.5 0 0,1 4,4.5M4,10.5A1.5,1.5 0 0,1 5.5,12A1.5,1.5 0 0,1 4,13.5A1.5,1.5 0 0,1 2.5,12A1.5,1.5 0 0,1 4,10.5M7,19V17H21V19H7M4,16.5A1.5,1.5 0 0,1 5.5,18A1.5,1.5 0 0,1 4,19.5A1.5,1.5 0 0,1 2.5,18A1.5,1.5 0 0,1 4,16.5Z" />
+                </svg>
+            </button>
         </div>
     </div>
-    <!--<article class="flex flex-col lg:flex-row px-4 py-2">
-        <nav class="flex-none lg:w-1/4 overflow-auto">
-            <ol class="flex lg:block flex-row flex-wrap">
-                {#each $floorsAndTopics as tuple}
-                    <li class="w-1/3 lg:w-full" role="presentation">
-                        <Link to="/floor/{tuple.floor.id}" class="block hover-parent">
-                            <span class="hover-child-underline text-md {tuple.floor.id === $currentFloor.id ? 'font-bold' : ''}">{tuple.floor.attributes.label}</span>
-                            <ul class="hidden lg:flex flex-row flex-wrap list-separator text-sm text-gray-300 gap-x-1 ml-2 mb-2">
-                                {#each tuple.topics as topic}
-                                    <li>{topic.attributes.label}</li>
-                                {/each}
-                            </ul>
-                        </Link>
-                    </li>
-                {/each}
-            </ol>
-        </nav>
-        <div class="mt-8 lg:mt-0 lg:hidden px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4">{$currentFloor.attributes.label}</div>
-        <div class="flex-1 lg:flex lg:flex-row lg:justify-center overflow-auto">
-            <div class="lg:hidden">
-                <ul>
-                    {#each $rooms as room}
-                        <li>
-                            <Link to="/room/{room.id}" class="block py-1">
-                                <span>{room.attributes.label}</span>
-                            </Link>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-            <div class="hidden flex-none lg:flex flex-col justify-between">
-                <div class="flex-none"></div>
-                <div class="flex-none relative">
-                    <img src="/images/map.png" alt=""/>
-                    <ul>
-                        {#each $rooms as room}
-                            <li on:mouseenter={() => { mouseOverRoom(room); }}>
-                                <Link to="/room/{room.id}" class="absolute block text-xs bg-white text-black hover:bg-blue-800 hover:text-white focus:bg-blue-800 focus:text-white" style="{room.attributes.position}">
-                                    <span class="absolute block left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center">{shortenedLabel(room.attributes.label)}</span>
-                                </Link>
-                            </li>
-                        {/each}
-                    </ul>
-                </div>
-                <div class="flex-none px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4">{$currentFloor.attributes.label}</div>
-            </div>
-            <div class="hidden flex-none lg:flex flex-col justify-between w-60 ml-8">
-                <div class="flex-none"></div>
-                <ul class="flex-none">
-                    {#each $samples as sample}
-                        <li class="w-60 h-60"><Thumnail item={sample} hideTitle={true} noLink={true}/></li>
-                    {/each}
-                </ul>
-                {#if $hoverRoom}
-                    <div class="flex-none px-4 py-1 bg-blue-900 text-lg font-bold text-center mb-4">{$hoverRoom.attributes.label}</div>
-                {/if}
-            </div>
-        </div>
-    </article>-->
-{/if}
+    <article class="flex-1">
+        <div id="game" class="w-full h-full"></div>
+    </article>
+    <div class="flex-none">
+        {#if $nextFloor}
+            <Link to="/floor/{$nextFloor.id}" class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 ml-2 lg:ml-4 mb-2 lg:mb-4 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">⇩ {$nextFloor.attributes.label}</Link>
+        {:else}
+            <span class="inline-block px-4 py-3 lg:py-2 ml-2 lg:ml-4 mb-2 lg:mb-4 rounded-lg">&nbsp;</span>
+        {/if}
+    </div>
+    <Footer/>
+</div>

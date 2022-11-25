@@ -129,9 +129,26 @@ CONFIG_SCHEMA = {
                             'min': 1,
                         },
                         'position': {
-                            'type': 'string',
+                            'type': 'dict',
                             'required': True,
-                            'empty': False,
+                            'schema': {
+                                'x': {
+                                    'type': 'integer',
+                                    'required': True
+                                },
+                                'y': {
+                                    'type': 'integer',
+                                    'required': True
+                                },
+                                'width': {
+                                    'type': 'integer',
+                                    'required': True
+                                },
+                                'height': {
+                                    'type': 'integer',
+                                    'required': True
+                                },
+                            }
                         }
                     }
                 }

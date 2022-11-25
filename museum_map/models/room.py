@@ -15,7 +15,7 @@ class Room(Base):
     item_id = Column(Integer, ForeignKey('items.id'))
     number = Column(Unicode(16))
     label = Column(Unicode(255))
-    position = Column(Unicode(255))
+    position = Column(NestedMutableJson)
 
     group = relationship('Group', back_populates='room')
     floor = relationship('Floor', back_populates='rooms')
