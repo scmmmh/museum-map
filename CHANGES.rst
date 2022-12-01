@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.6.0
+-----
+
+* **Update**: Rewrite of the floor browsing UI
+
 0.2.6
 -----
 
