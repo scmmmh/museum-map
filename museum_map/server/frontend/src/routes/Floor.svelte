@@ -7,7 +7,7 @@
     import Header from '../components/Header.svelte';
     import Footer from '../components/Footer.svelte';
     import Thumnail from '../components/Thumbnail.svelte';
-    import { floors, loadRooms, busyCounter, localPreferences } from '../store';
+    import { floors, loadRooms, busyCounter, localPreferences, loadTopics } from '../store';
     import type { NestedStorage } from '../store/preferences';
 
     const navigate = useNavigate();
@@ -16,6 +16,7 @@
     const MODE_MAP = 1;
     const MODE_LIST = 2;
     let mode = ($localPreferences.ui && ($localPreferences.ui as NestedStorage).floorDisplayMode) ? ($localPreferences.ui as NestedStorage).floorDisplayMode : MODE_MAP;
+    let floorListElement = null as HTMLElement;
 
     type MapObject = {
         position: { x: number, y: number, width: number, height: number },
@@ -171,7 +172,9 @@
                     y: -this.game.canvas.height / 2 + this.baseMap.displayHeight / 2
                 };
             }
-            this.cameras.main.setScroll(this.cameraPosition.x, this.cameraPosition.y);
+            if (this.cameras && this.cameras.main) {
+                this.cameras.main.setScroll(this.cameraPosition.x, this.cameraPosition.y);
+            }
             for (const obj of this.roomObjects) {
                 obj.rect.x = obj.position.x * this.zoom;
                 obj.rect.y = obj.position.y * this.zoom;
@@ -281,6 +284,14 @@
                 }
             }
             game.scene.start('floor-' + currentFloor.id);
+            if (floorListElement) {
+                tick().then(() => {
+                    const currentElement = floorListElement.querySelector('.font-bold') as HTMLElement;
+                    if (currentElement) {
+                        currentElement.scrollIntoView();
+                    }
+                })
+            }
         }
     });
 
@@ -294,6 +305,31 @@
         }
     }, [] as JsonApiObject[]);
 
+    const topics = derived(floors, (floors, set) => {
+        if (floors) {
+            let topicIds = [] as string[];
+            for(const floor of floors) {
+                topicIds = topicIds.concat((floor.relationships.topics.data as JsonApiObjectReference[]).map((rel) => { return rel.id; }));
+            }
+            loadTopics(topicIds).then((topics) => {
+                const topicsMap = {} as {[x: string]: JsonApiObject[]};
+                for(const floor of floors) {
+                    topicIds = (floor.relationships.topics.data as JsonApiObjectReference[]).map((rel) => { return rel.id; });
+                    topicsMap[floor.id] = topics.filter((topic) => { return topicIds.indexOf(topic.id) >= 0 });
+                }
+                set(topicsMap);
+                if (floorListElement) {
+                    tick().then(() => {
+                        const currentElement = floorListElement.querySelector('.font-bold') as HTMLElement;
+                        if (currentElement) {
+                            currentElement.scrollIntoView();
+                        }
+                    })
+                }
+            });
+        }
+    }, {} as {[x: string]: JsonApiObject[]});
+
     onDestroy(currentFloorUnsubscribe);
 
     async function changeMode(newMode: number) {
@@ -305,14 +341,9 @@
     }
 </script>
 
-{#if mode === MODE_LIST}
+<div class="flex flex-col h-screen">
     <Header title="{$currentFloor ? $currentFloor.attributes.label : 'Loading...'}" nav={[{label: $currentFloor ? $currentFloor.attributes.label : 'Loading...', path: '/floor/' + ($currentFloor ? $currentFloor.id : '0')}]}/>
-{/if}
-<div class="flex flex-col {mode === MODE_MAP ? 'h-screen' : ''}">
-    {#if mode === MODE_MAP}
-        <Header title="{$currentFloor ? $currentFloor.attributes.label : 'Loading...'}" nav={[{label: $currentFloor ? $currentFloor.attributes.label : 'Loading...', path: '/floor/' + ($currentFloor ? $currentFloor.id : '0')}]}/>
-    {/if}
-    <div class="flex-none flex flex-row sticky top-24">
+    <div class="md:hidden flex-none flex flex-row">
         <div class="flex-none ml-2 lg:ml-4 mt-2 lg:mt-4">
             {#if $previousFloor}
                 <Link to="/floor/{$previousFloor.id}" class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">⇧ {$previousFloor.attributes.label}</Link>
@@ -336,17 +367,53 @@
             </button>
         </div>
     </div>
-    <article class="flex-1 overflow-hidden">
-        <div id="game" class="w-full h-full {mode === MODE_MAP ? '' : 'hidden'}" aria-hidden="true"></div>
-        <div class="{mode === MODE_LIST ? '' : 'hidden'}">
-            <ol class="px-4 pb-6 pt-2">
-                {#each $rooms as room}
-                    <li><Link to="/room/{room.id}" class="block py-2 hover:underline focus:underline">{room.attributes.label}</Link></li>
+    <div class="flex flex-row flex-1 overflow-hidden">
+        <nav class="hidden md:block overflow-auto w-[20%]">
+            <ol bind:this={floorListElement} class="p-4 w-full">
+                {#each $floors as floor}
+                    <li>
+                        <Link to="/floor/{floor.id}" class="mb-4 block hover:underline {floor.id === $currentFloor.id ? 'font-bold' : ''}">
+                            <span class="block">{floor.attributes.label}</span>
+                            <span class="flex flex-row flex-wrap text-sm">
+                                {#if $topics[floor.id]}
+                                    {#each $topics[floor.id] as topic}
+                                        <span class="after:content-[','] after:mr-1 last:after:hidden">{topic.attributes.label}</span>
+                                    {/each}
+                                {/if}
+                            </span>
+                        </Link>
+                    </li>
                 {/each}
             </ol>
-        </div>
-    </article>
-    <div class="flex-none">
+        </nav>
+        <article class="flex-1 overflow-hidden relative">
+            <nav class="hidden md:flex flex-row absolute right-0 top-0">
+                <div class="flex-none mr-2 lg:mr-4 mt-2 lg:mt-4">
+                    <button on:click={() => { changeMode(MODE_MAP); }} class="inline-block bg-neutral-600 px-3 py-3 lg:py-3 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 {mode === MODE_MAP ? 'bg-blue-800' : ''}">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M15,19L9,16.89V5L15,7.11M20.5,3C20.44,3 20.39,3 20.34,3L15,5.1L9,3L3.36,4.9C3.15,4.97 3,5.15 3,5.38V20.5A0.5,0.5 0 0,0 3.5,21C3.55,21 3.61,21 3.66,20.97L9,18.9L15,21L20.64,19.1C20.85,19 21,18.85 21,18.62V3.5A0.5,0.5 0 0,0 20.5,3Z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex-none mr-2 lg:mr-4 mt-2 lg:mt-4">
+                    <button on:click={() => { changeMode(MODE_LIST); }} class="inline-block bg-neutral-600 px-3 py-3 lg:py-3 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 {mode === MODE_LIST ? 'bg-blue-800' : ''}">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M7,5H21V7H7V5M7,13V11H21V13H7M4,4.5A1.5,1.5 0 0,1 5.5,6A1.5,1.5 0 0,1 4,7.5A1.5,1.5 0 0,1 2.5,6A1.5,1.5 0 0,1 4,4.5M4,10.5A1.5,1.5 0 0,1 5.5,12A1.5,1.5 0 0,1 4,13.5A1.5,1.5 0 0,1 2.5,12A1.5,1.5 0 0,1 4,10.5M7,19V17H21V19H7M4,16.5A1.5,1.5 0 0,1 5.5,18A1.5,1.5 0 0,1 4,19.5A1.5,1.5 0 0,1 2.5,18A1.5,1.5 0 0,1 4,16.5Z" />
+                        </svg>
+                    </button>
+                </div>
+            </nav>
+            <div id="game" class="w-full h-full {mode === MODE_MAP ? '' : 'hidden'}" aria-hidden="true"></div>
+            <div class="{mode === MODE_LIST ? '' : 'hidden'}">
+                <ol class="px-4 pb-6 pt-2 columns-sm">
+                    {#each $rooms as room}
+                        <li><Link to="/room/{room.id}" class="block py-2 hover:underline focus:underline">{room.attributes.label}</Link></li>
+                    {/each}
+                </ol>
+            </div>
+        </article>
+    </div>
+    <div class="flex-none md:hidden">
         {#if $nextFloor}
             <Link to="/floor/{$nextFloor.id}" class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 ml-2 lg:ml-4 mb-2 lg:mb-4 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">⇩ {$nextFloor.attributes.label}</Link>
         {:else}
