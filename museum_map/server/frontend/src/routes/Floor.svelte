@@ -286,7 +286,7 @@
             game.scene.start('floor-' + currentFloor.id);
             if (floorListElement) {
                 tick().then(() => {
-                    const currentElement = floorListElement.querySelector('.font-bold') as HTMLElement;
+                    const currentElement = floorListElement.querySelector('.current-floor') as HTMLElement;
                     if (currentElement) {
                         currentElement.scrollIntoView();
                     }
@@ -320,7 +320,7 @@
                 set(topicsMap);
                 if (floorListElement) {
                     tick().then(() => {
-                        const currentElement = floorListElement.querySelector('.font-bold') as HTMLElement;
+                        const currentElement = floorListElement.querySelector('.current-floor') as HTMLElement;
                         if (currentElement) {
                             currentElement.scrollIntoView();
                         }
@@ -372,9 +372,9 @@
             <ol bind:this={floorListElement} class="p-4 w-full">
                 {#each $floors as floor}
                     <li>
-                        <Link to="/floor/{floor.id}" class="mb-4 block hover:underline {floor.id === $currentFloor.id ? 'font-bold' : ''}">
-                            <span class="block">{floor.attributes.label}</span>
-                            <span class="flex flex-row flex-wrap text-sm">
+                        <Link to="/floor/{floor.id}" class="mb-4 block group hover:underline {floor.id === $currentFloor.id ? 'current-floor' : ''}">
+                            <span class="inline-block {floor.id === $currentFloor.id ? 'bg-blue-800' : 'bg-neutral-600'} px-4 lg:px-3 py-3 lg:py-1 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 lg:group-hover:bg-blue-800 lg:group-focus:bg-blue-800">⇒ {floor.attributes.label}</span>
+                            <span class="flex flex-row flex-wrap text-sm pl-4 pt-2">
                                 {#if $topics[floor.id]}
                                     {#each $topics[floor.id] as topic}
                                         <span class="after:content-[','] after:mr-1 last:after:hidden">{topic.attributes.label}</span>
