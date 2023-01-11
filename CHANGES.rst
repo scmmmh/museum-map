@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Dev
+---
+
+* **Update**: Improved the floor browsing UI
+* **Bugfix**: Fixed an issue with the footer layout
+
 0.6.0
 -----
 
