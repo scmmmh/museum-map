@@ -8,7 +8,7 @@
             <li class="flex-none w-full md:w-1/3 px-2 text-center md:text-left">
                 <a href="https://www.room3b.eu/pages/projects/digital-museum-map.html" target="_blank" rel="noopener" class="underline decoration-dotted hover:decoration-solid focus:decoration-solid">Find out more about how this works</a>
             </li>
-            <li class="flex-none w-full md:w-1/3 pt-1 md:pt-0 md:py-0text-center">
+            <li class="flex-none w-full md:w-1/3 pt-1 md:pt-0 md:py-0 text-center">
                 {#if $config && $config.attributes.footer && $config.attributes.footer.center}
                     {#if $config.attributes.footer.center.url}
                         <a href="{$config.attributes.footer.center.url}" target="_blank" rel="noopener" class="underline decoration-dotted hover:decoration-solid focus:decoration-solid">{@html $config.attributes.footer.center.label}</a>
