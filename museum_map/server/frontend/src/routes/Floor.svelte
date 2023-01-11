@@ -343,7 +343,7 @@
 
 <div class="flex flex-col h-screen">
     <Header title="{$currentFloor ? $currentFloor.attributes.label : 'Loading...'}" nav={[{label: $currentFloor ? $currentFloor.attributes.label : 'Loading...', path: '/floor/' + ($currentFloor ? $currentFloor.id : '0')}]}/>
-    <div class="md:hidden flex-none flex flex-row">
+    <div class="lg:hidden flex-none flex flex-row">
         <div class="flex-none ml-2 lg:ml-4 mt-2 lg:mt-4">
             {#if $previousFloor}
                 <Link to="/floor/{$previousFloor.id}" class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">⇧ {$previousFloor.attributes.label}</Link>
@@ -368,7 +368,7 @@
         </div>
     </div>
     <div class="flex flex-row flex-1 overflow-hidden">
-        <nav class="hidden md:block overflow-auto w-[20%]">
+        <nav class="hidden lg:block overflow-auto w-[20%]">
             <ol bind:this={floorListElement} class="p-4 w-full">
                 {#each $floors as floor}
                     <li>
@@ -387,7 +387,7 @@
             </ol>
         </nav>
         <article class="flex-1 overflow-hidden relative">
-            <nav class="hidden md:flex flex-row absolute right-0 top-0">
+            <nav class="hidden lg:flex flex-row absolute right-0 top-0">
                 <div class="flex-none mr-2 lg:mr-4 mt-2 lg:mt-4">
                     <button on:click={() => { changeMode(MODE_MAP); }} class="inline-block bg-neutral-600 px-3 py-3 lg:py-3 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 {mode === MODE_MAP ? 'bg-blue-800' : ''}">
                         <svg class="w-6 h-6" viewBox="0 0 24 24">
@@ -413,7 +413,7 @@
             </div>
         </article>
     </div>
-    <div class="flex-none md:hidden">
+    <div class="flex-none lg:hidden">
         {#if $nextFloor}
             <Link to="/floor/{$nextFloor.id}" class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 ml-2 lg:ml-4 mb-2 lg:mb-4 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800">⇩ {$nextFloor.attributes.label}</Link>
         {:else}
