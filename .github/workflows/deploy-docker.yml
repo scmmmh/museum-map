@@ -50,7 +50,7 @@ jobs:
         password: ${{ secrets.DOCKERACCESSTOKEN }}
 
     - name: Build and Push Image
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v4
       with:
         context: docker
         push: true
