@@ -4,6 +4,17 @@ Changelog
 Dev
 ---
 
+* **New**: Implemented search
+
+0.7.1
+-----
+
+* **Bugfix**: Fixed an issue with the floor previews positioning
+
+0.7.0
+-----
+
+* **Update**: Added floor previews
 * **Update**: Improved the floor browsing UI
 * **Bugfix**: Fixed an issue with the footer layout
 
