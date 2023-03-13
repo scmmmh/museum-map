@@ -7,7 +7,7 @@ from tornado.web import Application, StaticFileHandler
 
 from ..models import create_engine
 from ..server.handlers import (APICollectionHandler, APIConfigHandler, APIItemHandler, APIPickHandler, FrontendHandler,
-                               create_inject_item_html)
+                               APISearchHandler, create_inject_item_html)
 
 
 @click.command()
@@ -18,6 +18,7 @@ def run(ctx):
         [
             ('/api/picks/([a-z\-]+)', APIPickHandler),
             ('/api/config/all', APIConfigHandler, {'config': config}),
+            ('/api/search', APISearchHandler),
             ('/api/([a-z\-]+)', APICollectionHandler),
             ('/api/([a-z\-]+)/([0-9]+)', APIItemHandler),
             ('/images/(.*)', StaticFileHandler, {'path': config['images']['basepath']}),

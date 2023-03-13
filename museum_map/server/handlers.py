@@ -6,6 +6,7 @@ from configparser import ConfigParser
 from datetime import datetime
 from importlib import resources
 from importlib.abc import Traversable
+from meilisearch import Client
 from mimetypes import guess_type
 from random import randint
 from sqlalchemy import select, func
@@ -144,6 +145,20 @@ class APIPickHandler(RequestBase):
                     self.send_error(status_code=404)
         else:
             self.send_error(status_code=404)
+
+
+class APISearchHandler(RequestBase):
+
+    def initialize(self: 'APISearchHandler'):
+        client = Client(self.application.settings['config']['search']['url'], self.application.settings['config']['search']['key'])
+        self._index = client.get_index('items')
+
+    async def get(self):
+        self.write(self._index.search(self.get_argument('q'), {
+            'limit': 150,
+            'facets': ['mmap_room', 'mmap_floor'],
+            'filter': [f'mmap_room = {self.get_argument("room")}'] if self.get_argument('room', default=None) != None else []
+        }))
 
 
 class FrontendHandler(web.RedirectHandler):

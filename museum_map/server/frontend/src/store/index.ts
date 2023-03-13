@@ -6,6 +6,7 @@ import { cachedItems, loadItems } from './items';
 import { config, fetchConfig } from './config';
 import { cachedTopics, loadTopics } from './topics';
 import { localPreferences } from './preferences';
+import { searchTerm, searchRoom, matchingFloors, matchingRooms, matchingItems } from './search';
 
 export {
     busyCounter,
@@ -35,4 +36,10 @@ export {
     fetchConfig,
 
     localPreferences,
+
+    searchTerm,
+    searchRoom,
+    matchingFloors,
+    matchingRooms,
+    matchingItems,
 };

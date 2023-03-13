@@ -1,25 +1,37 @@
 <script lang="ts">
-    import { afterUpdate } from 'svelte';
-    import { Link } from 'svelte-navigator';
+    import { afterUpdate, onDestroy } from 'svelte';
+    import { Link, useLocation } from 'svelte-navigator';
 
-    import { isBusy } from '../store';
+    import { isBusy, searchTerm, searchRoom } from '../store';
 
     export let title: string;
     export let nav: {path: string; label: string;}[];
 
+    const location = useLocation();
     let showNav = false;
+
+    const unsubscribeLocation = location.subscribe((location) => {
+        if (location.pathname.startsWith('/room')) {
+            const parts = location.pathname.split('/');
+            searchRoom.set(parts[2]);
+        } else {
+            searchRoom.set(null);
+        }
+    });
 
     afterUpdate(() => {
         document.title = title;
     });
+
+    onDestroy(unsubscribeLocation);
 </script>
 
 <header class="sticky top-0 shadow-even shadow-black z-20 bg-inherit">
-    <div class="flex flex-row border-b border-b-neutral-500">
+    <div class="flex flex-row border-b border-b-neutral-500 items-center">
         <h1 class="flex-1 text-lg font-bold px-2 py-2">{title}</h1>
         {#if $isBusy}
             <div class="sr-only" role="alert">Loading data</div>
-            <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" class="flex-none w-8 h-6 pr-2 self-center" aria-hidden="true">
+            <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" class="flex-none w-8 h-6 pr-2" aria-hidden="true">
                 <g fill="none" fill-rule="evenodd">
                     <g transform="translate(1 1)" stroke-width="3">
                         <path d="M36 18c0-9.94-8.06-18-18-18">
@@ -29,6 +41,9 @@
                 </g>
             </svg>
         {/if}
+        <form class="px-2" on:submit={(ev) => { ev.preventDefault(); }}>
+            <input bind:value={$searchTerm} type="search" placeholder="Search the museum..." class="px-2 py-1 border rounded-lg text-black"/>
+        </form>
     </div>
     <nav class="flex flex-row items-start" aria-label="Main">
         <ol class="flex-1 flex flex-col md:flex-row md:child-separator">

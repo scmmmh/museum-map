@@ -13,6 +13,7 @@ from .groups import groups, pipeline_impl as groups_pipeline
 from .server import server
 from .items import items, pipeline_impl as items_pipeline
 from .layout import layout, pipeline_impl as layout_pipeline
+from .search import search, pipeline_impl as search_pipeline
 
 
 logger = logging.getLogger('scr')
@@ -326,6 +327,7 @@ async def pipeline_impl(config):
     await items_pipeline(config)
     await groups_pipeline(config)
     await layout_pipeline(config)
+    await search_pipeline(config)
 
 
 @click.command()
@@ -334,9 +336,11 @@ def pipeline(ctx):
     """Run the full processing pipline."""
     asyncio.run(pipeline_impl(ctx.obj['config']))
 
+
 cli.add_command(pipeline)
 cli.add_command(db)
 cli.add_command(groups)
 cli.add_command(items)
 cli.add_command(server)
 cli.add_command(layout)
+cli.add_command(search)

@@ -1,13 +1,13 @@
 <script lang="ts">
     import { Link, useParams, useNavigate } from 'svelte-navigator';
-    import { derived, writable } from 'svelte/store';
+    import { derived, writable, get } from 'svelte/store';
     import { onDestroy, onMount, tick } from 'svelte';
     import Phaser from 'phaser';
 
     import Header from '../components/Header.svelte';
     import Footer from '../components/Footer.svelte';
     import Thumbnail from '../components/Thumbnail.svelte';
-    import { floors, loadRooms, busyCounter, localPreferences, loadTopics, loadItems } from '../store';
+    import { floors, loadRooms, busyCounter, localPreferences, loadTopics, loadItems, matchingFloors, matchingRooms } from '../store';
     import type { NestedStorage } from '../store/preferences';
 
     const navigate = useNavigate();
@@ -18,6 +18,9 @@
     let mode = ($localPreferences.ui && ($localPreferences.ui as NestedStorage).floorDisplayMode) ? ($localPreferences.ui as NestedStorage).floorDisplayMode : MODE_MAP;
     let floorListElement = null as HTMLElement;
     let hoverRoomTimeout = 0;
+    const hoverRoom = writable(null as JsonApiObject | null);
+    const samples = writable([] as JsonApiObject[]);
+    const mousePosition = {x: -1, y: -1};
 
     type MapObject = {
         position: { x: number, y: number, width: number, height: number },
@@ -48,12 +51,13 @@
             this.baseMap.setOrigin(0, 0);
             loadRooms((this.floor.relationships.rooms.data as JsonApiObjectReference[]).map((ref) => { return ref.id; })).then((rooms) => {
                 busyCounter.start();
+                $matchingRooms = get(matchingRooms);
                 for (let room of rooms) {
                     const rect = this.add.rectangle(room.attributes.position.x,
                                                     room.attributes.position.y,
                                                     room.attributes.position.width,
                                                     room.attributes.position.height,
-                                                    0xffffff);
+                                                    $matchingRooms.indexOf(room.id) >= 0 ? 0x2563eb : 0xffffff);
                     rect.setOrigin(0,0);
                     rect.setData('room', room);
                     rect.setData('room_id', room.id);
@@ -77,7 +81,7 @@
                                                room.attributes.position.y + room.attributes.position.height / 2,
                                                room.attributes.label.replace(' - ', '\n'),
                                                {
-                                                   color: '#000000',
+                                                   color: $matchingRooms.indexOf(room.id) >= 0 ? '#ffffff' : '#000000',
                                                    fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
                                                    align: 'center',
                                                });
@@ -249,24 +253,7 @@
         }
     }
 
-    const hoverRoom = writable(null as JsonApiObject | null);
-    const samples = writable([] as JsonApiObject[]);
     let game = null as Phaser.Game;
-    const mousePosition = {x: -1, y: -1};
-
-    onMount(() => {
-        document.body.addEventListener('mousemove', (ev: MouseEvent) => {
-            mousePosition.x = ev.pageX;
-            mousePosition.y = ev.pageY;
-        });
-        game = new Phaser.Game(sceneConfig);
-        if ($currentFloor) {
-            if (!game.scene.getScene('floor-' + $currentFloor.id)) {
-                game.scene.add('floor-' + $currentFloor.id, new FloorScene($currentFloor));
-            }
-            game.scene.start('floor-' + $currentFloor.id);
-        }
-    });
 
     const currentFloor = derived([params, floors], ([params, floors]) => {
         const floor = floors.filter((floor) => {
@@ -340,6 +327,22 @@
         }
     });
 
+    const matchingRoomsUnsubscribe = matchingRooms.subscribe((matchingRooms) => {
+        if (game) {
+            for (const scene of game.scene.getScenes()) {
+                for (const obj of (scene as FloorScene).roomObjects) {
+                    if (matchingRooms.indexOf(obj.rect.getData('room_id')) >= 0) {
+                        obj.rect.fillColor = 0x2563eb;
+                        obj.text.setColor('#ffffff');
+                    } else {
+                        obj.rect.fillColor = 0xffffff;
+                        obj.text.setColor('#000000');
+                    }
+                }
+            }
+        }
+    });
+
     const rooms = derived(currentFloor, (currentFloor, set) => {
         if (currentFloor) {
             loadRooms((currentFloor.relationships.rooms.data as JsonApiObjectReference[]).map((ref) => { return ref.id; })).then((rooms) => {
@@ -375,7 +378,30 @@
         }
     }, {} as {[x: string]: JsonApiObject[]});
 
-    onDestroy(currentFloorUnsubscribe);
+    const searchedFloors = derived([floors, matchingFloors], ([floors, matchingFloors]) => {
+        return floors.map((floor: JsonApiObject) => {
+            return [floor, matchingFloors.indexOf(floor.id) >= 0];
+        });
+    }, [] as [JsonApiObject, boolean][]);
+
+    onMount(() => {
+        document.body.addEventListener('mousemove', (ev: MouseEvent) => {
+            mousePosition.x = ev.pageX;
+            mousePosition.y = ev.pageY;
+        });
+        game = new Phaser.Game(sceneConfig);
+        if ($currentFloor) {
+            if (!game.scene.getScene('floor-' + $currentFloor.id)) {
+                game.scene.add('floor-' + $currentFloor.id, new FloorScene($currentFloor));
+            }
+            game.scene.start('floor-' + $currentFloor.id);
+        }
+    });
+
+    onDestroy(() => {
+        currentFloorUnsubscribe();
+        matchingRoomsUnsubscribe();
+    });
 
     async function changeMode(newMode: number) {
         mode = newMode;
@@ -415,10 +441,10 @@
     <div class="flex flex-row flex-1 overflow-hidden">
         <nav class="hidden lg:block overflow-auto w-[20%]">
             <ol bind:this={floorListElement} class="p-4 w-full">
-                {#each $floors as floor}
-                    <li>
+                {#each $searchedFloors as [floor, matches]}
+                    <li class="border-r-2 {matches ? 'border-r-blue-600' : 'border-r-neutral-700'}">
                         <Link to="/floor/{floor.id}" class="mb-4 block group hover:underline {floor.id === $currentFloor.id ? 'current-floor' : ''}">
-                            <span class="inline-block {floor.id === $currentFloor.id ? 'bg-blue-800' : 'bg-neutral-600'} px-4 lg:px-3 py-3 lg:py-1 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 lg:group-hover:bg-blue-800 lg:group-focus:bg-blue-800">⇒ {floor.attributes.label}</span>
+                            <span class="inline-block {floor.id === $currentFloor.id ? 'bg-blue-600' : 'bg-neutral-600'} px-4 lg:px-3 py-3 lg:py-1 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 lg:group-hover:bg-blue-800 lg:group-focus:bg-blue-800">⇒ {floor.attributes.label}</span>
                             <span class="flex flex-row flex-wrap text-sm pl-4 pt-2">
                                 {#if $topics[floor.id]}
                                     {#each $topics[floor.id] as topic}
