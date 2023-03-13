@@ -54,7 +54,12 @@ CONFIG_SCHEMA = {
                 'type': 'string',
                 'required': True,
                 'empty': False,
-            }
+            },
+            'key': {
+                'type': 'string',
+                'required': True,
+                'empty': False,
+            },
         }
     },
     'data': {
