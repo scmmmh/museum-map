@@ -6,8 +6,8 @@
 
     import Header from '../components/Header.svelte';
     import Footer from '../components/Footer.svelte';
-    import Thumnail from '../components/Thumbnail.svelte';
-    import { floors, loadRooms, busyCounter, localPreferences, loadTopics } from '../store';
+    import Thumbnail from '../components/Thumbnail.svelte';
+    import { floors, loadRooms, busyCounter, localPreferences, loadTopics, loadItems } from '../store';
     import type { NestedStorage } from '../store/preferences';
 
     const navigate = useNavigate();
@@ -17,6 +17,7 @@
     const MODE_LIST = 2;
     let mode = ($localPreferences.ui && ($localPreferences.ui as NestedStorage).floorDisplayMode) ? ($localPreferences.ui as NestedStorage).floorDisplayMode : MODE_MAP;
     let floorListElement = null as HTMLElement;
+    let hoverRoomTimeout = 0;
 
     type MapObject = {
         position: { x: number, y: number, width: number, height: number },
@@ -54,8 +55,23 @@
                                                     room.attributes.position.height,
                                                     0xffffff);
                     rect.setOrigin(0,0);
+                    rect.setData('room', room);
                     rect.setData('room_id', room.id);
                     rect.setInteractive({useHandCursor: true});
+                    rect.addListener('pointerover', () => {
+                        window.clearTimeout(hoverRoomTimeout);
+                        hoverRoomTimeout = window.setTimeout(() => {
+                            loadItems([(room.relationships.sample.data as JsonApiObjectReference).id]).then((items) => {
+                                hoverRoom.set(room);
+                                samples.set(items);
+                            });
+                        }, 500);
+                    });
+                    rect.addListener('pointerout', () => {
+                        window.clearTimeout(hoverRoomTimeout);
+                        hoverRoom.set(null);
+                        samples.set([]);
+                    });
 
                     const text = this.add.text(room.attributes.position.x + room.attributes.position.width / 2,
                                                room.attributes.position.y + room.attributes.position.height / 2,
@@ -90,6 +106,7 @@
             let mousePointerDown = false;
             let pointer1Down = false;
             let pointer2Down = false;
+            let pointerDownStart = 0;
 
             this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, objectsClicked: Phaser.GameObjects.GameObject[]) => {
                 pointerX = pointer.x;
@@ -98,9 +115,11 @@
                 pointer1Down = pointer1Down || pointer === this.input.pointer1;
                 pointer2Down = pointer2Down || pointer === this.input.pointer2;
                 baseZoom = this.zoom;
+                pointerDownStart = (new Date()).getTime();
             });
             this.input.on('pointermove', (pointer: Phaser.Input.Pointer, objectsClicked: Phaser.GameObjects.GameObject[]) => {
                 if ((mousePointerDown || pointer1Down) && !pointer2Down) {
+                    // Drag the map around
                     if (Math.sqrt(Math.pow(pointer.downX - pointer.upX, 2) + Math.pow(pointer.downY - pointer.upY, 2)) >= 5) {
                         this.cameraPosition.x = this.cameraPosition.x + pointerX - pointer.x;
                         this.cameraPosition.y = this.cameraPosition.y + pointerY - pointer.y;
@@ -108,8 +127,8 @@
                         pointerX = pointer.x;
                         pointerY = pointer.y;
                     }
-                }
-                if (pointer1Down && pointer2Down) {
+                } else if (pointer1Down && pointer2Down) {
+                    // Zoom with two fingers
                     const startDelta = (Math.sqrt(Math.pow(this.input.pointer1.downX - this.input.pointer2.downX, 2) + Math.pow(this.input.pointer1.downY - this.input.pointer2.downY, 2)));
                     const endDelta = (Math.sqrt(Math.pow(this.input.pointer1.x - this.input.pointer2.x, 2) + Math.pow(this.input.pointer1.y - this.input.pointer2.y, 2)));
                     const steps = (endDelta - startDelta) / 20;
@@ -134,7 +153,19 @@
                 if ((mousePointerDown || pointer1Down) && !pointer2Down) {
                     if (Math.sqrt(Math.pow(pointer.downX - pointer.upX, 2) + Math.pow(pointer.downY - pointer.upY, 2)) < 5) {
                         if (objectsClicked.length > 0) {
-                            navigate('/room/' + objectsClicked[0].getData('room_id'));
+                            const pointerDownEnd = (new Date()).getTime();
+                            if (pointerDownEnd - pointerDownStart > 500) {
+                                tick().then(() => {
+                                    const room = objectsClicked[0].getData('room');
+                                    hoverRoom.set(room);
+                                    loadItems([(room.relationships.sample.data as JsonApiObjectReference).id]).then((items) => {
+                                        hoverRoom.set(room);
+                                        samples.set(items);
+                                    });
+                                })
+                            } else {
+                                navigate('/room/' + objectsClicked[0].getData('room_id'));
+                            }
                         }
                     }
                 }
@@ -221,8 +252,13 @@
     const hoverRoom = writable(null as JsonApiObject | null);
     const samples = writable([] as JsonApiObject[]);
     let game = null as Phaser.Game;
+    const mousePosition = {x: -1, y: -1};
 
     onMount(() => {
+        document.body.addEventListener('mousemove', (ev: MouseEvent) => {
+            mousePosition.x = ev.pageX;
+            mousePosition.y = ev.pageY;
+        });
         game = new Phaser.Game(sceneConfig);
         if ($currentFloor) {
             if (!game.scene.getScene('floor-' + $currentFloor.id)) {
@@ -413,6 +449,31 @@
                 </div>
             </nav>
             <div id="game" class="w-full h-full {mode === MODE_MAP ? '' : 'hidden'}" aria-hidden="true"></div>
+            {#if $hoverRoom && $samples.length > 0}
+                <div class="hidden lg:fixed lg:flex flex-col z-50 shadow-lg w-[150px] h-[150px] overflow-hidden bg-neutral-600" style="left: {mousePosition.x}px; top: {mousePosition.y}px;">
+                    <h3 class="truncate block px-2 py-1 hover:underline focus:underline bg-blue-800 text-white">{$hoverRoom.attributes.label}</h3>
+                    <ul class="flex-1 flex flex-col overflow-hidden px-2 pb-2">
+                        {#each $samples as sample}
+                            <li class="flex-1 overflow-hidden"><Thumbnail item={sample} noTitle={true}/></li>
+                        {/each}
+                    </ul>
+                </div>
+                <div class="fixed lg:hidden bottom-0 left-0 flex flex-col z-50 shadow-lg w-screen h-[150px] overflow-hidden bg-neutral-600">
+                    <h3 class="flex flex-row px-2 py-1 bg-blue-800 text-white">
+                        <Link to="/room/{$hoverRoom.id}" class="flex-1 truncate block hover:underline focus:underline">{$hoverRoom.attributes.label}</Link>
+                        <button on:click={() => { hoverRoom.set(null); samples.set([]); }} aria-label="Close">
+                            <svg viewBox="0 0 24 24" class="w-6 h-6">
+                                <path fill="currentColor" d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41L14.59,8Z" />
+                            </svg>
+                        </button>
+                    </h3>
+                    <ul class="flex-1 flex flex-col overflow-hidden px-2 pb-2">
+                        {#each $samples as sample}
+                            <li class="flex-1 overflow-hidden"><Thumbnail item={sample} noTitle={true}/></li>
+                        {/each}
+                    </ul>
+                </div>
+            {/if}
             <div class="{mode === MODE_LIST ? '' : 'hidden'}">
                 <ol class="px-4 pb-6 pt-2 columns-sm">
                     {#each $rooms as room}
