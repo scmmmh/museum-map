@@ -450,7 +450,7 @@
             </nav>
             <div id="game" class="w-full h-full {mode === MODE_MAP ? '' : 'hidden'}" aria-hidden="true"></div>
             {#if $hoverRoom && $samples.length > 0}
-                <div class="hidden lg:fixed lg:flex flex-col z-50 shadow-lg w-[150px] h-[150px] overflow-hidden bg-neutral-600" style="left: {mousePosition.x}px; top: {mousePosition.y}px;">
+                <div class="hidden lg:fixed lg:flex flex-col z-50 shadow-lg w-[150px] h-[150px] overflow-hidden bg-neutral-600" style="left: {mousePosition.x + 5}px; top: {mousePosition.y + 5}px;">
                     <h3 class="truncate block px-2 py-1 hover:underline focus:underline bg-blue-800 text-white">{$hoverRoom.attributes.label}</h3>
                     <ul class="flex-1 flex flex-col overflow-hidden px-2 pb-2">
                         {#each $samples as sample}
