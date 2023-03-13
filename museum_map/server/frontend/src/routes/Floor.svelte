@@ -452,7 +452,7 @@
             {#if $hoverRoom && $samples.length > 0}
                 <div class="hidden lg:fixed lg:flex flex-col z-50 shadow-lg w-[150px] h-[150px] overflow-hidden bg-neutral-600" style="left: {mousePosition.x + 5}px; top: {mousePosition.y + 5}px;">
                     <h3 class="truncate block px-2 py-1 hover:underline focus:underline bg-blue-800 text-white">{$hoverRoom.attributes.label}</h3>
-                    <ul class="flex-1 flex flex-col overflow-hidden px-2 pb-2">
+                    <ul class="flex-1 flex flex-col overflow-hidden px-2 py-2">
                         {#each $samples as sample}
                             <li class="flex-1 overflow-hidden"><Thumbnail item={sample} noTitle={true}/></li>
                         {/each}
@@ -467,7 +467,7 @@
                             </svg>
                         </button>
                     </h3>
-                    <ul class="flex-1 flex flex-col overflow-hidden px-2 pb-2">
+                    <ul class="flex-1 flex flex-col overflow-hidden px-2 py-2">
                         {#each $samples as sample}
                             <li class="flex-1 overflow-hidden"><Thumbnail item={sample} noTitle={true}/></li>
                         {/each}
