@@ -46,6 +46,17 @@ CONFIG_SCHEMA = {
             },
         }
     },
+    'search': {
+        'type': 'dict',
+        'required': True,
+        'schema': {
+            'url': {
+                'type': 'string',
+                'required': True,
+                'empty': False,
+            }
+        }
+    },
     'data': {
         'type': 'dict',
         'required': True,

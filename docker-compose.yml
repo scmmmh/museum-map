@@ -8,5 +8,15 @@ services:
       - postgres:/var/lib/postgresql/data
     ports:
       - "127.0.0.1:5432:5432"
+  meilisearch:
+    image: getmeili/meilisearch:v1.0
+    environment:
+      - MEILI_ENV=development
+      - MEILI_MASTER_KEY=ff2e87a28b482fd787091a5824e05af3
+    volumes:
+      - meilisearch:/meili_data
+    ports:
+      - "127.0.0.1:7700:7700"
 volumes:
   postgres:
+  meilisearch:
