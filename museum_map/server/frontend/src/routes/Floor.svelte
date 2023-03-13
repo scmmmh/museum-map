@@ -73,7 +73,7 @@
                         text: text,
                     });
                 }
-                this.scaleObjects(false);
+                this.scaleObjects(false, false);
                 busyCounter.stop();
             });
 
@@ -82,7 +82,7 @@
                 y: -this.game.canvas.height / 2 + this.baseMap.height / 2
             };
             this.zoom = Math.min(this.game.canvas.width / this.baseMap.width * 0.9, this.game.canvas.height / this.baseMap.height * 0.9);
-            this.scaleObjects(true);
+            this.scaleObjects(true, true);
 
             let pointerX = 0;
             let pointerY = 0;
@@ -104,7 +104,7 @@
                     if (Math.sqrt(Math.pow(pointer.downX - pointer.upX, 2) + Math.pow(pointer.downY - pointer.upY, 2)) >= 5) {
                         this.cameraPosition.x = this.cameraPosition.x + pointerX - pointer.x;
                         this.cameraPosition.y = this.cameraPosition.y + pointerY - pointer.y;
-                        this.scaleObjects(false);
+                        this.scaleObjects(false, false);
                         pointerX = pointer.x;
                         pointerY = pointer.y;
                     }
@@ -127,7 +127,7 @@
                     const centerY = this.input.pointer1.y + (this.input.pointer2.y - this.input.pointer1.y) / 2;
                     this.cameraPosition.x = this.cameraPosition.x + (newWidth - baseWidth) * ((centerX + this.cameraPosition.x) / this.baseMap.displayWidth);
                     this.cameraPosition.y = this.cameraPosition.y + (newHeight - baseHeight) * ((centerY + this.cameraPosition.y) / this.baseMap.displayHeight);
-                    this.scaleObjects(false);
+                    this.scaleObjects(false, false);
                 }
             });
             this.input.on('pointerup', (pointer: Phaser.Input.Pointer, objectsClicked: Phaser.GameObjects.GameObject[]) => {
@@ -155,46 +155,48 @@
                 const newHeight = this.baseMap.displayHeight;
                 this.cameraPosition.x = this.cameraPosition.x + (newWidth - baseWidth) * ((pointer.x + this.cameraPosition.x) / this.baseMap.displayWidth);
                 this.cameraPosition.y = this.cameraPosition.y + (newHeight - baseHeight) * ((pointer.y + this.cameraPosition.y) / this.baseMap.displayHeight);
-                this.scaleObjects(false);
+                this.scaleObjects(false, false);
             });
 
             this.scale.on('resize', () => {
                 this.zoom = Math.min(this.game.canvas.width / this.baseMap.width * 0.9, this.game.canvas.height / this.baseMap.height * 0.9);
-                this.scaleObjects(true);
+                this.scaleObjects(true, false);
             });
         }
 
-        scaleObjects(center: boolean) {
-            this.baseMap.setScale(this.zoom);
-            if (center) {
-                this.cameraPosition = {
-                    x: -this.game.canvas.width / 2 + this.baseMap.displayWidth / 2,
-                    y: -this.game.canvas.height / 2 + this.baseMap.displayHeight / 2
-                };
-            }
-            if (this.cameras && this.cameras.main) {
-                this.cameras.main.setScroll(this.cameraPosition.x, this.cameraPosition.y);
-            }
-            for (const obj of this.roomObjects) {
-                obj.rect.x = obj.position.x * this.zoom;
-                obj.rect.y = obj.position.y * this.zoom;
-                obj.rect.width = obj.position.width * this.zoom;
-                obj.rect.height = obj.position.height * this.zoom;
-                obj.rect.input.hitArea.setTo(0, 0, obj.position.width * this.zoom, obj.position.height * this.zoom);
-                obj.text.x = obj.rect.x + obj.rect.width / 2;
-                obj.text.y = obj.rect.y + obj.rect.height / 2;
-                obj.text.setFontSize(this.zoom > 1 ? 16 : 13);
-                let fontSize = this.zoom > 1 ? 15 : 12;
-                if (obj.position.height > obj.position.width) {
-                    obj.text.setRotation(1.5708);
-                    while (obj.text.width > obj.rect.height - 4 && fontSize >= 4) {
-                        obj.text.setFontSize(fontSize);
-                        fontSize = fontSize - 1;
-                    }
-                } else {
-                    while (obj.text.width > obj.rect.width - 4 && fontSize >= 4) {
-                        obj.text.setFontSize(fontSize);
-                        fontSize = fontSize - 1;
+        scaleObjects(center: boolean, force: boolean) {
+            if (this.game.scene.isActive('floor-' + this.floor.id) || force) {
+                this.baseMap.setScale(this.zoom);
+                if (center) {
+                    this.cameraPosition = {
+                        x: -this.game.canvas.width / 2 + this.baseMap.displayWidth / 2,
+                        y: -this.game.canvas.height / 2 + this.baseMap.displayHeight / 2
+                    };
+                }
+                if (this.cameras && this.cameras.main) {
+                    this.cameras.main.setScroll(this.cameraPosition.x, this.cameraPosition.y);
+                }
+                for (const obj of this.roomObjects) {
+                    obj.rect.x = obj.position.x * this.zoom;
+                    obj.rect.y = obj.position.y * this.zoom;
+                    obj.rect.width = obj.position.width * this.zoom;
+                    obj.rect.height = obj.position.height * this.zoom;
+                    obj.rect.input.hitArea.setTo(0, 0, obj.position.width * this.zoom, obj.position.height * this.zoom);
+                    obj.text.x = obj.rect.x + obj.rect.width / 2;
+                    obj.text.y = obj.rect.y + obj.rect.height / 2;
+                    obj.text.setFontSize(this.zoom > 1 ? 16 : 13);
+                    let fontSize = this.zoom > 1 ? 15 : 12;
+                    if (obj.position.height > obj.position.width) {
+                        obj.text.setRotation(1.5708);
+                        while (obj.text.width > obj.rect.height - 4 && fontSize >= 4) {
+                            obj.text.setFontSize(fontSize);
+                            fontSize = fontSize - 1;
+                        }
+                    } else {
+                        while (obj.text.width > obj.rect.width - 4 && fontSize >= 4) {
+                            obj.text.setFontSize(fontSize);
+                            fontSize = fontSize - 1;
+                        }
                     }
                 }
             }
@@ -278,12 +280,19 @@
             if (!game.scene.getScene('floor-' + currentFloor.id)) {
                 game.scene.add('floor-' + currentFloor.id, new FloorScene(currentFloor));
             }
+            let currentActive = false;
             for (const scene of game.scene.getScenes()) {
                 if (game.scene.isActive(scene)) {
-                    game.scene.stop(scene);
+                    if ((scene as FloorScene).floor.id === currentFloor.id) {
+                        currentActive = true;
+                    } else {
+                        game.scene.stop(scene);
+                    }
                 }
             }
-            game.scene.start('floor-' + currentFloor.id);
+            if (!currentActive) {
+                game.scene.start('floor-' + currentFloor.id);
+            }
             if (floorListElement) {
                 tick().then(() => {
                     const currentElement = floorListElement.querySelector('.current-floor') as HTMLElement;
