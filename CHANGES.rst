@@ -5,6 +5,7 @@ Dev
 ---
 
 * **New**: Implemented search
+* **Bugfix**: Fixed an a11y issue in the floor display
 
 0.7.1
 -----
