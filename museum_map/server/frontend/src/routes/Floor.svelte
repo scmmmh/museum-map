@@ -384,6 +384,12 @@
         });
     }, [] as [JsonApiObject, boolean][]);
 
+    const searchedRooms = derived([rooms, matchingRooms], ([rooms, matchingRooms]) => {
+        return rooms.map((room) => {
+            return [room, matchingRooms.indexOf(room.id) >= 0];
+        });
+    }, [] as [JsonApiObject, boolean][]);
+
     onMount(() => {
         document.body.addEventListener('mousemove', (ev: MouseEvent) => {
             mousePosition.x = ev.pageX;
@@ -457,7 +463,7 @@
                 {/each}
             </ol>
         </nav>
-        <article class="flex-1 overflow-hidden relative">
+        <article id="content" class="flex-1 overflow-hidden relative">
             <nav class="hidden lg:flex flex-row absolute right-0 top-0">
                 <div class="flex-none mr-2 lg:mr-4 mt-2 lg:mt-4">
                     <button on:click={() => { changeMode(MODE_MAP); }} class="inline-block bg-neutral-600 px-3 py-3 lg:py-3 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 {mode === MODE_MAP ? 'bg-blue-800' : ''}" aria-label="Explore the museum's map">
@@ -502,8 +508,10 @@
             {/if}
             <div class="{mode === MODE_LIST ? '' : 'hidden'}">
                 <ol class="px-4 pb-6 pt-2 columns-sm">
-                    {#each $rooms as room}
-                        <li><Link to="/room/{room.id}" class="block py-2 hover:underline focus:underline">{room.attributes.label}</Link></li>
+                    {#each $searchedRooms as [room, matches]}
+                        <li class="flex flex-row px-3 py-1 mb-3 {matches ? 'bg-blue-600 rounded-lg data-matching' : ''}">
+                            <Link to="/room/{room.id}" class="flex-1 block py-2 hover:underline focus:underline">{room.attributes.label}</Link>
+                        </li>
                     {/each}
                 </ol>
             </div>

@@ -53,6 +53,7 @@
 <header class="sticky top-0 shadow-even shadow-black z-20 bg-inherit">
     <div class="flex flex-row border-b border-b-neutral-500 items-center">
         <h1 class="flex-1 text-lg font-bold px-2 py-2">{title}</h1>
+        <a href="#content" class="block fixed z-50 top-[-200px] focus:top-0 left-1/2 transform -translate-x-1/2 bg-neutral-600 px-10 py-2 rounded-b-lg shadow-even shadow-black">Jump to content</a>
         {#if $isBusy}
             <div class="sr-only" role="alert">Loading data</div>
             <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" class="flex-none w-8 h-6 pr-2" aria-hidden="true">
@@ -65,14 +66,14 @@
                 </g>
             </svg>
         {/if}
-        <form class="px-2 relative" on:submit={(ev) => { ev.preventDefault(); }}>
-            <input bind:this={searchElement} bind:value={$searchTerm} type="search" placeholder="Search the museum..." class="px-2 py-1 border rounded-lg text-black"/>
-            <button on:click={() => { searchTerm.set(''); }} type="button" class="block absolute right-[0.5rem] top-1/2 transform -translate-y-1/2 text-black" aria-label={$searchTerm.trim() === '' ? 'Search the museum': 'Clear your search'}>
-                <svg viewBox="0 0 24 24" class="w-8 h-8" aria-hidden="true">
+        <form class="flex flex-row border rounded-lg text-black bg-white text-black relative" on:submit={(ev) => { ev.preventDefault(); }}>
+            <input bind:this={searchElement} bind:value={$searchTerm} type="search" placeholder="Search the museum..." class="block flex-1 px-2 py-1 bg-transparent items-center"/>
+            <button on:click={() => { searchTerm.set(''); searchElement.focus(); }} type="button" class="block" aria-label={$searchTerm.trim() === '' ? 'Search the museum': 'Clear your search'}>
+                <svg viewBox="0 0 24 24" class="w-6 h-6" aria-hidden="true">
                     {#if $searchTerm.trim() === ''}
                         <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
                     {:else}
-                        <path fill="currentColor" d="M20 6.91L17.09 4L12 9.09L6.91 4L4 6.91L9.09 12L4 17.09L6.91 20L12 14.91L17.09 20L20 17.09L14.91 12L20 6.91Z" />
+                        <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
                     {/if}
                 </svg>
             </button>

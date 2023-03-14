@@ -82,10 +82,10 @@
 
 {#if $currentRoom && $currentFloor}
     <Header title="{$currentRoom.attributes.label}" nav={[{label: $currentFloor.attributes.label, path: '/floor/' + $currentFloor.id}, {label: $currentRoom.attributes.label, path: '/room/' + $currentRoom.id}]}/>
-    <article>
+    <article id="content">
         <ul class="grid grid-cols-1 md:grid-cols-items justify-around p-4 overflow-hidden">
             {#each $items as [item, matches]}
-                <li class="p-4 {matches ? 'bg-blue-600 rounded-lg data-matching' : ''}"><Thumnail item={item} on:load={debounceFocusFirstMatch}/></li>
+                <li class="p-4 mb-3 {matches ? 'bg-blue-600 rounded-lg data-matching' : ''}"><Thumnail item={item} on:load={debounceFocusFirstMatch}/></li>
             {/each}
         </ul>
         <Route path=":iid"><Item/></Route>
