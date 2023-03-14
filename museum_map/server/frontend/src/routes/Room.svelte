@@ -46,32 +46,38 @@
         return [];
     }, []);
 
-    const unsubscribeMatchingItems = matchingItems.subscribe((matchingItems) => {
-        if (matchingItems.length > 0) {
-            tick().then(() => {
-                const firstMatch = document.querySelector('li.data-matching');
-                if (firstMatch) {
-                    firstMatch.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                    });
-                }
-            });
-        }
+    const unsubscribeItems = items.subscribe((items) => {
+        tick().then(() => {
+            focusFirstMatch(true);
+        });
     });
 
     onMount(() => {
         tick().then(() => {
-            const firstMatch = document.querySelector('li.data-matching');
-            if (firstMatch) {
-                firstMatch.scrollIntoView({
-                    block: 'center',
-                });
-            }
+            focusFirstMatch(false);
         });
     });
 
-    onDestroy(unsubscribeMatchingItems);
+    onDestroy(unsubscribeItems);
+
+    function focusFirstMatch(smooth: boolean) {
+        const firstMatch = document.querySelector('li.data-matching');
+        if (firstMatch) {
+            firstMatch.scrollIntoView({
+                block: 'center',
+                behavior: smooth ? 'smooth' : 'auto',
+            });
+        }
+    }
+
+    let debounceFocusFirstMatchTimeout = -1;
+
+    function debounceFocusFirstMatch() {
+        window.clearTimeout(debounceFocusFirstMatchTimeout);
+        debounceFocusFirstMatchTimeout = window.setTimeout(() => {
+            focusFirstMatch(true);
+        }, 50);
+    }
 </script>
 
 {#if $currentRoom && $currentFloor}
@@ -79,7 +85,7 @@
     <article>
         <ul class="grid grid-cols-1 md:grid-cols-items justify-around p-4 overflow-hidden">
             {#each $items as [item, matches]}
-                <li class="p-4 {matches ? 'bg-blue-600 rounded-lg data-matching' : ''}"><Thumnail item={item}/></li>
+                <li class="p-4 {matches ? 'bg-blue-600 rounded-lg data-matching' : ''}"><Thumnail item={item} on:load={debounceFocusFirstMatch}/></li>
             {/each}
         </ul>
         <Route path=":iid"><Item/></Route>
