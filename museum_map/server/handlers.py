@@ -6,7 +6,7 @@ from configparser import ConfigParser
 from datetime import datetime
 from importlib import resources
 from importlib.abc import Traversable
-from meilisearch import Client
+from meilisearch_python_async import Client
 from mimetypes import guess_type
 from random import randint
 from sqlalchemy import select, func
@@ -149,9 +149,11 @@ class APIPickHandler(RequestBase):
 
 class APISearchHandler(RequestBase):
 
-    def initialize(self: 'APISearchHandler'):
-        client = Client(self.application.settings['config']['search']['url'], self.application.settings['config']['search']['key'])
-        self._index = client.get_index('items')
+    async def initialize(self: 'APISearchHandler'):
+        async with Client(
+            self.application.settings['config']['search']['url'], self.application.settings['config']['search']['key']
+        ) as client:
+            self._index = await client.get_index('items')
 
     async def get(self):
         self.write(self._index.search(self.get_argument('q'), {
