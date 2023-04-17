@@ -74,7 +74,7 @@
 
 <header class="sticky top-0 shadow-even shadow-black z-20 bg-inherit">
     <div class="flex flex-row border-b border-b-neutral-500 items-center">
-        <h1 class="{showSearch ? 'truncate': ''} flex-1 text-lg font-bold px-2 py-2">{title}</h1>
+        <h1 class="{showSearch ? 'truncate': ''} flex-1 text-lg font-bold px-2 py-2 md:mr-4">{title}</h1>
         <a href="#content" class="block fixed z-50 top-[-200px] focus:top-0 left-1/2 transform -translate-x-1/2 bg-neutral-600 px-10 py-2 rounded-b-lg shadow-even shadow-black">Jump to content</a>
         {#if $isBusy}
             <div class="sr-only" role="alert">Loading data</div>
@@ -104,7 +104,7 @@
     <nav class="flex flex-row items-start" aria-label="Main">
         <ol class="flex-1 flex flex-col md:flex-row md:child-separator">
             <li class="flex-none {!showNav && nav.length > 0 ? 'hidden md:block': ''}">
-                <Link to="/" class="inline-block px-2 py-3 hover:underline focus:underline">Lobby</Link>
+                <Link to="/" class="inline-block px-2 py-3 hover:underline focus:underline" on:click={() => { searchTerm.set(''); }}>Lobby</Link>
             </li>
             {#if nav}
                 {#each nav as item, idx}
