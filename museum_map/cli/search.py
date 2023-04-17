@@ -19,7 +19,7 @@ async def index_impl(config):
             try:
                 index = await client.get_index('items')
                 task = await index.delete()
-                await wait_for_task(client, task.task_uid, timeout_in_ms=300000)
+                await wait_for_task(client, task.task_uid, timeout_in_ms=None)
             except Exception:
                 pass
             items_idx = await client.create_index('items', primary_key='mmap_id')
@@ -40,16 +40,16 @@ async def index_impl(config):
                         docs.append(doc)
                 tasks = await items_idx.add_documents_in_batches(docs, batch_size=1000)
                 for task in tasks:
-                    await wait_for_task(client, task.uid, timeout_in_ms=300000)
+                    await wait_for_task(client, task.uid, timeout_in_ms=None)
             progress = ClickIndeterminate('Updating filterable attributes')
             progress.start()
             task = await items_idx.update_filterable_attributes(['mmap_room', 'mmap_floor'])
-            await wait_for_task(client, task.task_uid, timeout_in_ms=300000)
+            await wait_for_task(client, task.task_uid, timeout_in_ms=None)
             progress.stop()
             progress = ClickIndeterminate('Updating faceting settings')
             progress.start()
             task = await items_idx.update_faceting(Faceting(max_values_per_facet=1000))
-            await wait_for_task(client, task.task_uid, timeout_in_ms=300000)
+            await wait_for_task(client, task.task_uid, timeout_in_ms=None)
             progress.stop()
 
 
