@@ -1,8 +1,15 @@
 Changelog
 =========
 
-Dev
----
+0.8.0
+-----
+
+* **Update**: Updated the search library
+* **Bugfix**: Fixed an issue with navigating to the lobby after searching
+* **Bugfix**: Fixed a layout issue with the heading
+
+0.7.3
+-----
 
 * **New**: Implemented search
 * **Bugfix**: Fixed an a11y issue in the floor display
