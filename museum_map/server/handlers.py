@@ -149,18 +149,26 @@ class APIPickHandler(RequestBase):
 
 class APISearchHandler(RequestBase):
 
-    async def initialize(self: 'APISearchHandler'):
-        async with Client(
-            self.application.settings['config']['search']['url'], self.application.settings['config']['search']['key']
-        ) as client:
-            self._index = await client.get_index('items')
+    def initialize(self: 'APISearchHandler'):
+        self._client = Client(
+            self.application.settings['config']['search']['url'],
+            self.application.settings['config']['search']['key']
+        )
+        self._index = None
 
-    async def get(self):
-        self.write(self._index.search(self.get_argument('q'), {
-            'limit': 150,
-            'facets': ['mmap_room', 'mmap_floor'],
-            'filter': [f'mmap_room = {self.get_argument("room")}'] if self.get_argument('room', default=None) != None else []
-        }))
+    async def get(self: 'APISearchHandler'):
+        if self._index is None:
+            self._index = await self._client.get_index('items')
+        result = await self._index.search(
+            self.get_argument('q'),
+            limit=150,
+            facets=['mmap_room', 'mmap_floor'],
+            filter=[f'mmap_room = {self.get_argument("room")}'] if self.get_argument('room', default=None) != None else []
+        )
+        self.write({
+            'hits': result.hits,
+            'facetDistribution': result.facet_distribution,
+        })
 
 
 class FrontendHandler(web.RedirectHandler):

@@ -28,7 +28,7 @@ async def index_impl(config):
             stmt_count = select(func.count(Room.id))
             result_count = await dbsession.execute(stmt_count)
             docs = []
-            with click.progressbar(result.scalars(), length=result_count.scalar_one(), label='Indexing rooms') as progress:
+            with click.progressbar(result.scalars(), length=result_count.scalar_one(), label='Generating rooms documents') as progress:
                 for room in progress:
                     for item in room.items:
                         doc = {
@@ -38,18 +38,21 @@ async def index_impl(config):
                         }
                         doc.update(item.attributes)
                         docs.append(doc)
-                tasks = await items_idx.add_documents_in_batches(docs, batch_size=1000)
-                for task in tasks:
-                    await wait_for_task(client, task.uid, timeout_in_ms=None)
+            progress = ClickIndeterminate('Waiting for indexing to complete')
+            progress.start()
+            tasks = await items_idx.add_documents_in_batches(docs)
+            for task in tasks:
+                await wait_for_task(client, task.task_uid, timeout_in_ms=None, interval_in_ms=1000)
+            progress.stop()
             progress = ClickIndeterminate('Updating filterable attributes')
             progress.start()
             task = await items_idx.update_filterable_attributes(['mmap_room', 'mmap_floor'])
-            await wait_for_task(client, task.task_uid, timeout_in_ms=None)
+            await wait_for_task(client, task.task_uid, timeout_in_ms=None, interval_in_ms=1000)
             progress.stop()
             progress = ClickIndeterminate('Updating faceting settings')
             progress.start()
             task = await items_idx.update_faceting(Faceting(max_values_per_facet=1000))
-            await wait_for_task(client, task.task_uid, timeout_in_ms=None)
+            await wait_for_task(client, task.task_uid, timeout_in_ms=None, interval_in_ms=1000)
             progress.stop()
 
 
