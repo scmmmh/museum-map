@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.1
+-----
+
+* **Bugfix**: Fixed a security issue in Tornado
+
 0.8.0
 -----
 
