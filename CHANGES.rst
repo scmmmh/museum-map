@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.2
+-----
+
+* **Bugfix**: Fix security issues in dependencies
+
 0.8.1
 -----
 
