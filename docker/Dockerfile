@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.11
 
 ARG MM_USER="museum-map"
 ARG MM_UID="10000"
@@ -14,11 +14,11 @@ RUN apt-get update && \
     apt-get install -y tini
 
 # Copy the application file
-COPY museum_map-0.8.2-py3-none-any.whl /tmp/
+COPY dist/*.whl /tmp/
 
 # Install the application
-RUN python -m pip install /tmp/museum_map-0.8.2-py3-none-any.whl[postgres]
-COPY start_museum_map.sh /usr/bin/
+RUN python -m pip install /tmp/*.whl
+COPY docker/start_museum_map.sh /usr/bin/
 RUN chmod a+x /usr/bin/start_museum_map.sh && \
     mkdir /var/lib/museum-map && \
     mkdir /etc/museum-map && \
