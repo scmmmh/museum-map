@@ -1,55 +1,79 @@
 <script lang="ts">
-	import Root from './routes/Root.svelte';
-	import { fetchFloorTopics, fetchFloors, fetchConfig } from './store';
+  import { onDestroy } from "svelte";
 
-	fetchFloorTopics();
-	fetchFloors();
-	fetchConfig();
+  import Root from "./routes/Root.svelte";
+  import {
+    fetchFloorTopics,
+    fetchFloors,
+    fetchConfig,
+    fetchStatus,
+  } from "./store";
+
+  let statusInterval = window.setInterval(() => {
+    fetchStatus();
+  }, 60000);
+
+  fetchFloorTopics();
+  fetchFloors();
+  fetchConfig();
+  fetchStatus();
+
+  onDestroy(() => {
+    window.clearInterval(statusInterval);
+  });
 </script>
 
 <div class="bg-neutral-600 min-h-screen">
-  <main class="container mx-auto bg-neutral-700 text-white shadow-lg shadow-black font-serif tracking-default">
-	  <Root/>
+  <main
+    class="container mx-auto bg-neutral-700 text-white shadow-lg shadow-black font-serif tracking-default"
+  >
+    <Root />
   </main>
 </div>
 
 <style global>
-	@tailwind base;
-	@tailwind components;
-	@tailwind utilities;
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 
-	@layer utilities {
-		ol.child-separator li::after , ul.child-separator li::after {
-			content: '»';
-		}
+  @layer utilities {
+    ol.child-separator li::after,
+    ul.child-separator li::after {
+      content: "»";
+    }
 
-		ol.child-separator li:last-child::after , ul.child-separator li:last-child::after {
-			content: '';
-		}
+    ol.child-separator li:last-child::after,
+    ul.child-separator li:last-child::after {
+      content: "";
+    }
 
-		ol.list-separator li::after , ul.list-separator li::after {
-			content: ',';
-		}
+    ol.list-separator li::after,
+    ul.list-separator li::after {
+      content: ",";
+    }
 
-		ol.list-separator li:last-child::after , ul.list-separator li:last-child::after {
-			content: '';
-		}
+    ol.list-separator li:last-child::after,
+    ul.list-separator li:last-child::after {
+      content: "";
+    }
 
-		.hover-parent:hover .hover-child-underline, .hover-parent:focus .hover-child-underline {
-			@apply underline;
-		}
+    .hover-parent:hover .hover-child-underline,
+    .hover-parent:focus .hover-child-underline {
+      @apply underline;
+    }
 
-		.img-brightness img {
-			@apply brightness-75;
-		}
-	}
+    .img-brightness img {
+      @apply brightness-75;
+    }
+  }
 
-	@layer components {
-		figure.title-hover figcaption {
-			@apply opacity-0 transition-opacity duration-300;
-		}
-		figure.title-hover:hover figcaption, figure.title-hover:focus figcaption {
-			@apply opacity-100;
-		}
-	}
+  @layer components {
+    figure.title-hover figcaption {
+      @apply opacity-0 transition-opacity duration-300;
+    }
+    figure.title-hover:hover figcaption,
+    figure.title-hover:focus figcaption {
+      @apply opacity-100;
+    }
+  }
 </style>

@@ -1,9 +1,9 @@
 import { busyCounter, isBusy } from './busy';
 import { itemOfTheDay, fetchItemOfTheDay, randomItemsSelection, fetchRandomItemsSelection } from './picks';
-import { floorTopics, fetchFloorTopics, majorCollections, floors, fetchFloors} from './floors';
+import { floorTopics, fetchFloorTopics, majorCollections, floors, fetchFloors } from './floors';
 import { cachedRooms, loadRooms } from './rooms';
 import { cachedItems, loadItems } from './items';
-import { config, fetchConfig } from './config';
+import { config, fetchConfig, status, fetchStatus, isUpdatable } from './config';
 import { cachedTopics, loadTopics } from './topics';
 import { localPreferences } from './preferences';
 import { searchTerm, searchRoom, matchingFloors, matchingRooms, matchingItems } from './search';
@@ -34,6 +34,9 @@ export {
 
     config,
     fetchConfig,
+    status,
+    fetchStatus,
+    isUpdatable,
 
     localPreferences,
 

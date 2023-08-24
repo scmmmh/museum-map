@@ -14,6 +14,7 @@ from sqlalchemy.orm import selectinload, noload
 from sqlalchemy.ext.asyncio import AsyncSession
 from tornado import web
 
+from museum_map.__about__ import __version__
 from ..models import create_sessionmaker, Floor, FloorTopic, Room, Group, Item
 
 
@@ -21,45 +22,53 @@ logger = logging.getLogger(__name__)
 
 
 def setup_query(types, multi_load):
-        query = None
-        class_ = None
-        if multi_load:
-            multi_loader = selectinload
-        else:
-            multi_loader = noload
-        if types == 'rooms':
-            query = select(Room).options(selectinload(Room.floor), multi_loader(Room.items), selectinload(Room.sample))
-            class_ = Room
-        elif types == 'floors':
-            query = select(Floor).options(multi_loader(Floor.rooms), multi_loader(Floor.samples), multi_loader(Floor.topics))
-            class_ = Floor
-        elif types == 'items':
-            query = select(Item).options(selectinload(Item.room))
-            class_ = Item
-        elif types == 'floor-topics':
-            query = select(FloorTopic).options(selectinload(FloorTopic.group), selectinload(FloorTopic.floor))
-            class_ = FloorTopic
-        elif types == 'groups':
-            query = select(Group)
-            class_ = Group
-        return (query, class_)
+    query = None
+    class_ = None
+    if multi_load:
+        multi_loader = selectinload
+    else:
+        multi_loader = noload
+    if types == 'rooms':
+        query = select(Room).options(selectinload(Room.floor), multi_loader(Room.items), selectinload(Room.sample))
+        class_ = Room
+    elif types == 'floors':
+        query = select(Floor).options(
+            multi_loader(Floor.rooms), multi_loader(Floor.samples), multi_loader(Floor.topics)
+        )
+        class_ = Floor
+    elif types == 'items':
+        query = select(Item).options(selectinload(Item.room))
+        class_ = Item
+    elif types == 'floor-topics':
+        query = select(FloorTopic).options(selectinload(FloorTopic.group), selectinload(FloorTopic.floor))
+        class_ = FloorTopic
+    elif types == 'groups':
+        query = select(Group)
+        class_ = Group
+    return (query, class_)
+
+
+class APIStatusHandler(web.RequestHandler):
+    async def get(self):
+        async with create_sessionmaker(self.application.settings['config'])() as session:
+            ready = False
+
+        self.write({'version': __version__, 'ready': ready})
 
 
 class RequestBase(web.RequestHandler):
-
     def setup_query(self, types):
         return setup_query(types, not self.get_argument('relationships', 'true').lower() == 'false')
 
 
 class APICollectionHandler(RequestBase):
-
     async def get(self, types):
         async with create_sessionmaker(self.application.settings['config'])() as session:
             query, class_ = self.setup_query(types)
             if query is not None and class_ is not None:
                 for key, values in self.request.arguments.items():
                     if key.startswith('filter['):
-                        column = key[key.find('[') + 1:key.find(']')]
+                        column = key[key.find('[') + 1 : key.find(']')]
                         if values == '':
                             query = query.filter(getattr(class_, column).in_([]))
                         else:
@@ -81,7 +90,6 @@ class APICollectionHandler(RequestBase):
 
 
 class APIItemHandler(RequestBase):
-
     async def get(self, types, identifier):
         async with create_sessionmaker(self.application.settings['config'])() as session:
             query, class_ = self.setup_query(types)
@@ -97,7 +105,6 @@ class APIItemHandler(RequestBase):
 
 
 class APIConfigHandler(web.RequestHandler):
-
     def initialize(self, config: dict) -> None:
         self._config = config
 
@@ -115,18 +122,13 @@ class APIConfigHandler(web.RequestHandler):
                         'label': self._config['app']['footer'][footer_location]['label']
                     }
                     if 'url' in self._config['app']['footer'][footer_location]:
-                        attributes['footer'][footer_location]['url'] = self._config['app']['footer'][footer_location]['url']
-        self.write({
-            'data': {
-                'id': 'all',
-                'type': 'configs',
-                'attributes': attributes
-            }
-        })
+                        attributes['footer'][footer_location]['url'] = self._config['app']['footer'][footer_location][
+                            'url'
+                        ]
+        self.write({'data': {'id': 'all', 'type': 'configs', 'attributes': attributes}})
 
 
 class APIPickHandler(RequestBase):
-
     async def get(self, type):
         if type in ['random', 'todays']:
             async with create_sessionmaker(self.application.settings['config'])() as session:
@@ -148,11 +150,9 @@ class APIPickHandler(RequestBase):
 
 
 class APISearchHandler(RequestBase):
-
     def initialize(self: 'APISearchHandler'):
         self._client = Client(
-            self.application.settings['config']['search']['url'],
-            self.application.settings['config']['search']['key']
+            self.application.settings['config']['search']['url'], self.application.settings['config']['search']['key']
         )
         self._index = None
 
@@ -163,12 +163,16 @@ class APISearchHandler(RequestBase):
             self.get_argument('q'),
             limit=150,
             facets=['mmap_room', 'mmap_floor'],
-            filter=[f'mmap_room = {self.get_argument("room")}'] if self.get_argument('room', default=None) != None else []
+            filter=[f'mmap_room = {self.get_argument("room")}']
+            if self.get_argument('room', default=None) != None
+            else [],
         )
-        self.write({
-            'hits': result.hits,
-            'facetDistribution': result.facet_distribution,
-        })
+        self.write(
+            {
+                'hits': result.hits,
+                'facetDistribution': result.facet_distribution,
+            }
+        )
 
 
 class FrontendHandler(web.RedirectHandler):
@@ -181,7 +185,6 @@ class FrontendHandler(web.RedirectHandler):
             self._html_injectors = html_injectors
         else:
             self._html_injectors = {}
-
 
     async def get(self: 'FrontendHandler', path: str) -> None:
         """Get the file at the given path.
@@ -197,9 +200,11 @@ class FrontendHandler(web.RedirectHandler):
             await self._get_resource(self._base, path.split('/'))
         except FileNotFoundError:
             logger.debug('Sending index.html')
-            await self._get_resource(self._base, ('index.html', ), orig_path=path)
+            await self._get_resource(self._base, ('index.html',), orig_path=path)
 
-    async def _get_resource(self: 'FrontendHandler', resource: Traversable, path: list[str], orig_path: str = None) -> None:  # noqa: E501
+    async def _get_resource(
+        self: 'FrontendHandler', resource: Traversable, path: list[str], orig_path: str = None
+    ) -> None:  # noqa: E501
         """Send a file.
 
         Performs mimetype guessing and sets the appropriate Content-Type header.
@@ -233,6 +238,7 @@ class FrontendHandler(web.RedirectHandler):
 
 def create_inject_item_html(config):
     """Inject Twitter card meta tags."""
+
     async def inject_item_html(room_id: str, joke_id: str) -> str:
         try:
             async with create_sessionmaker(config)() as session:

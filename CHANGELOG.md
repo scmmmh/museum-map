@@ -2,6 +2,7 @@
 
 ## Dev
 
+* **New**: Add an indicator when a frontend reload is required
 * **Chore**: Update all dependencies
 * **Chore**: Switch to using hatch
 

@@ -33,4 +33,7 @@ update_version(
     "museum_map/server/frontend/package.json", r'(^  "version": ")[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?(",$)', VERSION
 )
 update_version("museum_map/__about__.py", r'(^__version__ = ")[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?("$)', VERSION)
+update_version(
+    "museum_map/server/frontend/src/store/config.ts", r'^(.*)[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?(.*$)', VERSION
+)
 update_version("CHANGELOG.md", r"(## )Dev($)", VERSION)
