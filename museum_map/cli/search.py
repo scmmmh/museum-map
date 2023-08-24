@@ -38,12 +38,10 @@ async def index_impl(config):
                         }
                         doc.update(item.attributes)
                         docs.append(doc)
-            progress = ClickIndeterminate('Waiting for indexing to complete')
-            progress.start()
             tasks = await items_idx.add_documents_in_batches(docs)
-            for task in tasks:
-                await wait_for_task(client, task.task_uid, timeout_in_ms=None, interval_in_ms=1000)
-            progress.stop()
+            with click.progressbar(tasks, label='Waiting for indexing to complete') as progress:
+                for task in progress:
+                    await wait_for_task(client, task.task_uid, timeout_in_ms=None, interval_in_ms=1000)
             progress = ClickIndeterminate('Updating filterable attributes')
             progress.start()
             task = await items_idx.update_filterable_attributes(['mmap_room', 'mmap_floor'])
