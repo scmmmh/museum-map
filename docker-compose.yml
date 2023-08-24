@@ -9,7 +9,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
   meilisearch:
-    image: getmeili/meilisearch:v1.0
+    image: getmeili/meilisearch:v1.3
     environment:
       - MEILI_ENV=development
       - MEILI_MASTER_KEY=ff2e87a28b482fd787091a5824e05af3

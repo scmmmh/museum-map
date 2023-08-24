@@ -1,32 +1,179 @@
-[tool.poetry]
-name = "museum-map"
-version = "0.8.2"
-description = ""
-authors = ["Mark Hall <mark.hall@work.room3b.eu>"]
-license = "MIT"
-
-[tool.poetry.dependencies]
-python = ">=3.9,<3.11"
-click = "^8.0.0"
-inflection = "^0.5.1"
-requests = "^2.31.0"
-sqlalchemy = "^1.4.36"
-sqlalchemy_json = "^0.4.0"
-lxml = "^4.9.1"
-spacy = "^3.2.4"
-gensim = "^4.1.2"
-scipy = "^1.8.0"
-tornado = "^6.3"
-asyncpg = "^0.25.0"
-SQLAlchemy = "^1.4.36"
-en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0-py3-none-any.whl"}
-PyYAML = "^6.0"
-Cerberus = "^1.3.4"
-psycopg2-binary = "^2.9.5"
-meilisearch-python-async = "^1.2.0"
-
-[tool.poetry.dev-dependencies]
+[dirs.env]
+virtual = ".venvs"
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "museum-map"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Mark Hall", email = "mark.hall@work.room3b.eu" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+"click>8.0.0,<9",
+"inflection>=0.5.1,<1",
+"requests>=2.31.0,<3",
+"SQLAlchemy>=1.4.49,<2",
+"sqlalchemy_json>=0.6.0,<1",
+"lxml>=4.9.3,<5",
+"spacy>=3.6.0,<3.7",
+"gensim>=4.3.1,<5",
+"scipy>=1.11.2,<2",
+"tornado>=6.3.3,<7",
+"asyncpg>=0.28.0,<1",
+"en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.6.0/en_core_web_sm-3.6.0-py3-none-any.whl",
+"PyYAML>=6.0,<7",
+"Cerberus>=1.3.5,<2",
+"psycopg2-binary>=2.9.7,<3",
+"meilisearch-python-async>=1.6.2,<2",
+]
+
+[project.urls]
+Documentation = "https://github.com/scmmmh/museum-map#readme"
+Issues = "https://github.com/scmmmh/museum-map/issues"
+Source = "https://github.com/scmmmh/museum-map"
+
+[project.scripts]
+museum-map = "museum_map.cli:cli"
+
+[tool.hatch.version]
+path = "museum_map/__about__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.envs.default]
+dependencies = [
+  "coverage[toml]>=6.5",
+  "pytest",
+]
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.11"]
+
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "black>=23.1.0",
+  "mypy>=1.0.0",
+  "ruff>=0.0.243",
+]
+[tool.hatch.envs.lint.scripts]
+typing = "mypy --install-types --non-interactive {args:museum_map tests}"
+style = [
+  "ruff {args:.}",
+  "black --check --diff {args:.}",
+]
+fmt = [
+  "black {args:.}",
+  "ruff --fix {args:.}",
+  "style",
+]
+all = [
+  "style",
+  "typing",
+]
+
+[tool.black]
+target-version = ["py311"]
+line-length = 120
+skip-string-normalization = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+select = [
+  "A",
+  "ARG",
+  "B",
+  "C",
+  "DTZ",
+  "E",
+  "EM",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "ISC",
+  "N",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "Q",
+  "RUF",
+  "S",
+  "T",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
+]
+ignore = [
+  # Allow non-abstract empty methods in abstract base classes
+  "B027",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
+  # Ignore complexity
+  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+]
+unfixable = [
+  # Don't touch unused imports
+  "F401",
+]
+
+[tool.ruff.isort]
+known-first-party = ["museum_map"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
+
+[tool.coverage.run]
+source_pkgs = ["museum_map", "tests"]
+branch = true
+parallel = true
+omit = [
+  "museum_map/__about__.py",
+]
+
+[tool.coverage.paths]
+museum_map = ["museum_map", "*/museum-map/museum_map"]
+tests = ["tests", "*/museum-map/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
