@@ -1,15 +1,14 @@
 """Database models."""
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession
+from collections.abc import Callable
+
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from typing import Callable
-
 from .base import Base  # noqa
-from .item import Item  # noqa
-from .group import Group  # noqa
-from .room import Room  # noqa
 from .floor import Floor, FloorTopic  # noqa
-
+from .group import Group  # noqa
+from .item import Item  # noqa
+from .room import Room  # noqa
 
 engine = None
 
@@ -18,7 +17,7 @@ def create_engine(config) -> AsyncEngine:
     """Get a new singleton DB engine."""
     global engine
     if engine is None:
-        engine = create_async_engine(config['db']['dsn'])
+        engine = create_async_engine(config["db"]["dsn"])
     return engine
 
 

@@ -1,152 +1,155 @@
 import asyncio
-import click
 import logging
 import os
 import sys
-import yaml
-
-from cerberus import Validator
 from typing import Union
 
-from .db import db
-from .groups import groups, pipeline_impl as groups_pipeline
-from .server import server
-from .items import items, pipeline_impl as items_pipeline
-from .layout import layout, pipeline_impl as layout_pipeline
-from .search import search, pipeline_impl as search_pipeline
+import click
+import yaml
+from cerberus import Validator
 
+from museum_map.cli.db import db
+from museum_map.cli.groups import groups
+from museum_map.cli.groups import pipeline_impl as groups_pipeline
+from museum_map.cli.items import items
+from museum_map.cli.items import pipeline_impl as items_pipeline
+from museum_map.cli.layout import layout
+from museum_map.cli.layout import pipeline_impl as layout_pipeline
+from museum_map.cli.search import pipeline_impl as search_pipeline
+from museum_map.cli.search import search
+from museum_map.cli.server import server
 
-logger = logging.getLogger('scr')
+logger = logging.getLogger("scr")
 
 CONFIG_SCHEMA = {
-    'server': {
-        'type': 'dict',
-        'schema': {
-            'host': {'type': 'string', 'default': '127.0.0.1'},
-            'port': {'type': 'integer', 'default': 6543},
+    "server": {
+        "type": "dict",
+        "schema": {
+            "host": {"type": "string", "default": "127.0.0.1"},
+            "port": {"type": "integer", "default": 6543},
         },
-        'default': {
-            'host': '127.0.0.1',
-            'port': 6543,
+        "default": {
+            "host": "127.0.0.1",
+            "port": 6543,
         },
     },
-    'db': {
-        'type': 'dict',
-        'required': True,
-        'schema': {
-            'dsn': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
+    "db": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "dsn": {
+                "type": "string",
+                "required": True,
+                "empty": False,
             },
         },
     },
-    'search': {
-        'type': 'dict',
-        'required': True,
-        'schema': {
-            'url': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
+    "search": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "url": {
+                "type": "string",
+                "required": True,
+                "empty": False,
             },
-            'key': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
+            "key": {
+                "type": "string",
+                "required": True,
+                "empty": False,
             },
         },
     },
-    'data': {
-        'type': 'dict',
-        'required': True,
-        'schema': {
-            'topic_fields': {
-                'type': 'list',
-                'required': True,
-                'minlength': 1,
-                'schema': {
-                    'type': 'string',
-                    'empty': False,
+    "data": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "topic_fields": {
+                "type": "list",
+                "required": True,
+                "minlength": 1,
+                "schema": {
+                    "type": "string",
+                    "empty": False,
                 },
             },
-            'hierarchy': {
-                'type': 'dict',
-                'required': True,
-                'schema': {
-                    'field': {
-                        'type': 'string',
-                        'required': True,
-                        'empty': False,
+            "hierarchy": {
+                "type": "dict",
+                "required": True,
+                "schema": {
+                    "field": {
+                        "type": "string",
+                        "required": True,
+                        "empty": False,
                     },
-                    'expansions': {
-                        'type': 'list',
-                        'required': False,
-                        'default': [],
-                        'schema': {
-                            'type': 'string',
-                            'allowed': ['nlp', 'aat'],
+                    "expansions": {
+                        "type": "list",
+                        "required": False,
+                        "default": [],
+                        "schema": {
+                            "type": "string",
+                            "allowed": ["nlp", "aat"],
                         },
                     },
                 },
             },
-            'year_field': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
+            "year_field": {
+                "type": "string",
+                "required": True,
+                "empty": False,
             },
         },
     },
-    'images': {
-        'type': 'dict',
-        'required': True,
-        'schema': {
-            'basepath': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
+    "images": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "basepath": {
+                "type": "string",
+                "required": True,
+                "empty": False,
             }
         },
     },
-    'layout': {
-        'type': 'dict',
-        'required': True,
-        'schema': {
-            'rooms': {
-                'type': 'list',
-                'required': True,
-                'minlength': 1,
-                'schema': {
-                    'type': 'dict',
-                    'schema': {
-                        'id': {
-                            'type': 'string',
-                            'required': True,
-                            'empty': False,
+    "layout": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "rooms": {
+                "type": "list",
+                "required": True,
+                "minlength": 1,
+                "schema": {
+                    "type": "dict",
+                    "schema": {
+                        "id": {
+                            "type": "string",
+                            "required": True,
+                            "empty": False,
                         },
-                        'direction': {
-                            'type': 'string',
-                            'required': True,
-                            'allowed': ['vert', 'horiz'],
+                        "direction": {
+                            "type": "string",
+                            "required": True,
+                            "allowed": ["vert", "horiz"],
                         },
-                        'items': {
-                            'type': 'integer',
-                            'required': True,
-                            'min': 1,
+                        "items": {
+                            "type": "integer",
+                            "required": True,
+                            "min": 1,
                         },
-                        'splits': {
-                            'type': 'integer',
-                            'required': True,
-                            'min': 1,
+                        "splits": {
+                            "type": "integer",
+                            "required": True,
+                            "min": 1,
                         },
-                        'position': {
-                            'type': 'dict',
-                            'required': True,
-                            'schema': {
-                                'x': {'type': 'integer', 'required': True},
-                                'y': {'type': 'integer', 'required': True},
-                                'width': {'type': 'integer', 'required': True},
-                                'height': {'type': 'integer', 'required': True},
+                        "position": {
+                            "type": "dict",
+                            "required": True,
+                            "schema": {
+                                "x": {"type": "integer", "required": True},
+                                "y": {"type": "integer", "required": True},
+                                "width": {"type": "integer", "required": True},
+                                "height": {"type": "integer", "required": True},
                             },
                         },
                     },
@@ -154,85 +157,85 @@ CONFIG_SCHEMA = {
             }
         },
     },
-    'app': {
-        'type': 'dict',
-        'required': True,
-        'schema': {
-            'base_url': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
+    "app": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "base_url": {
+                "type": "string",
+                "required": True,
+                "empty": False,
             },
-            'intro': {'type': 'string', 'required': True, 'empty': False},
-            'footer': {
-                'type': 'dict',
-                'schema': {
-                    'center': {
-                        'type': 'dict',
-                        'schema': {
-                            'label': {
-                                'type': 'string',
-                                'required': True,
-                                'empty': False,
+            "intro": {"type": "string", "required": True, "empty": False},
+            "footer": {
+                "type": "dict",
+                "schema": {
+                    "center": {
+                        "type": "dict",
+                        "schema": {
+                            "label": {
+                                "type": "string",
+                                "required": True,
+                                "empty": False,
                             },
-                            'url': {
-                                'type': 'string',
-                                'required': False,
+                            "url": {
+                                "type": "string",
+                                "required": False,
                             },
                         },
                     },
-                    'right': {
-                        'type': 'dict',
-                        'schema': {
-                            'label': {
-                                'type': 'string',
-                                'required': True,
-                                'empty': False,
+                    "right": {
+                        "type": "dict",
+                        "schema": {
+                            "label": {
+                                "type": "string",
+                                "required": True,
+                                "empty": False,
                             },
-                            'url': {
-                                'type': 'string',
-                                'required': False,
+                            "url": {
+                                "type": "string",
+                                "required": False,
                             },
                         },
                     },
                 },
             },
-            'item': {
-                'type': 'dict',
-                'required': True,
-                'schema': {
-                    'texts': {
-                        'type': 'list',
-                        'schema': {
-                            'type': 'dict',
-                            'schema': {
-                                'name': {
-                                    'type': 'string',
-                                    'required': True,
-                                    'empty': False,
+            "item": {
+                "type": "dict",
+                "required": True,
+                "schema": {
+                    "texts": {
+                        "type": "list",
+                        "schema": {
+                            "type": "dict",
+                            "schema": {
+                                "name": {
+                                    "type": "string",
+                                    "required": True,
+                                    "empty": False,
                                 },
-                                'label': {
-                                    'type': 'string',
-                                    'required': True,
-                                    'empty': False,
+                                "label": {
+                                    "type": "string",
+                                    "required": True,
+                                    "empty": False,
                                 },
                             },
                         },
                     },
-                    'fields': {
-                        'type': 'list',
-                        'schema': {
-                            'type': 'dict',
-                            'schema': {
-                                'name': {
-                                    'type': 'string',
-                                    'required': True,
-                                    'empty': False,
+                    "fields": {
+                        "type": "list",
+                        "schema": {
+                            "type": "dict",
+                            "schema": {
+                                "name": {
+                                    "type": "string",
+                                    "required": True,
+                                    "empty": False,
                                 },
-                                'label': {
-                                    'type': 'string',
-                                    'required': True,
-                                    'empty': False,
+                                "label": {
+                                    "type": "string",
+                                    "required": True,
+                                    "empty": False,
                                 },
                             },
                         },
@@ -241,11 +244,11 @@ CONFIG_SCHEMA = {
             },
         },
     },
-    'debug': {
-        'type': 'boolean',
-        'default': False,
+    "debug": {
+        "type": "boolean",
+        "default": False,
     },
-    'logging': {'type': 'dict'},
+    "logging": {"type": "dict"},
 }
 
 
@@ -263,10 +266,10 @@ def validate_config(config: dict) -> dict:
     else:
         error_list = []
 
-        def walk_error_tree(err: Union[dict, list], path: str) -> None:
+        def walk_error_tree(err: dict | list, path: str) -> None:
             if isinstance(err, dict):
                 for key, value in err.items():
-                    walk_error_tree(value, path + (str(key),))
+                    walk_error_tree(value, (*path, str(key)))
             elif isinstance(err, list):
                 for sub_err in err:
                     walk_error_tree(sub_err, path)
@@ -274,13 +277,14 @@ def validate_config(config: dict) -> dict:
                 error_list.append(f'{".".join(path)}: {err}')
 
         walk_error_tree(validator.errors, ())
-        error_str = '\n'.join(error_list)
-        raise click.ClickException(f'Configuration errors:\n\n{error_str}')
+        error_str = "\n".join(error_list)
+        msg = f"Configuration errors:\n\n{error_str}"
+        raise click.ClickException(msg)
 
 
 @click.group()
-@click.option('-v', '--verbose', count=True)
-@click.option('-c', '--config', default='production.yml')
+@click.option("-v", "--verbose", count=True)
+@click.option("-c", "--config", default="production.yml")
 @click.pass_context
 def cli(ctx, verbose, config):
     """Museum Map CLI"""
@@ -289,13 +293,13 @@ def cli(ctx, verbose, config):
         logging.basicConfig(level=logging.INFO)
     elif verbose > 1:
         logging.basicConfig(level=logging.DEBUG)
-    logger.debug('Logging set up')
+    logger.debug("Logging set up")
     if not os.path.exists(config):
-        logger.error(f'Configuration file {config} not found')
+        logger.error(f"Configuration file {config} not found")
         sys.exit(1)
     with open(config) as in_f:
         config = yaml.load(in_f, Loader=yaml.FullLoader)
-        ctx.obj['config'] = validate_config(config)
+        ctx.obj["config"] = validate_config(config)
 
 
 async def pipeline_impl(config):
@@ -310,7 +314,7 @@ async def pipeline_impl(config):
 @click.pass_context
 def pipeline(ctx):
     """Run the full processing pipline."""
-    asyncio.run(pipeline_impl(ctx.obj['config']))
+    asyncio.run(pipeline_impl(ctx.obj["config"]))
 
 
 cli.add_command(pipeline)
