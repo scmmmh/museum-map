@@ -8,7 +8,6 @@
     import { isBusy, isUpdatable } from "../store";
 </script>
 
-{$isUpdatable}
 <Router>
     <Route path="/"><Lobby /></Route>
     <Route path="/floor/:id"><Floor /></Route>
