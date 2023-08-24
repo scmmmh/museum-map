@@ -34,6 +34,3 @@ update_version(
     "museum_map/__about__.py", r'(^__version__ = ")[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?("$)', VERSION
 )
 update_version("CHANGELOG.md", r"(## )Dev($)", VERSION)
-
-#update_version('', '^  "version": "[0-9]+\.[0-9]+\.[0-9]",$', VERSION)
-#update_version('museum_map/__about__.py', '^__version__ = "[0-9]+\.[0-9]+\.[0-9]+"$',  VERSION)
