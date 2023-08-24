@@ -20,7 +20,7 @@ async def index_impl(config):
                 index = await client.get_index("items")
                 task = await index.delete()
                 await wait_for_task(client, task.task_uid, timeout_in_ms=None)
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
             items_idx = await client.create_index("items", primary_key="mmap_id")
             stmt = select(Room).options(selectinload(Room.items))

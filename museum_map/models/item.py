@@ -8,7 +8,7 @@ from museum_map.models.base import Base
 class Item(Base):
     __tablename__ = "items"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)  # noqa: A003
     group_id = Column(Integer, ForeignKey("groups.id"))
     room_id = Column(Integer, ForeignKey("rooms.id"))
     attributes = Column(NestedMutableJson)

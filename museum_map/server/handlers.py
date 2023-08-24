@@ -1,16 +1,12 @@
 import logging
 import math
 import re
-from configparser import ConfigParser
-from datetime import datetime
-from importlib import resources
+from datetime import datetime, timezone
 from importlib.abc import Traversable
 from mimetypes import guess_type
-from random import randint
 
 from meilisearch_python_async import Client
 from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import noload, selectinload
 from tornado import web
 
@@ -72,7 +68,7 @@ class APICollectionHandler(RequestBase):
                             query = query.filter(getattr(class_, column).in_([]))
                         else:
                             for value in values:
-                                value = value.decode()
+                                value = value.decode()  # noqa: PLW2901
                                 if value == "":
                                     query = query.filter(getattr(class_, column).in_([]))
                                 else:
@@ -128,16 +124,16 @@ class APIConfigHandler(web.RequestHandler):
 
 
 class APIPickHandler(RequestBase):
-    async def get(self, type):
-        if type in ["random", "todays"]:
+    async def get(self, pick_type):
+        if pick_type in ["random", "todays"]:
             async with create_sessionmaker(self.application.settings["config"])() as session:
                 query, class_ = self.setup_query("items")
                 if query is not None and class_ is not None:
-                    if type == "random":
+                    if pick_type == "random":
                         query = query.order_by(func.random()).limit(12)
-                    elif type == "todays":
+                    elif pick_type == "todays":
                         total = (await session.execute(select(func.count()).select_from(class_))).scalars().first()
-                        row_nr = (math.floor(datetime.utcnow().timestamp() / 86400) % total) + 1
+                        row_nr = (math.floor(datetime.now(tz=timezone.utc).timestamp() / 86400) % total) + 1
                         query = query.order_by(class_.id).offset(row_nr).limit(1)
                     result = await session.execute(query)
                     items = [item.as_jsonapi() for item in result.scalars()]
@@ -191,7 +187,7 @@ class FrontendHandler(web.RedirectHandler):
         :param path: The path to get.
         :type: path: str
         """
-        self.xsrf_token
+        self.xsrf_token  # noqa: B018
         if not path.strip():
             path = "/"
         try:
@@ -231,8 +227,8 @@ class FrontendHandler(web.RedirectHandler):
             if mimetype and mimetype[0]:
                 self.set_header("Content-Type", mimetype[0])
             self.write(data)
-        except IsADirectoryError:
-            raise FileNotFoundError()
+        except IsADirectoryError as err:
+            raise FileNotFoundError() from err
 
 
 def create_inject_item_html(config):
@@ -255,7 +251,7 @@ def create_inject_item_html(config):
 <meta property="og:title" content="{item.attributes['title']}" />
 <meta property="og:image" content="{config['app']['base_url']}/images/{'/'.join(item.attributes['images'][0])}.jpg" />
 <meta name="og:image:alt" content="Image showing {item.attributes['title']}"/>"""
-        except Exception:
+        except Exception:  # noqa: S110
             pass
         return ""
 

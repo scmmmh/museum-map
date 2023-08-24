@@ -1,11 +1,9 @@
 from importlib import resources
 
 import click
-from sqlalchemy.ext.asyncio import create_async_engine
 from tornado.ioloop import IOLoop
 from tornado.web import Application, StaticFileHandler
 
-from museum_map.models import create_engine
 from museum_map.server.handlers import (
     APICollectionHandler,
     APIConfigHandler,

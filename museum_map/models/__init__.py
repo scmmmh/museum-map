@@ -15,7 +15,7 @@ engine = None
 
 def create_engine(config) -> AsyncEngine:
     """Get a new singleton DB engine."""
-    global engine
+    global engine  # noqa: PLW0603
     if engine is None:
         engine = create_async_engine(config["db"]["dsn"])
     return engine
@@ -26,7 +26,7 @@ async_sessionmaker = None
 
 def create_sessionmaker(config) -> Callable[[], AsyncSession]:
     """Get a new singleton DB session maker."""
-    global async_sessionmaker
+    global async_sessionmaker  # noqa: PLW0603
     if async_sessionmaker is None:
         async_sessionmaker = sessionmaker(create_engine(config), expire_on_commit=False, class_=AsyncSession)
     return async_sessionmaker

@@ -53,7 +53,7 @@ def load(ctx, source):
 @click.argument("source")
 @click.argument("target")
 @click.pass_context
-def load_images(ctx, source, target):
+def load_images(ctx, source, target):  # noqa: ARG001
     """Load and convert images."""
     progress = ClickIndeterminate("Loading images")
     progress.start()
@@ -66,10 +66,26 @@ def load_images(ctx, source, target):
                 image_target = os.path.join(target, *image_id, filename)
                 shutil.copy(image_source, image_target)
                 subprocess.run(
-                    ["gm", "convert", image_source, "-resize", "240x240", image_target.replace(".jpg", "-240.jpg")]
+                    [  # noqa: S603 S607
+                        "gm",
+                        "convert",
+                        image_source,
+                        "-resize",
+                        "240x240",
+                        image_target.replace(".jpg", "-240.jpg"),
+                    ],
+                    check=True,
                 )
                 subprocess.run(
-                    ["gm", "convert", image_source, "-resize", "320x320", image_target.replace(".jpg", "-320.jpg")]
+                    [  # noqa: S603 S607
+                        "gm",
+                        "convert",
+                        image_source,
+                        "-resize",
+                        "320x320",
+                        image_target.replace(".jpg", "-320.jpg"),
+                    ],
+                    check=True,
                 )
     progress.stop()
 

@@ -1,6 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Index, Integer, Unicode
 from sqlalchemy.orm import relationship
-from sqlalchemy_json import NestedMutableJson
 
 from museum_map.models.base import Base
 
@@ -8,7 +7,7 @@ from museum_map.models.base import Base
 class Group(Base):
     __tablename__ = "groups"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)  # noqa: A003
     parent_id = Column(Integer, ForeignKey("groups.id"))
     value = Column(Unicode(255))
     label = Column(Unicode(255))

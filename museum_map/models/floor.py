@@ -1,6 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Index, Integer, Table, Unicode, UnicodeText
+from sqlalchemy import Column, ForeignKey, Index, Integer, Table, Unicode
 from sqlalchemy.orm import relationship
-from sqlalchemy_json import NestedMutableJson
 
 from museum_map.models.base import Base
 
@@ -15,7 +14,7 @@ floors_items = Table(
 class Floor(Base):
     __tablename__ = "floors"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)  # noqa: A003
     label = Column(Unicode(255))
     level = Column(Integer)
 
@@ -42,7 +41,7 @@ class Floor(Base):
 class FloorTopic(Base):
     __tablename__ = "floor_topics"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)  # noqa: A003
     group_id = Column(Integer, ForeignKey("groups.id"))
     floor_id = Column(Integer, ForeignKey("floors.id"))
     label = Column(Unicode(255))

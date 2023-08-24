@@ -134,7 +134,7 @@ def apply_nlp(category):
         return []
 
 
-def apply_aat(category, merge=True):
+def apply_aat(category, merge=True):  # noqa: FBT002
     """Expand the category using the AAT."""
     if os.path.exists("aat.json"):
         with open("aat.json") as in_f:
@@ -146,26 +146,29 @@ def apply_aat(category, merge=True):
         response = requests.get(
             "http://vocabsservices.getty.edu/AATService.asmx/AATGetTermMatch",
             params=[("term", f'"{category}"'), ("logop", "and"), ("notes", "")],
+            timeout=300,
         )
-        if response.status_code == 200:
-            subjects = etree.fromstring(response.content).xpath("Subject/Subject_ID/text()")
+        if response.status_code == 200:  # noqa: PLR2004
+            subjects = etree.fromstring(response.content).xpath("Subject/Subject_ID/text()")  # noqa: S320
             hierarchies = []
             for subject in subjects:
                 response2 = requests.get(
-                    "http://vocabsservices.getty.edu/AATService.asmx/AATGetSubject", params=[("subjectID", subject)]
+                    "http://vocabsservices.getty.edu/AATService.asmx/AATGetSubject",
+                    params=[("subjectID", subject)],
+                    timeout=300,
                 )
-                if response.status_code == 200:
-                    hierarchy_text = etree.fromstring(response2.content).xpath("Subject/Hierarchy/text()")
+                if response.status_code == 200:  # noqa: PLR2004
+                    hierarchy_text = etree.fromstring(response2.content).xpath("Subject/Hierarchy/text()")  # noqa: S320
                     if hierarchy_text:
                         hierarchy = []
                         for entry in [h.strip() for h in hierarchy_text[0].split("|") if "<" not in h]:
-                            entry = entry.lower()
+                            entry = entry.lower()  # noqa: PLW2901
                             if "(" in entry:
-                                entry = entry[: entry.find("(")].strip()
+                                entry = entry[: entry.find("(")].strip()  # noqa: PLW2901
                             if entry.endswith(" facet"):
-                                entry = entry[: entry.find(" facet")].strip()
+                                entry = entry[: entry.find(" facet")].strip()  # noqa: PLW2901
                             if entry.endswith(" genres"):
-                                entry = entry[: entry.find(" genres")].strip()
+                                entry = entry[: entry.find(" genres")].strip()  # noqa: PLW2901
                             if entry not in hierarchy:
                                 hierarchy.append(entry)
                         hierarchies.append(hierarchy)

@@ -29,7 +29,7 @@ async def generate_groups_impl(config):
             for item in progress:
                 for category in item.attributes["_categories"]:
                     categories.append(category.lower())
-        counts = [(cat, count) for cat, count in Counter(categories).most_common() if count >= 15]
+        counts = [(cat, count) for cat, count in Counter(categories).most_common() if count >= 15]  # noqa: PLR2004
         counts.sort(key=lambda c: c[1])
         max_groups = len(counts)
         with click.progressbar(length=max_groups, label="Generating groups") as progress:
@@ -52,7 +52,9 @@ async def generate_groups_impl(config):
                     for category in item.attributes["_categories"]:
                         categories.append(category.lower())
                 old_counts = len(counts)
-                counts = [(cat, count) for cat, count in Counter(categories).most_common() if count >= 15]
+                counts = [
+                    (cat, count) for cat, count in Counter(categories).most_common() if count >= 15  # noqa: PLR2004
+                ]
                 counts.sort(key=lambda c: c[1])
                 progress.update(old_counts - len(counts))
         await dbsession.commit()
@@ -111,7 +113,9 @@ def split_by_attribute(dbsession, group, attr):
     for item in group.items:
         if attr in item.attributes and item.attributes[attr]:
             values.extend(item.attributes[attr])
-    categories = [(v, c) for v, c in Counter(values).most_common() if c < len(group.items) * 0.6666 and c >= 15]
+    categories = [
+        (v, c) for v, c in Counter(values).most_common() if c < len(group.items) * 0.6666 and c >= 15  # noqa: PLR2004
+    ]
     if categories:
         category_values = [v for v, _ in categories]
         has_values = 0
@@ -123,7 +127,7 @@ def split_by_attribute(dbsession, group, attr):
                     break
             if found:
                 has_values = has_values + 1
-        if has_values / len(group.items) > 0.9:
+        if has_values / len(group.items) > 0.9:  # noqa: PLR2004
             categories.reverse()
             for category in categories:
                 new_group = Group(
@@ -151,12 +155,12 @@ def split_by_year(config, dbsession, group):
         if config["data"]["year_field"] in item.attributes and item.attributes[config["data"]["year_field"]]:
             years.append(item.attributes[config["data"]["year_field"]])
             with_year = with_year + 1
-    if with_year / len(group.items) > 0.95:
+    if with_year / len(group.items) > 0.95:  # noqa: PLR2004
         common = [(int(v), c) for v, c in Counter(years).most_common()]
         start_year = min([c for c, _ in common])
         end_year = max([c for c, _ in common])
         if start_year != end_year:
-            if (end_year - start_year) <= 100 and (end_year - start_year) > 10:
+            if (end_year - start_year) <= 100 and (end_year - start_year) > 10:  # noqa: PLR2004
                 start_decade = math.floor(start_year / 10)
                 end_decade = math.floor(end_year / 10)
                 decades = []
@@ -176,7 +180,7 @@ def split_by_year(config, dbsession, group):
                                     decades[-1][1] = decades[-1][1] + 1
                 idx = 0
                 while idx < len(decades) - 1:
-                    if decades[idx][1] + decades[idx + 1][1] < 100:
+                    if decades[idx][1] + decades[idx + 1][1] < 100:  # noqa: PLR2004
                         decades[idx][0].extend(decades[idx + 1][0])
                         decades[idx][1] = decades[idx][1] + decades[idx + 1][1]
                         decades.pop(idx + 1)
@@ -212,7 +216,7 @@ def split_by_year(config, dbsession, group):
                     for item in list(group.items):
                         item.group = new_group
                 return True
-            elif (end_year - start_year) > 100:
+            elif (end_year - start_year) > 100:  # noqa: PLR2004
                 start_century = math.floor(start_year / 100)
                 end_century = math.floor(end_year / 100)
                 centuries = []
@@ -232,7 +236,7 @@ def split_by_year(config, dbsession, group):
                                     centuries[-1][1] = centuries[-1][1] + 1
                 idx = 0
                 while idx < len(centuries) - 1:
-                    if centuries[idx][1] + centuries[idx + 1][1] < 100:
+                    if centuries[idx][1] + centuries[idx + 1][1] < 100:  # noqa: PLR2004
                         centuries[idx][0].extend(centuries[idx + 1][0])
                         centuries[idx][1] = centuries[idx][1] + centuries[idx + 1][1]
                         centuries.pop(idx + 1)
@@ -252,30 +256,30 @@ def split_by_year(config, dbsession, group):
                                 if new_group is None:
                                     if len(years) == 1:
                                         century = math.floor(years[0] / 100) + 1
-                                        if century % 10 == 1 and century != 11:
+                                        if century % 10 == 1 and century != 11:  # noqa: PLR2004
                                             label = f"{century}st"
-                                        elif century % 10 == 2 and century != 12:
+                                        elif century % 10 == 2 and century != 12:  # noqa: PLR2004
                                             label = f"{century}nd"
-                                        elif century % 10 == 3 and century != 13:
+                                        elif century % 10 == 3 and century != 13:  # noqa: PLR2004
                                             label = f"{century}rd"
                                         else:
                                             label = f"{century}th"
                                     else:
                                         century = math.floor(years[0] / 100) + 1
-                                        if century % 10 == 1 and century != 11:
+                                        if century % 10 == 1 and century != 11:  # noqa: PLR2004
                                             start_label = f"{century}st"
-                                        elif century % 10 == 2 and century != 12:
+                                        elif century % 10 == 2 and century != 12:  # noqa: PLR2004
                                             start_label = f"{century}nd"
-                                        elif century % 10 == 3 and century != 13:
+                                        elif century % 10 == 3 and century != 13:  # noqa: PLR2004
                                             start_label = f"{century}rd"
                                         else:
                                             start_label = f"{century}th"
                                         century = math.floor(years[-1] / 100) + 1
-                                        if century % 10 == 1 and century != 11:
+                                        if century % 10 == 1 and century != 11:  # noqa: PLR2004
                                             end_label = f"{century}st"
-                                        elif century % 10 == 2 and century != 12:
+                                        elif century % 10 == 2 and century != 12:  # noqa: PLR2004
                                             end_label = f"{century}nd"
-                                        elif century % 10 == 3 and century != 13:
+                                        elif century % 10 == 3 and century != 13:  # noqa: PLR2004
                                             end_label = f"{century}rd"
                                         else:
                                             end_label = f"{century}th"
@@ -309,13 +313,13 @@ async def split_large_groups_impl(config):
             result = await dbsession.execute(stmt)
             for group in result.scalars():
                 if len(group.children) == 0:
-                    if len(group.items) > 120 and len(group.items) < 300:
+                    if len(group.items) > 120 and len(group.items) < 300:  # noqa: PLR2004
                         if split_by_year(config, dbsession, group):
                             splitting = True
                         else:
                             split_by_similarity(dbsession, group)
                             splitting = True
-                    elif len(group.items) >= 300:
+                    elif len(group.items) >= 300:  # noqa: PLR2004
                         if split_by_attribute(dbsession, group, "concepts"):
                             splitting = True
                         elif split_by_attribute(dbsession, group, "subjects"):
@@ -403,7 +407,7 @@ async def add_parent_groups_impl(config):
                                     dbsession.add(group)
                                 group.parent = parent_group
                                 mapped = True
-                                group = parent_group
+                                group = parent_group  # noqa: PLW2901
                                 if group.parent_id:
                                     break
                             if mapped:

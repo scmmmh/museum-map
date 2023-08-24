@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os
 import sys
-from typing import Union
 
 import click
 import yaml
@@ -298,7 +297,7 @@ def cli(ctx, verbose, config):
         logger.error(f"Configuration file {config} not found")
         sys.exit(1)
     with open(config) as in_f:
-        config = yaml.load(in_f, Loader=yaml.FullLoader)
+        config = yaml.safe_load(in_f)
         ctx.obj["config"] = validate_config(config)
 
 

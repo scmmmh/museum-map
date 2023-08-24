@@ -1,7 +1,7 @@
 import asyncio
 import math
 from copy import deepcopy
-from random import choice, sample
+from random import choice
 
 import click
 from inflection import pluralize
@@ -166,7 +166,7 @@ async def summarise_rooms(dbsession):
         rooms.scalars(), length=rooms_count.scalar_one(), label="Generating room summaries"
     ) as progress:
         for room in progress:
-            room.sample = choice(room.items)
+            room.sample = choice(room.items)  # noqa: S311
             dbsession.add(room)
     await dbsession.commit()
 
@@ -190,7 +190,7 @@ async def summarise_floors(dbsession):
                     size = await count_items(dbsession, group)
                     while group.split in ["time", "similar", "attribute", "inner"]:
                         parent_result = await dbsession.execute(select(Group).filter(Group.id == group.parent_id))
-                        group = parent_result.scalar_one()
+                        group = parent_result.scalar_one()  # noqa: PLW2901
                     if group in floor_groups:
                         floor_groups[group] = floor_groups[group] + size
                     else:
@@ -202,7 +202,7 @@ async def summarise_floors(dbsession):
                 for group, size in group_sizes:
                     sub_total = sub_total + size
                     dbsession.add(FloorTopic(label=pluralize_label(group.label), group=group, floor=floor, size=size))
-                    if sub_total / total > 0.66666:
+                    if sub_total / total > 0.66666:  # noqa: PLR2004
                         break
             items_result = await dbsession.execute(
                 select(Item).filter(Item.room_id.in_([room.id for room in floor.rooms]))
