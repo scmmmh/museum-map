@@ -3,55 +3,55 @@ name: Docker Deployment
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Branch name
-      id: branch_name
-      run: |
-        echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
-        echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
-        echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/v}
+      - name: Branch name
+        id: branch_name
+        run: |
+          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
+          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/v}
 
-    - name: Setup Path
-      run: |
-        echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-        echo "PIPX_BIN_DIR=$HOME/.local/bin" >> $GITHUB_ENV
+      - name: Setup Path
+        run: |
+          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+          echo "PIPX_BIN_DIR=$HOME/.local/bin" >> $GITHUB_ENV
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
 
-    - name: Install Base Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install python3-venv pipx
-        pipx install poetry
+      - name: Install Base Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-venv pipx
+          pipx install hatch
 
-    - name: Build Application
-      run: |
-        poetry build
-        cp dist/*.whl docker/
+      - name: Build Application
+        run: |
+          hatch build
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v2
-      with:
-        username: scmmmh
-        password: ${{ secrets.DOCKERACCESSTOKEN }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: scmmmh
+          password: ${{ secrets.DOCKERACCESSTOKEN }}
 
-    - name: Build and Push Image
-      uses: docker/build-push-action@v4
-      with:
-        context: docker
-        push: true
-        tags: scmmmh/museum-map:${{ steps.branch_name.outputs.SOURCE_TAG }}
+      - name: Build and Push Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: scmmmh/museum-map:${{ steps.branch_name.outputs.SOURCE_TAG }}
