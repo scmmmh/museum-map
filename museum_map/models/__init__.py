@@ -13,6 +13,7 @@ from .floor import Floor, FloorTopic  # noqa
 
 engine = None
 
+
 def create_engine(config) -> AsyncEngine:
     """Get a new singleton DB engine."""
     global engine
@@ -22,6 +23,8 @@ def create_engine(config) -> AsyncEngine:
 
 
 async_sessionmaker = None
+
+
 def create_sessionmaker(config) -> Callable[[], AsyncSession]:
     """Get a new singleton DB session maker."""
     global async_sessionmaker

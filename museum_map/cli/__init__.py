@@ -22,19 +22,13 @@ CONFIG_SCHEMA = {
     'server': {
         'type': 'dict',
         'schema': {
-            'host': {
-                'type': 'string',
-                'default': '127.0.0.1'
-            },
-            'port': {
-                'type': 'integer',
-                'default': 6543
-            },
+            'host': {'type': 'string', 'default': '127.0.0.1'},
+            'port': {'type': 'integer', 'default': 6543},
         },
         'default': {
             'host': '127.0.0.1',
             'port': 6543,
-        }
+        },
     },
     'db': {
         'type': 'dict',
@@ -45,7 +39,7 @@ CONFIG_SCHEMA = {
                 'required': True,
                 'empty': False,
             },
-        }
+        },
     },
     'search': {
         'type': 'dict',
@@ -61,7 +55,7 @@ CONFIG_SCHEMA = {
                 'required': True,
                 'empty': False,
             },
-        }
+        },
     },
     'data': {
         'type': 'dict',
@@ -74,7 +68,7 @@ CONFIG_SCHEMA = {
                 'schema': {
                     'type': 'string',
                     'empty': False,
-                }
+                },
             },
             'hierarchy': {
                 'type': 'dict',
@@ -92,16 +86,16 @@ CONFIG_SCHEMA = {
                         'schema': {
                             'type': 'string',
                             'allowed': ['nlp', 'aat'],
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             },
             'year_field': {
                 'type': 'string',
                 'required': True,
                 'empty': False,
-            }
-        }
+            },
+        },
     },
     'images': {
         'type': 'dict',
@@ -112,7 +106,7 @@ CONFIG_SCHEMA = {
                 'required': True,
                 'empty': False,
             }
-        }
+        },
     },
     'layout': {
         'type': 'dict',
@@ -149,28 +143,16 @@ CONFIG_SCHEMA = {
                             'type': 'dict',
                             'required': True,
                             'schema': {
-                                'x': {
-                                    'type': 'integer',
-                                    'required': True
-                                },
-                                'y': {
-                                    'type': 'integer',
-                                    'required': True
-                                },
-                                'width': {
-                                    'type': 'integer',
-                                    'required': True
-                                },
-                                'height': {
-                                    'type': 'integer',
-                                    'required': True
-                                },
-                            }
-                        }
-                    }
-                }
+                                'x': {'type': 'integer', 'required': True},
+                                'y': {'type': 'integer', 'required': True},
+                                'width': {'type': 'integer', 'required': True},
+                                'height': {'type': 'integer', 'required': True},
+                            },
+                        },
+                    },
+                },
             }
-        }
+        },
     },
     'app': {
         'type': 'dict',
@@ -181,11 +163,7 @@ CONFIG_SCHEMA = {
                 'required': True,
                 'empty': False,
             },
-            'intro': {
-                'type': 'string',
-                'required': True,
-                'empty': False
-            },
+            'intro': {'type': 'string', 'required': True, 'empty': False},
             'footer': {
                 'type': 'dict',
                 'schema': {
@@ -200,8 +178,8 @@ CONFIG_SCHEMA = {
                             'url': {
                                 'type': 'string',
                                 'required': False,
-                            }
-                        }
+                            },
+                        },
                     },
                     'right': {
                         'type': 'dict',
@@ -214,10 +192,10 @@ CONFIG_SCHEMA = {
                             'url': {
                                 'type': 'string',
                                 'required': False,
-                            }
-                        }
-                    }
-                }
+                            },
+                        },
+                    },
+                },
             },
             'item': {
                 'type': 'dict',
@@ -237,9 +215,9 @@ CONFIG_SCHEMA = {
                                     'type': 'string',
                                     'required': True,
                                     'empty': False,
-                                }
-                            }
-                        }
+                                },
+                            },
+                        },
                     },
                     'fields': {
                         'type': 'list',
@@ -255,21 +233,19 @@ CONFIG_SCHEMA = {
                                     'type': 'string',
                                     'required': True,
                                     'empty': False,
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
     },
     'debug': {
         'type': 'boolean',
         'default': False,
     },
-    'logging': {
-        'type': 'dict'
-    }
+    'logging': {'type': 'dict'},
 }
 
 
@@ -290,7 +266,7 @@ def validate_config(config: dict) -> dict:
         def walk_error_tree(err: Union[dict, list], path: str) -> None:
             if isinstance(err, dict):
                 for key, value in err.items():
-                    walk_error_tree(value, path + (str(key), ))
+                    walk_error_tree(value, path + (str(key),))
             elif isinstance(err, list):
                 for sub_err in err:
                     walk_error_tree(sub_err, path)

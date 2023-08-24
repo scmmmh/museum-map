@@ -1,4 +1,4 @@
-from sqlalchemy import (Column, Integer, Unicode, ForeignKey, Index)
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy_json import NestedMutableJson
 
@@ -6,7 +6,6 @@ from .base import Base
 
 
 class Group(Base):
-
     __tablename__ = 'groups'
 
     id = Column(Integer, primary_key=True)
@@ -28,7 +27,7 @@ class Group(Base):
                 'value': self.value,
                 'label': self.label,
                 'split': self.split,
-            }
+            },
         }
 
 

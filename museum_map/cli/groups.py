@@ -23,7 +23,9 @@ async def generate_groups_impl(config):
         count = await dbsession.execute(count_stmt)
         result = await dbsession.execute(item_stmt)
         categories = []
-        with click.progressbar(result.scalars(), length=count.scalar_one(), label='Generating potential groups') as progress:
+        with click.progressbar(
+            result.scalars(), length=count.scalar_one(), label='Generating potential groups'
+        ) as progress:
             for item in progress:
                 for category in item.attributes['_categories']:
                     categories.append(category.lower())
@@ -124,7 +126,9 @@ def split_by_attribute(dbsession, group, attr):
         if has_values / len(group.items) > 0.9:
             categories.reverse()
             for category in categories:
-                new_group = Group(value=category[0], label=f'{group.label} - {category[0]}', parent=group, split='attribute')
+                new_group = Group(
+                    value=category[0], label=f'{group.label} - {category[0]}', parent=group, split='attribute'
+                )
                 dbsession.add(new_group)
                 for item in list(group.items):
                     if category[0] in item.attributes[attr]:
@@ -151,7 +155,7 @@ def split_by_year(config, dbsession, group):
         common = [(int(v), c) for v, c in Counter(years).most_common()]
         start_year = min([c for c, _ in common])
         end_year = max([c for c, _ in common])
-        if (start_year != end_year):
+        if start_year != end_year:
             year_boundaries = []
             if (end_year - start_year) <= 100 and (end_year - start_year) > 10:
                 start_decade = math.floor(start_year / 10)
@@ -159,8 +163,14 @@ def split_by_year(config, dbsession, group):
                 decades = []
                 for start_year in range(start_decade * 10, (end_decade + 1) * 10, 10):
                     for item in list(group.items):
-                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
-                            if start_year <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < start_year + 10:
+                        if (
+                            config['data']['year_field'] in item.attributes
+                            and item.attributes[config['data']['year_field']]
+                        ):
+                            if (
+                                start_year <= int(item.attributes[config['data']['year_field']])
+                                and int(item.attributes[config['data']['year_field']]) < start_year + 10
+                            ):
                                 if len(decades) == 0 or decades[-1][0][0] != start_year:
                                     decades.append([[start_year], 1])
                                 else:
@@ -176,14 +186,25 @@ def split_by_year(config, dbsession, group):
                 for years, _ in decades:
                     new_group = None
                     for item in list(group.items):
-                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
-                            if years[0] <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < years[-1] + 10:
+                        if (
+                            config['data']['year_field'] in item.attributes
+                            and item.attributes[config['data']['year_field']]
+                        ):
+                            if (
+                                years[0] <= int(item.attributes[config['data']['year_field']])
+                                and int(item.attributes[config['data']['year_field']]) < years[-1] + 10
+                            ):
                                 if new_group is None:
                                     if len(years) == 1:
                                         label = f'{years[0]}s'
                                     else:
                                         label = f'{years[0]}s-{years[-1]}s'
-                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label}', parent=group, split='time')
+                                    new_group = Group(
+                                        value=str(start_year),
+                                        label=f'{group.label} - {label}',
+                                        parent=group,
+                                        split='time',
+                                    )
                                     dbsession.add(new_group)
                                 item.group = new_group
                 if group.items:
@@ -198,8 +219,14 @@ def split_by_year(config, dbsession, group):
                 centuries = []
                 for start_year in range(start_century * 100, (end_century + 1) * 100, 100):
                     for item in list(group.items):
-                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
-                            if start_year <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < start_year + 100:
+                        if (
+                            config['data']['year_field'] in item.attributes
+                            and item.attributes[config['data']['year_field']]
+                        ):
+                            if (
+                                start_year <= int(item.attributes[config['data']['year_field']])
+                                and int(item.attributes[config['data']['year_field']]) < start_year + 100
+                            ):
                                 if len(centuries) == 0 or centuries[-1][0][0] != start_year:
                                     centuries.append([[start_year], 1])
                                 else:
@@ -215,8 +242,14 @@ def split_by_year(config, dbsession, group):
                 for years, _ in centuries:
                     new_group = None
                     for item in list(group.items):
-                        if config['data']['year_field'] in item.attributes and item.attributes[config['data']['year_field']]:
-                            if years[0] <= int(item.attributes[config['data']['year_field']]) and int(item.attributes[config['data']['year_field']]) < years[-1] + 100:
+                        if (
+                            config['data']['year_field'] in item.attributes
+                            and item.attributes[config['data']['year_field']]
+                        ):
+                            if (
+                                years[0] <= int(item.attributes[config['data']['year_field']])
+                                and int(item.attributes[config['data']['year_field']]) < years[-1] + 100
+                            ):
                                 if new_group is None:
                                     if len(years) == 1:
                                         century = math.floor(years[0] / 100) + 1
@@ -248,7 +281,12 @@ def split_by_year(config, dbsession, group):
                                         else:
                                             end_label = f'{century}th'
                                         label = f'{start_label}-{end_label}'
-                                    new_group = Group(value=str(start_year), label=f'{group.label} - {label} century', parent=group, split='time')
+                                    new_group = Group(
+                                        value=str(start_year),
+                                        label=f'{group.label} - {label} century',
+                                        parent=group,
+                                        split='time',
+                                    )
                                     dbsession.add(new_group)
                                 item.group = new_group
                 if group.items:
@@ -314,8 +352,11 @@ async def merge_singular_plural_impl(config):
             stmt = select(Group)
             result = await dbsession.execute(stmt)
             for group in result.scalars():
-                stmt = select(Group).filter(and_(Group.value == inflection.singularize(group.value),
-                                                 Group.id != group.id)).options(selectinload(Group.items))
+                stmt = (
+                    select(Group)
+                    .filter(and_(Group.value == inflection.singularize(group.value), Group.id != group.id))
+                    .options(selectinload(Group.items))
+                )
                 result = await dbsession.execute(stmt)
                 other = result.scalars().first()
                 if other:
@@ -343,7 +384,9 @@ async def add_parent_groups_impl(config):
         result = await dbsession.execute(stmt)
         stmt = select(func.count(Group.id)).filter(Group.parent_id == None)
         result_count = await dbsession.execute(stmt)
-        with click.progressbar(result.scalars(), length=result_count.scalar_one(), label='Adding parent groups') as progress:
+        with click.progressbar(
+            result.scalars(), length=result_count.scalar_one(), label='Adding parent groups'
+        ) as progress:
             for group in progress:
                 if 'aat' in config['data']['hierarchy']['expansions']:
                     categories = apply_aat(group.value, merge=False)
@@ -355,7 +398,9 @@ async def add_parent_groups_impl(config):
                                 result = await dbsession.execute(stmt)
                                 parent_group = result.scalars().first()
                                 if not parent_group:
-                                    parent_group = Group(value=category, label=category[0].upper() + category[1:], split='parent')
+                                    parent_group = Group(
+                                        value=category, label=category[0].upper() + category[1:], split='parent'
+                                    )
                                     dbsession.add(group)
                                 group.parent = parent_group
                                 mapped = True
@@ -367,7 +412,9 @@ async def add_parent_groups_impl(config):
                     else:
                         mapped = False
                         for category in apply_nlp(group.value):
-                            stmt = select(Group).filter(or_(Group.value == category, Group.value == inflection.pluralize(category)))
+                            stmt = select(Group).filter(
+                                or_(Group.value == category, Group.value == inflection.pluralize(category))
+                            )
                             result = await dbsession.execute(stmt)
                             parent_group = result.scalars().first()
                             if parent_group:
@@ -382,7 +429,11 @@ async def add_parent_groups_impl(config):
                                     groups = []
                                     for hierarchy in hierarchies:
                                         if group.value not in hierarchy:
-                                            stmt = select(Group).filter(Group.value.in_(hierarchy)).options(selectinload(Group.items))
+                                            stmt = (
+                                                select(Group)
+                                                .filter(Group.value.in_(hierarchy))
+                                                .options(selectinload(Group.items))
+                                            )
                                             result = await dbsession.execute(stmt)
                                             for potential_group in result.scalars():
                                                 depth = 0

@@ -28,7 +28,9 @@ async def index_impl(config):
             stmt_count = select(func.count(Room.id))
             result_count = await dbsession.execute(stmt_count)
             docs = []
-            with click.progressbar(result.scalars(), length=result_count.scalar_one(), label='Generating rooms documents') as progress:
+            with click.progressbar(
+                result.scalars(), length=result_count.scalar_one(), label='Generating rooms documents'
+            ) as progress:
                 for room in progress:
                     for item in room.items:
                         doc = {

@@ -57,23 +57,23 @@ def apply_nlp(category):
         if ' for ' in category:
             idx = category.find(' for ')
             prefix = strip_article(category[:idx])
-            suffix = strip_article(category[idx + 5:])
+            suffix = strip_article(category[idx + 5 :])
             return [suffix, prefix] + apply_nlp(suffix) + apply_nlp(prefix)
         elif '(' in category:
             start = category.find('(')
             end = category.find(')')
-            outer = strip_article((category[:start] + ' ' + category[end + 1:]))
-            inner = strip_article(category[start + 1:end])
+            outer = strip_article((category[:start] + ' ' + category[end + 1 :]))
+            inner = strip_article(category[start + 1 : end])
             return [outer, inner] + apply_nlp(outer) + apply_nlp(inner)
         elif ' with ' in category:
             idx = category.find(' with ')
             prefix = strip_article(category[:idx])
-            suffix = strip_article(category[idx + 6:])
+            suffix = strip_article(category[idx + 6 :])
             return [prefix, suffix] + apply_nlp(prefix) + apply_nlp(suffix)
         elif ' of ' in category:
             idx = category.find(' of ')
             prefix = strip_article(category[:idx])
-            suffix = strip_article(category[idx + 4:])
+            suffix = strip_article(category[idx + 4 :])
             if prefix in ['pair', 'copy', 'base', 'fragments', 'figure', 'copy']:
                 return [suffix] + apply_nlp(suffix)
             else:
@@ -81,7 +81,7 @@ def apply_nlp(category):
         elif ' from ' in category:
             idx = category.find(' from ')
             prefix = strip_article(category[:idx])
-            suffix = strip_article(category[idx + 4:])
+            suffix = strip_article(category[idx + 4 :])
             if prefix in ['pair', 'copy', 'base', 'fragments', 'figure', 'copy']:
                 return [suffix] + apply_nlp(suffix)
             else:
@@ -107,9 +107,9 @@ def apply_nlp(category):
                 if idx >= 0:
                     categories.append(strip_article(category[:idx]))
                     if category[idx] == ',':
-                        category = category[idx + 1:]
+                        category = category[idx + 1 :]
                     else:
-                        category = category[idx + 5:]
+                        category = category[idx + 5 :]
             if category.strip().strip('()[]'):
                 categories.append(strip_article(category.strip().strip('()[]')))
             for cat in list(categories):
@@ -121,7 +121,7 @@ def apply_nlp(category):
                 idx = category.find(' or ')
                 if idx >= 0:
                     categories.append(strip_article(category[:idx]))
-                    category = category[idx + 4:].strip().strip('()[]')
+                    category = category[idx + 4 :].strip().strip('()[]')
             if category.strip().strip('()[]'):
                 categories.append(strip_article(category))
             for cat in list(categories):
@@ -143,16 +143,17 @@ def apply_aat(category, merge=True):
         cache = {}
     if category not in cache:
         cache[category] = []
-        response = requests.get('http://vocabsservices.getty.edu/AATService.asmx/AATGetTermMatch',
-                                params=[('term', f'"{category}"'),
-                                        ('logop', 'and'),
-                                        ('notes', '')])
+        response = requests.get(
+            'http://vocabsservices.getty.edu/AATService.asmx/AATGetTermMatch',
+            params=[('term', f'"{category}"'), ('logop', 'and'), ('notes', '')],
+        )
         if response.status_code == 200:
             subjects = etree.fromstring(response.content).xpath('Subject/Subject_ID/text()')
             hierarchies = []
             for subject in subjects:
-                response2 = requests.get('http://vocabsservices.getty.edu/AATService.asmx/AATGetSubject',
-                                         params=[('subjectID', subject)])
+                response2 = requests.get(
+                    'http://vocabsservices.getty.edu/AATService.asmx/AATGetSubject', params=[('subjectID', subject)]
+                )
                 if response.status_code == 200:
                     hierarchy_text = etree.fromstring(response2.content).xpath('Subject/Hierarchy/text()')
                     if hierarchy_text:
@@ -160,11 +161,11 @@ def apply_aat(category, merge=True):
                         for entry in [h.strip() for h in hierarchy_text[0].split('|') if '<' not in h]:
                             entry = entry.lower()
                             if '(' in entry:
-                                entry = entry[:entry.find('(')].strip()
+                                entry = entry[: entry.find('(')].strip()
                             if entry.endswith(' facet'):
-                                entry = entry[:entry.find(' facet')].strip()
+                                entry = entry[: entry.find(' facet')].strip()
                             if entry.endswith(' genres'):
-                                entry = entry[:entry.find(' genres')].strip()
+                                entry = entry[: entry.find(' genres')].strip()
                             if entry not in hierarchy:
                                 hierarchy.append(entry)
                         hierarchies.append(hierarchy)
@@ -172,8 +173,8 @@ def apply_aat(category, merge=True):
             for hierarchy in hierarchies:
                 for start in range(0, len(hierarchy)):
                     if hierarchy[start] not in cache:
-                        if hierarchy[start + 1:]:
-                            cache[hierarchy[start]] = [hierarchy[start + 1:]]
+                        if hierarchy[start + 1 :]:
+                            cache[hierarchy[start]] = [hierarchy[start + 1 :]]
                         else:
                             cache[hierarchy[start]] = []
         with open('aat.json', 'w') as out_f:
@@ -227,6 +228,7 @@ def expand_categories(ctx):
 async def generate_topic_vectors_impl(config):
     """Generate topic vectors for all items."""
     async with create_sessionmaker(config)() as dbsession:
+
         async def texts(dictionary=None, label=''):
             count = await dbsession.execute(select(func.count(Item.id)))
             result = await dbsession.execute(select(Item))
@@ -251,7 +253,9 @@ async def generate_topic_vectors_impl(config):
         waiting.stop()
         count = await dbsession.execute(select(func.count(Item.id)))
         result = await dbsession.execute(select(Item))
-        with click.progressbar(result.scalars(), length=count.scalar_one(), label='Generating topic vectors') as progress:
+        with click.progressbar(
+            result.scalars(), length=count.scalar_one(), label='Generating topic vectors'
+        ) as progress:
             for item in progress:
                 if '_tokens' in item.attributes:
                     vec = model[dictionary.doc2bow(item.attributes['_tokens'])]
@@ -272,11 +276,13 @@ async def pipeline_impl(config):
     await tokenise_impl(config)
     await generate_topic_vectors_impl(config)
 
+
 @click.command()
 @click.pass_context
 def pipeline(ctx):
     """Run the items processing pipeline."""
     asyncio.run(pipeline_impl(ctx.obj['config']))
+
 
 @click.group()
 def items():
