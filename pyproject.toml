@@ -53,6 +53,21 @@ path = "museum_map/__about__.py"
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.hatch.build]
+exclude = [
+  ".github",
+  "docker",
+  ".gitignore",
+  ".pre-commit-config.yaml",
+  "basemap.svg",
+  "docker-compose.yml",
+  "prepare_release.py",
+  "museum_map/server/frontend",
+]
+artifacts = [
+  "museum_map/server/frontend/dist/**/*.*",
+]
+
 [tool.hatch.envs.default]
 dependencies = [
   "coverage[toml]>=6.5",
