@@ -133,3 +133,50 @@
     {/if}
   </main>
 </div>
+
+<style global>
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  @layer utilities {
+    ol.child-separator li::after,
+    ul.child-separator li::after {
+      content: "»";
+    }
+
+    ol.child-separator li:last-child::after,
+    ul.child-separator li:last-child::after {
+      content: "";
+    }
+
+    ol.list-separator li::after,
+    ul.list-separator li::after {
+      content: ",";
+    }
+
+    ol.list-separator li:last-child::after,
+    ul.list-separator li:last-child::after {
+      content: "";
+    }
+
+    .hover-parent:hover .hover-child-underline,
+    .hover-parent:focus .hover-child-underline {
+      @apply underline;
+    }
+
+    .img-brightness img {
+      @apply brightness-75;
+    }
+  }
+
+  @layer components {
+    figure.title-hover figcaption {
+      @apply opacity-0 transition-opacity duration-300;
+    }
+    figure.title-hover:hover figcaption,
+    figure.title-hover:focus figcaption {
+      @apply opacity-100;
+    }
+  }
+</style>

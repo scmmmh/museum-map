@@ -33,7 +33,7 @@ def run(ctx):
                 "/(.*)",
                 FrontendHandler,
                 {
-                    "base": resources.files("museum_map") / "server" / "frontend" / "public",
+                    "base": resources.files("museum_map") / "server" / "frontend" / "dist",
                     "html_injectors": {r"room/([0-9]+)/([0-9]+)": create_inject_item_html(config)},
                 },
             ),
