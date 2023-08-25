@@ -21,6 +21,10 @@ jobs:
         with:
           python-version: 3.11
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
       - name: Install Base Dependencies
         run: |
           sudo apt-get update
@@ -29,4 +33,7 @@ jobs:
 
       - name: Build Application
         run: |
+          cd museum_map/server/frontend
+          npm run build
+          cd ../../../
           hatch build
