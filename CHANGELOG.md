@@ -1,6 +1,6 @@
 # Changelog
 
-## Dev
+## 0.9.0
 
 * **New**: Add an indicator when a frontend reload is required
 * **Chore**: Update all dependencies
