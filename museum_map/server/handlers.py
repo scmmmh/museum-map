@@ -1,7 +1,7 @@
 import logging
 import math
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib.abc import Traversable
 from mimetypes import guess_type
 
@@ -133,7 +133,7 @@ class APIPickHandler(RequestBase):
                         query = query.order_by(func.random()).limit(12)
                     elif pick_type == "todays":
                         total = (await session.execute(select(func.count()).select_from(class_))).scalars().first()
-                        row_nr = (math.floor(datetime.now(tz=timezone.utc).timestamp() / 86400) % total) + 1
+                        row_nr = (math.floor(datetime.now(tz=UTC).timestamp() / 86400) % total) + 1
                         query = query.order_by(class_.id).offset(row_nr).limit(1)
                     result = await session.execute(query)
                     items = [item.as_jsonapi() for item in result.scalars()]
