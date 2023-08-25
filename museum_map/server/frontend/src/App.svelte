@@ -4,7 +4,6 @@
   import { Route } from "./simple-svelte-router";
 
   import Lobby from "./routes/Lobby.svelte";
-  import Floor from "./routes/Floor.svelte";
   import Room from "./routes/Room.svelte";
   import { isBusy, isUpdatable } from "./store";
 
@@ -14,6 +13,11 @@
     fetchConfig,
     fetchStatus,
   } from "./store";
+
+  let Floor = null;
+  import("./routes/Floor.svelte").then((module) => {
+    Floor = module.default;
+  });
 
   let statusInterval = window.setInterval(() => {
     fetchStatus();
@@ -34,7 +38,9 @@
     class="container mx-auto bg-neutral-700 text-white shadow-lg shadow-black font-serif tracking-default"
   >
     <Route path="/"><Lobby /></Route>
-    <Route path="/floor/:id"><Floor /></Route>
+    <Route path="/floor/:id"
+      >{#if Floor !== null}<svelte:component this={Floor} />{/if}</Route
+    >
     <Route path="/room/:id"><Room /></Route>
 
     {#if $isUpdatable}
