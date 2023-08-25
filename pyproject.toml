@@ -62,6 +62,7 @@ exclude = [
   "basemap.svg",
   "docker-compose.yml",
   "prepare_release.py",
+  "museum_map/server/frontend",
 ]
 artifacts = [
   "museum_map/server/frontend/dist/**/*.*",
