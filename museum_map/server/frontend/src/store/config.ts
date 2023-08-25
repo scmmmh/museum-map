@@ -18,7 +18,7 @@ export async function fetchStatus() {
 }
 
 export const isUpdatable = derived(status, (status) => {
-  return status !== null && status.version !== '0.9.0';
+  return status !== null && status.version !== '0.9.1';
 });
 
 export const config = writable(null as JsonApiObject);

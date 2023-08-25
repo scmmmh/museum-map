@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.1
+
+* **Bugfix**: Include the frontend in the package
+
 ## 0.9.0
 
 * **New**: Add an indicator when a frontend reload is required
