@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { location } from "./store";
   import type { RouterLocation } from "./store";
 
@@ -35,6 +36,8 @@
   const locationUnsubscribe = location.subscribe((location) => {
     checkMatch(location);
   });
+
+  onDestroy(locationUnsubscribe);
 </script>
 
 {#if matches}
