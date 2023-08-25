@@ -1,6 +1,6 @@
 # Changelog
 
-## Dev
+## 0.9.1
 
 * **Bugfix**: Include the frontend in the package
 
