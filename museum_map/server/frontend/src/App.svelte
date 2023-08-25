@@ -44,7 +44,7 @@
     <Route path="/room/:id"><Room /></Route>
 
     {#if $isUpdatable}
-      <div class="absolute left-0 bottom-0 pb-2 pl-2">
+      <div class="absolute left-0 bottom-0 pb-2 pl-2 z-20">
         <a
           href="./"
           class="block text-xs bg-blue-800 px-4 py-2 rounded-lg hover:underline focus:underline shadow"
