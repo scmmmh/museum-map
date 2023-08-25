@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { Router, Route } from "svelte-navigator";
     import { fade } from "svelte/transition";
+    import { Route } from "../simple-svelte-router";
 
     import Lobby from "./Lobby.svelte";
     import Floor from "./Floor.svelte";
@@ -8,16 +8,14 @@
     import { isBusy, isUpdatable } from "../store";
 </script>
 
-<Router>
-    <Route path="/"><Lobby /></Route>
-    <Route path="/floor/:id"><Floor /></Route>
-    <Route path="/room/:id/*"><Room /></Route>
-</Router>
+<Route path="/"><Lobby /></Route>
+<Route path="/floor/:id"><Floor /></Route>
+<Route path="/room/:id"><Room /></Route>
 
 {#if $isUpdatable}
     <div class="absolute left-0 bottom-0 pb-2 pl-2">
         <a
-            href=""
+            href="./"
             class="block text-xs bg-blue-800 px-4 py-2 rounded-lg hover:underline focus:underline shadow"
             >Please reload for the latest version.</a
         >
