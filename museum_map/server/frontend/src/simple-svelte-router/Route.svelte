@@ -4,7 +4,7 @@
   import type { RouterLocation } from "./store";
 
   export let path: string;
-  let pathComponents = [];
+  let pathComponents: string[] = [];
   let matches = false;
 
   function checkMatch(location: RouterLocation) {
