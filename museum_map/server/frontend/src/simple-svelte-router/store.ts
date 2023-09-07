@@ -23,7 +23,7 @@ export function createRouter() {
   }
 
   function subscribe(subscriber: Subscriber<RouterLocation>) {
-    let historyUnsubscribe = null;
+    let historyUnsubscribe: (() => void) | null = null;
     if (subscriberCount === 0) {
       historyUnsubscribe = history.listen(update);
       processLocation(history.location);
@@ -34,7 +34,7 @@ export function createRouter() {
     return () => {
       locationUnsubscribe();
       subscriberCount--;
-      if (subscriberCount === 0) {
+      if (subscriberCount === 0 && historyUnsubscribe !== null) {
         historyUnsubscribe();
       }
     }
