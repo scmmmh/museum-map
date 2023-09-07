@@ -4,6 +4,8 @@
   import type { RouterLocation } from "./store";
 
   export let path: string;
+  export let handleFocus: boolean = true;
+
   let pathComponents: string[] = [];
   let matches = false;
   let startMarker: HTMLElement | null = null;
@@ -13,15 +15,12 @@
    * Focus on the first hX element we find
    */
   function focusElement() {
-    console.log(startMarker, endMarker);
     if (startMarker && endMarker) {
       let element = startMarker.nextElementSibling as HTMLElement;
       let found = false;
       while (element !== null && element !== endMarker) {
-        console.log(element);
         const heading = element.querySelector("h1,h2,h3,h4,h5,h6");
         if (heading !== null) {
-          (heading as HTMLElement).setAttribute("tabindex", "-1");
           (heading as HTMLElement).focus();
           found = true;
           break;
@@ -68,9 +67,12 @@
    * @param location The current location
    */
   function process(location: RouterLocation) {
-    const oldMatches = matches;
     checkMatch(location);
-    if (!oldMatches && matches) {
+    if (
+      handleFocus &&
+      matches &&
+      location.pathComponents.length == pathComponents.length
+    ) {
       tick().then(focusElement);
     }
   }

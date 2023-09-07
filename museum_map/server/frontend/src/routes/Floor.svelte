@@ -674,7 +674,7 @@
         {/each}
       </ol>
     </nav>
-    <article id="content" class="flex-1 overflow-hidden relative">
+    <article id="content" class="flex-1 overflow-hidden relative" tabindex="-1">
       <nav class="hidden lg:flex flex-row absolute right-0 top-0">
         <div class="flex-none mr-2 lg:mr-4 mt-2 lg:mt-4">
           <button

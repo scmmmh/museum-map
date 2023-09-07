@@ -22,7 +22,7 @@
 </script>
 
 <Header title="Museum Map - Lobby" nav={[]} />
-<article id="content">
+<article id="content" tabindex="-1">
   <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
     {#if $config && $config.attributes.intro && (!$localPreferences.lobby || !$localPreferences.lobby.hideWelcome)}
       <section class="col-span-12 my-5">

@@ -97,6 +97,12 @@
         behavior: smooth ? "smooth" : "auto",
       });
     }
+    if ($location.pathComponents.length === 2) {
+      const element = document.querySelector("h1");
+      if (element) {
+        (element as HTMLElement).focus();
+      }
+    }
   }
 
   let debounceFocusFirstMatchTimeout = -1;
@@ -123,7 +129,7 @@
       },
     ]}
   />
-  <article id="content">
+  <article id="content" tabindex="-1">
     <ul
       class="grid grid-cols-1 md:grid-cols-items justify-around p-4 overflow-hidden"
     >
@@ -137,7 +143,7 @@
         </li>
       {/each}
     </ul>
-    <Route path="/room/:rid/:iid"><Item /></Route>
+    <Route path="/room/:rid/:iid" handleFocus={false}><Item /></Route>
   </article>
   <Footer />
 {/if}
