@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy, tick } from "svelte";
   import { derived } from "svelte/store";
   import { location } from "../simple-svelte-router";
 
@@ -10,6 +11,8 @@
     loadRooms,
     config,
   } from "../store";
+
+  let itemHeading: HTMLElement | null = null;
 
   const currentItem = derived(
     [location, cachedItems],
@@ -149,6 +152,18 @@
       return item;
     }
   }
+
+  const currentItemUnsubscribe = currentItem.subscribe((currentItem) => {
+    if (currentItem) {
+      tick().then(() => {
+        if (itemHeading) {
+          itemHeading.focus();
+        }
+      });
+    }
+  });
+
+  onDestroy(currentItemUnsubscribe);
 </script>
 
 <section
@@ -174,7 +189,11 @@
         >✖</button
       >
       <div class="flex flex-row items-center flex-none bg-blue-900">
-        <h2 class="flex-1 px-4 py-2 text-lg font-bold">
+        <h2
+          bind:this={itemHeading}
+          class="flex-1 px-4 py-2 text-lg font-bold"
+          tabindex="-1"
+        >
           {$currentItem.attributes.title
             ? processParagraph($currentItem.attributes.title)
             : "[Untitled]"}

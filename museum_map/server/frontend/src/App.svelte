@@ -41,7 +41,7 @@
     <Route path="/floor/:id"
       >{#if Floor !== null}<svelte:component this={Floor} />{/if}</Route
     >
-    <Route path="/room/:id"><Room /></Route>
+    <Route path="/room/:id" handleFocus={false}><Room /></Route>
 
     {#if $isUpdatable}
       <div class="absolute left-0 bottom-0 pb-2 pl-2 z-20">

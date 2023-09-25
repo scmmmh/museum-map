@@ -48,6 +48,13 @@
     window.location.hash = "#content";
   }
 
+  function focusContent() {
+    const element = document.querySelector("#content");
+    if (element !== null) {
+      (element as HTMLElement).focus();
+    }
+  }
+
   onMount(() => {
     if ($location.search === "?search") {
       location.push($location.pathname);
@@ -80,13 +87,14 @@
       class="{showSearch
         ? 'truncate'
         : ''} flex-1 text-lg font-bold px-2 py-2 md:mr-4"
+      tabindex="-1"
     >
       {title}
     </h1>
-    <a
-      href="#content"
+    <button
+      on:click={focusContent}
       class="block fixed z-50 top-[-200px] focus:top-0 left-1/2 transform -translate-x-1/2 bg-neutral-600 px-10 py-2 rounded-b-lg shadow-even shadow-black"
-      >Jump to content</a
+      >Jump to content</button
     >
     {#if $isBusy}
       <div class="sr-only" role="alert">Loading data</div>
