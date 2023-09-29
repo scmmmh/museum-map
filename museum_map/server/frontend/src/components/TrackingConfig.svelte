@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, tick } from "svelte";
+  import { get } from "svelte/store";
   import {
     localPreferences,
     consent,
@@ -11,6 +12,8 @@
   let dialogVisible = !$localPreferences || !$localPreferences.tracking;
   let dialogHeader: HTMLElement | null = null;
   let researchButton: HTMLButtonElement | null = null;
+  let ageBandSelect: HTMLSelectElement | null = null;
+  let thankYouMessage: HTMLElement | null = null;
 
   if (dialogVisible) {
     tick().then(() => {
@@ -36,10 +39,26 @@
     }
   }
 
+  function setConsent() {
+    consent.set(true);
+    tick().then(() => {
+      if (ageBandSelect) {
+        ageBandSelect.focus();
+      }
+    });
+  }
+
   const consentUnsubscribe = consent.subscribe((consent) => {
     localPreferences.setPreference("tracking.consent", consent);
   });
   const ageBandUnsubscribe = ageBand.subscribe((ageBand) => {
+    if (get(trackingAllowed)) {
+      tick().then(() => {
+        if (thankYouMessage) {
+          thankYouMessage.focus();
+        }
+      });
+    }
     localPreferences.setPreference("tracking.ageBand", ageBand);
   });
 
@@ -83,18 +102,16 @@
 
 {#if dialogVisible}
   <div
-    class="fixed left-1/2 bottom-0 w-9/12 transform -translate-x-1/2 z-40 p-4 bg-neutral-700 text-white shadow-even shadow-black"
+    class="fixed left-1/2 bottom-0 w-9/12 transform -translate-x-1/2 flex flex-col z-40 p-4 bg-neutral-700 text-white shadow-even shadow-black"
   >
-    <h2 bind:this={dialogHeader} class="text-xl font-bold mb-4" tabindex="-1">
+    <h2
+      bind:this={dialogHeader}
+      class="text-xl font-bold mb-4 order-1"
+      tabindex="-1"
+    >
       Participate in our Research
     </h2>
-    {#if $trackingAllowed}
-      <p class="mb-4 text-md">
-        Thank you for contributing to the Museum Map project. Your input is much
-        appreciated!
-      </p>
-    {/if}
-    <div class="flex flex-row space-x-8">
+    <div class="flex flex-row space-x-8 order-3">
       <div class="w-3/6">
         <p>
           The Museum Map system is developed as part of an ongoing research
@@ -134,9 +151,7 @@
         <div class="flex flex-row">
           <div class="w-3/6 text-center">
             <button
-              on:click={() => {
-                consent.set(true);
-              }}
+              on:click={setConsent}
               class="inline-block {!$consent
                 ? 'bg-neutral-600'
                 : 'bg-blue-800'} px-4 lg:px-3 py-3 lg:py-1 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800"
@@ -146,6 +161,7 @@
               <label class="block pt-4"
                 >Please select your age band
                 <select
+                  bind:this={ageBandSelect}
                   class="inline-block bg-blue-800 px-2 py-1 rounded-lg"
                   bind:value={$ageBand}
                 >
@@ -177,6 +193,12 @@
         </div>
       </div>
     </div>
+    {#if $trackingAllowed}
+      <p bind:this={thankYouMessage} class="mb-4 text-md order-2" tabindex="-1">
+        Thank you for contributing to the Museum Map project. Your input is much
+        appreciated!
+      </p>
+    {/if}
     <button
       class="absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 bg-blue-800 text-white rounded-full"
       aria-label="Close this dialog"
