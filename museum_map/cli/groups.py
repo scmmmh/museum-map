@@ -18,8 +18,8 @@ from museum_map.models import Group, Item, create_sessionmaker
 async def generate_groups_impl(config):
     """Generate the basic groups."""
     async with create_sessionmaker(config)() as dbsession:
-        item_stmt = select(Item).filter(Item.group_id is None)
-        count_stmt = select(func.count(Item.id)).filter(Item.group_id is None)
+        item_stmt = select(Item).filter(Item.group_id == None)
+        count_stmt = select(func.count(Item.id)).filter(Item.group_id == None)
         count = await dbsession.execute(count_stmt)
         result = await dbsession.execute(item_stmt)
         categories = []
@@ -383,9 +383,9 @@ def merge_singular_plural(ctx):
 async def add_parent_groups_impl(config):
     """Add any required parent groups."""
     async with create_sessionmaker(config)() as dbsession:
-        stmt = select(Group).filter(Group.parent_id is None).options(selectinload(Group.parent))
+        stmt = select(Group).filter(Group.parent_id == None).options(selectinload(Group.parent))
         result = await dbsession.execute(stmt)
-        stmt = select(func.count(Group.id)).filter(Group.parent_id is None)
+        stmt = select(func.count(Group.id)).filter(Group.parent_id == None)
         result_count = await dbsession.execute(stmt)
         with click.progressbar(
             result.scalars(), length=result_count.scalar_one(), label="Adding parent groups"
