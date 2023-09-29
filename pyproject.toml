@@ -32,7 +32,6 @@ dependencies = [
 "scipy>=1.11.2,<2",
 "tornado>=6.3.3,<7",
 "asyncpg>=0.28.0,<1",
-"en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.6.0/en_core_web_sm-3.6.0-py3-none-any.whl",
 "PyYAML>=6.0,<7",
 "Cerberus>=1.3.5,<2",
 "psycopg2-binary>=2.9.7,<3",
@@ -72,6 +71,9 @@ artifacts = [
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+]
+post-install-commands = [
+  "python -m spacy download en_core_web_sm"
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
