@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { tracker } from "../store";
 
   export let item: JsonApiObject;
   export let noLink = false;
@@ -65,6 +66,30 @@
       href={linkTo(item)}
       class="block h-full w-full overflow-hidden underline-offset-2 hover:img-brightness hover:underline focus:underline"
       aria-label={item.attributes.title}
+      on:mouseenter={() => {
+        tracker.log({
+          action: "mouseenter",
+          params: { object: "thumbnail", thumbnail: item.id },
+        });
+      }}
+      on:mouseleave={() => {
+        tracker.log({
+          action: "mouseleave",
+          params: { object: "thumbnail", thumbnail: item.id },
+        });
+      }}
+      on:focus={() => {
+        tracker.log({
+          action: "focus",
+          params: { object: "thumbnail", thumbnail: item.id },
+        });
+      }}
+      on:blur={() => {
+        tracker.log({
+          action: "blur",
+          params: { object: "thumbnail", thumbnail: item.id },
+        });
+      }}
     >
       <figure
         class="flex flex-col justify-center items-center h-full overflow-hidden"

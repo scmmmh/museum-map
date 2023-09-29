@@ -13,6 +13,7 @@
     majorCollections,
     floors,
     localPreferences,
+    tracker,
   } from "../store";
 
   onMount(() => {
@@ -70,7 +71,30 @@
                     <a
                       href={"#/floor/" + floor.id}
                       class="inline-block bg-neutral-600 px-4 lg:px-3 py-3 lg:py-1 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800"
-                      >⇒ {floor.attributes.label}</a
+                      on:mouseenter={() => {
+                        tracker.log({
+                          action: "mouseenter",
+                          params: { object: "floor-link", thumbnail: floor.id },
+                        });
+                      }}
+                      on:mouseleave={() => {
+                        tracker.log({
+                          action: "mouseleave",
+                          params: { object: "floor-link", thumbnail: floor.id },
+                        });
+                      }}
+                      on:focus={() => {
+                        tracker.log({
+                          action: "focus",
+                          params: { object: "floor-link", thumbnail: floor.id },
+                        });
+                      }}
+                      on:blur={() => {
+                        tracker.log({
+                          action: "blur",
+                          params: { object: "floor-link", thumbnail: floor.id },
+                        });
+                      }}>⇒ {floor.attributes.label}</a
                     >
                   </li>
                 {/each}
@@ -83,7 +107,30 @@
             <a
               href={"#/floor/" + $floors[0].id}
               class="inline-block text-xl tracking-widest font-bold bg-blue-800 px-4 py-2 rounded-lg hover:underline focus:underline"
-              >Explore the whole collection ⇒</a
+              on:mouseenter={() => {
+                tracker.log({
+                  action: "mouseenter",
+                  params: { object: "explore-everything" },
+                });
+              }}
+              on:mouseleave={() => {
+                tracker.log({
+                  action: "mouseleave",
+                  params: { object: "explore-everything" },
+                });
+              }}
+              on:focus={() => {
+                tracker.log({
+                  action: "focus",
+                  params: { object: "explore-everything" },
+                });
+              }}
+              on:blur={() => {
+                tracker.log({
+                  action: "blur",
+                  params: { object: "explore-everything" },
+                });
+              }}>Explore the whole collection ⇒</a
             >
           </div>
         {/if}
@@ -97,6 +144,30 @@
         <button
           on:click={() => {
             fetchRandomItemsSelection();
+          }}
+          on:mouseenter={() => {
+            tracker.log({
+              action: "mouseenter",
+              params: { object: "reload-random-selection" },
+            });
+          }}
+          on:mouseleave={() => {
+            tracker.log({
+              action: "mouseleave",
+              params: { object: "reload-random-selection" },
+            });
+          }}
+          on:focus={() => {
+            tracker.log({
+              action: "focus",
+              params: { object: "reload-random-selection" },
+            });
+          }}
+          on:blur={() => {
+            tracker.log({
+              action: "blur",
+              params: { object: "reload-random-selection" },
+            });
           }}
           class="flex-none px-2 py-2"
           aria-label="Update the selection of items from the collection"

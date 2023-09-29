@@ -2,7 +2,7 @@
   import { afterUpdate, onDestroy, onMount, tick } from "svelte";
   import { location } from "../simple-svelte-router";
 
-  import { isBusy, searchTerm, searchRoom, floors } from "../store";
+  import { isBusy, searchTerm, searchRoom, floors, tracker } from "../store";
 
   export let title: string;
   export let nav: { path: string; label: string }[];
@@ -38,14 +38,15 @@
     searchTerm.set("");
     if (showSearch) {
       tick().then(() => {
-        searchElement.focus();
+        if (searchElement) {
+          searchElement.focus();
+        }
       });
     }
   }
 
   function submitSearch(ev: SubmitEvent) {
     ev.preventDefault();
-    window.location.hash = "#content";
   }
 
   function focusContent() {
@@ -63,7 +64,9 @@
           if (searchElement) {
             showSearch = true;
             tick().then(() => {
-              searchElement.focus();
+              if (searchElement) {
+                searchElement.focus();
+              }
             });
           }
         });
@@ -124,6 +127,12 @@
     <form
       class="mr-2 flex flex-row border rounded-lg text-black bg-white text-black relative"
       on:submit={submitSearch}
+      on:mouseenter={() => {
+        tracker.log({ action: "mouseenter", params: { object: "searchform" } });
+      }}
+      on:mouseleave={() => {
+        tracker.log({ action: "mouseleave", params: { object: "searchform" } });
+      }}
     >
       <input
         bind:this={searchElement}
@@ -133,6 +142,12 @@
         class="{!showSearch
           ? 'hidden'
           : 'block'} md:block flex-1 px-2 py-1 bg-transparent items-center"
+        on:focus={() => {
+          tracker.log({ action: "focus", params: { object: "searchinput" } });
+        }}
+        on:blur={() => {
+          tracker.log({ action: "blur", params: { object: "searchinput" } });
+        }}
       />
       <button
         on:click={searchToggle}

@@ -10,6 +10,7 @@
     loadItems,
     loadRooms,
     config,
+    tracker,
   } from "../store";
 
   let itemHeading: HTMLElement | null = null;
@@ -252,14 +253,43 @@
           {#each $config.attributes.item.texts as textConfig}
             {#if $currentItem.attributes[textConfig.name]}
               {#each processText($currentItem.attributes[textConfig.name]) as para}
-                <p class="mb-2">{@html para}</p>
+                <p
+                  class="mb-2"
+                  on:mouseenter={() => {
+                    tracker.log({
+                      action: "mouseenter",
+                      params: { object: "metadata", field: textConfig.name },
+                    });
+                  }}
+                  on:mouseleave={() => {
+                    tracker.log({
+                      action: "mouseleave",
+                      params: { object: "metadata", field: textConfig.name },
+                    });
+                  }}
+                >
+                  {@html para}
+                </p>
               {/each}
             {/if}
           {/each}
           <table class="mt-8">
             {#each $config.attributes.item.fields as fieldConfig}
               {#if $currentItem.attributes[fieldConfig.name] && $currentItem.attributes[fieldConfig.name].length}
-                <tr>
+                <tr
+                  on:mouseenter={() => {
+                    tracker.log({
+                      action: "mouseenter",
+                      params: { object: "metadata", field: fieldConfig.name },
+                    });
+                  }}
+                  on:mouseleave={() => {
+                    tracker.log({
+                      action: "mouseleave",
+                      params: { object: "metadata", field: fieldConfig.name },
+                    });
+                  }}
+                >
                   <th
                     scope="row"
                     class="font-normal text-sm text-neutral-300 text-right pr-2 align-bottom"
