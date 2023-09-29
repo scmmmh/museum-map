@@ -5,6 +5,7 @@
 
   import Lobby from "./routes/Lobby.svelte";
   import Room from "./routes/Room.svelte";
+  import TrackingConfig from "./components/TrackingConfig.svelte";
   import { isBusy, isUpdatable } from "./store";
 
   import {
@@ -138,4 +139,5 @@
       </div>
     {/if}
   </main>
+  <TrackingConfig />
 </div>
