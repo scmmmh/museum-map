@@ -16,6 +16,7 @@
     loadItems,
     matchingFloors,
     matchingRooms,
+    tracker,
   } from "../store";
   import type { NestedStorage } from "../store/preferences";
 
@@ -83,6 +84,10 @@
           rect.addListener("pointerover", () => {
             window.clearTimeout(hoverRoomTimeout);
             hoverRoomTimeout = window.setTimeout(() => {
+              tracker.log({
+                action: "show-samples",
+                params: { object: "room", room: room.id },
+              });
               loadItems([
                 (room.relationships.sample.data as JsonApiObjectReference).id,
               ]).then((items) => {
@@ -90,11 +95,19 @@
                 samples.set(items);
               });
             }, 500);
+            tracker.log({
+              action: "mousenter",
+              params: { object: "room", room: room.id },
+            });
           });
           rect.addListener("pointerout", () => {
             window.clearTimeout(hoverRoomTimeout);
             hoverRoom.set(null);
             samples.set([]);
+            tracker.log({
+              action: "mouseleave",
+              params: { object: "room", room: room.id },
+            });
           });
 
           const text = this.add.text(
@@ -177,6 +190,10 @@
               pointerX = pointer.x;
               pointerY = pointer.y;
             }
+            tracker.log({
+              action: "drag-map",
+              params: { x: this.cameraPosition.x, y: this.cameraPosition.y },
+            });
           } else if (pointer1Down && pointer2Down) {
             // Zoom with two fingers
             const startDelta = Math.sqrt(
@@ -220,6 +237,10 @@
                 ((centerY + this.cameraPosition.y) /
                   this.baseMap.displayHeight);
             this.scaleObjects(false, false);
+            tracker.log({
+              action: "zoom-map",
+              params: { zoom: this.zoom },
+            });
           }
         }
       );
@@ -283,6 +304,10 @@
           (newHeight - baseHeight) *
             ((pointer.y + this.cameraPosition.y) / this.baseMap.displayHeight);
         this.scaleObjects(false, false);
+        tracker.log({
+          action: "zoom-map",
+          params: { zoom: this.zoom },
+        });
       });
 
       this.scale.on("resize", () => {
@@ -291,6 +316,22 @@
           (this.game.canvas.height / this.baseMap.height) * 0.9
         );
         this.scaleObjects(true, false);
+        tracker.log({
+          action: "resize-map",
+          params: {
+            zoom: this.zoom,
+            width: this.baseMap.displayWidth,
+            height: this.baseMap.displayHeight,
+          },
+        });
+      });
+      tracker.log({
+        action: "initial-size-map",
+        params: {
+          zoom: this.zoom,
+          width: this.baseMap.displayWidth,
+          height: this.baseMap.displayHeight,
+        },
       });
     }
 
@@ -572,6 +613,7 @@
     if (mode === MODE_MAP) {
       await tick();
     }
+    tracker.log({ action: "switch-map-mode", params: { mode: newMode } });
   }
 </script>
 
@@ -591,7 +633,30 @@
         <a
           href="#/floor/{$previousFloor.id}"
           class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800"
-          >⇧ {$previousFloor.attributes.label}</a
+          on:mouseenter={() => {
+            tracker.log({
+              action: "mouseenter",
+              params: { object: "previous-floor", floor: $previousFloor.id },
+            });
+          }}
+          on:mouseleave={() => {
+            tracker.log({
+              action: "mouseleave",
+              params: { object: "previous-floor", floor: $previousFloor.id },
+            });
+          }}
+          on:focus={() => {
+            tracker.log({
+              action: "focus",
+              params: { object: "previous-floor", floor: $previousFloor.id },
+            });
+          }}
+          on:blur={() => {
+            tracker.log({
+              action: "blur",
+              params: { object: "previous-floor", floor: $previousFloor.id },
+            });
+          }}>⇧ {$previousFloor.attributes.label}</a
         >
       {:else}
         <span class="inline-block px-4 py-3 lg:py-2 rounded-lg">&nbsp;</span>
@@ -652,6 +717,42 @@
               $currentFloor.id
                 ? 'current-floor'
                 : ''}"
+              on:mouseenter={() => {
+                tracker.log({
+                  action: "mouseenter",
+                  params: {
+                    object: "floor",
+                    floor: floor.id,
+                  },
+                });
+              }}
+              on:mouseleave={() => {
+                tracker.log({
+                  action: "mouseleave",
+                  params: {
+                    object: "floor",
+                    floor: floor.id,
+                  },
+                });
+              }}
+              on:focus={() => {
+                tracker.log({
+                  action: "focus",
+                  params: {
+                    object: "floor",
+                    floor: floor.id,
+                  },
+                });
+              }}
+              on:blur={() => {
+                tracker.log({
+                  action: "blur",
+                  params: {
+                    object: "floor",
+                    floor: floor.id,
+                  },
+                });
+              }}
             >
               <span
                 class="inline-block {floor.id === $currentFloor.id
@@ -782,7 +883,42 @@
               <a
                 href="#/room/{room.id}"
                 class="flex-1 block py-2 hover:underline focus:underline"
-                >{room.attributes.label}</a
+                on:mouseenter={() => {
+                  tracker.log({
+                    action: "mouseenter",
+                    params: {
+                      object: "room",
+                      floor: room.id,
+                    },
+                  });
+                }}
+                on:mouseleave={() => {
+                  tracker.log({
+                    action: "mouseleave",
+                    params: {
+                      object: "room",
+                      floor: room.id,
+                    },
+                  });
+                }}
+                on:focus={() => {
+                  tracker.log({
+                    action: "focus",
+                    params: {
+                      object: "room",
+                      floor: room.id,
+                    },
+                  });
+                }}
+                on:blur={() => {
+                  tracker.log({
+                    action: "blur",
+                    params: {
+                      object: "room",
+                      floor: room.id,
+                    },
+                  });
+                }}>{room.attributes.label}</a
               >
             </li>
           {/each}
@@ -795,7 +931,30 @@
       <a
         href="#/floor/{$nextFloor.id}"
         class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 ml-2 lg:ml-4 mb-2 lg:mb-4 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800"
-        >⇩ {$nextFloor.attributes.label}</a
+        on:mouseenter={() => {
+          tracker.log({
+            action: "mouseenter",
+            params: { object: "next-floor", floor: $nextFloor.id },
+          });
+        }}
+        on:mouseleave={() => {
+          tracker.log({
+            action: "mouseleave",
+            params: { object: "next-floor", floor: $nextFloor.id },
+          });
+        }}
+        on:focus={() => {
+          tracker.log({
+            action: "focus",
+            params: { object: "next-floor", floor: $nextFloor.id },
+          });
+        }}
+        on:blur={() => {
+          tracker.log({
+            action: "blur",
+            params: { object: "next-floor", floor: $nextFloor.id },
+          });
+        }}>⇩ {$nextFloor.attributes.label}</a
       >
     {:else}
       <span

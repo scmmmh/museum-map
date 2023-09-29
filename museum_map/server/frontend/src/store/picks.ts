@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 
 import { busyCounter } from './busy';
+import { tracker } from "./tracking";
 
 // The item of the day
 export const itemOfTheDay = writable(null as JsonApiObject | null);
@@ -30,6 +31,7 @@ export async function fetchRandomItemsSelection() {
     busyCounter.start();
     const response = await window.fetch('/api/picks/random');
     if (response.status === 200) {
+        tracker.log({ action: "reload-random-selection", params: {} })
         const data = await response.json() as JsonApiResponse;
         randomItemsSelection.set(data.data as JsonApiObject[]);
     }

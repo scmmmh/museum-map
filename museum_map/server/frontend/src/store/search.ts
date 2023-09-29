@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { tracker } from './tracking';
 
 export const searchTerm = writable('');
 
@@ -26,12 +27,13 @@ async function runSearch() {
         if ($searchRoom !== null) {
             url = url + '&room=' + $searchRoom;
         }
+        tracker.log({ action: "search", params: { "room": $searchRoom, "term": $searchTerm } });
         const response = await window.fetch(url);
         if (response.status === 200) {
             const result = await response.json();
             matchingFloors.set(Object.keys(result.facetDistribution.mmap_floor));
             matchingRooms.set(Object.keys(result.facetDistribution.mmap_room));
-            matchingItems.set(result.hits.map((hit: {mmap_id: string}) => { return hit.mmap_id.toString(); }))
+            matchingItems.set(result.hits.map((hit: { mmap_id: string }) => { return hit.mmap_id.toString(); }))
         } else {
             matchingFloors.set([]);
             matchingRooms.set([]);

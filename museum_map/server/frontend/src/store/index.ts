@@ -7,7 +7,8 @@ import { config, fetchConfig, status, fetchStatus, isUpdatable } from './config'
 import { cachedTopics, loadTopics } from './topics';
 import { localPreferences } from './preferences';
 import { searchTerm, searchRoom, matchingFloors, matchingRooms, matchingItems } from './search';
-import { consent, ageBand, trackingAllowed } from './consent';
+import { consent, ageBand } from './consent';
+import { tracker } from './tracking';
 
 export {
     busyCounter,
@@ -49,5 +50,6 @@ export {
 
     consent,
     ageBand,
-    trackingAllowed,
+
+    tracker,
 };
