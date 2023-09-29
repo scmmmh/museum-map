@@ -64,6 +64,7 @@
     <a
       href={linkTo(item)}
       class="block h-full w-full overflow-hidden underline-offset-2 hover:img-brightness hover:underline focus:underline"
+      aria-label={item.attributes.title}
     >
       <figure
         class="flex flex-col justify-center items-center h-full overflow-hidden"
