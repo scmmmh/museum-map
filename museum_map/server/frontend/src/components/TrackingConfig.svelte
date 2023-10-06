@@ -97,7 +97,7 @@
 
 {#if dialogVisible}
   <div
-    class="fixed left-0 md:left-1/2 bottom-0 w-screen xl:w-9/12 max-h-1/2 md:transform md:-translate-x-1/2 flex flex-col z-40 p-4 bg-neutral-700 text-white shadow-even shadow-black"
+    class="fixed left-0 md:left-1/2 bottom-0 w-screen xl:w-9/12 max-h-1/2 lg:max-h-none md:transform md:-translate-x-1/2 flex flex-col z-40 p-4 bg-neutral-700 text-white shadow-even shadow-black"
   >
     <h2
       bind:this={dialogHeader}
