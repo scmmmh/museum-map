@@ -73,7 +73,7 @@
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      class="w-12 h-12"
+      class="w-8 h-8 md:w-12 md:h-12"
       fill="currentColor"
       aria-hidden="true"
       ><title>Contribute to our research</title><path
@@ -97,7 +97,7 @@
 
 {#if dialogVisible}
   <div
-    class="fixed left-1/2 bottom-0 w-9/12 transform -translate-x-1/2 flex flex-col z-40 p-4 bg-neutral-700 text-white shadow-even shadow-black"
+    class="fixed left-0 md:left-1/2 bottom-0 w-screen xl:w-9/12 max-h-1/2 md:transform md:-translate-x-1/2 flex flex-col z-40 p-4 bg-neutral-700 text-white shadow-even shadow-black"
   >
     <h2
       bind:this={dialogHeader}
@@ -106,8 +106,8 @@
     >
       Participate in our Research
     </h2>
-    <div class="flex flex-row space-x-8 order-3">
-      <div class="w-3/6">
+    <div class="flex-1 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8 order-3 overflow-auto">
+      <div class="md:w-3/6">
         <p>
           The Museum Map system is developed as part of an ongoing research
           project collaboration between researchers at the Open University and
@@ -116,11 +116,11 @@
           part of this we are also interested in understanding how users explore
           such a digital collection and for this we would like to ask you for
           your consent to track your interactions on the Museum Map. If you are
-          prepared to help us, then please use the consent button on the right
+          prepared to help us, then please use the consent button <span class="md:hidden">below</span><span class="hidden md:inline">on the right</span>
           to give your consent to collecting your data as outlined.
         </p>
       </div>
-      <div class="w-3/6">
+      <div class="md:w-3/6">
         <p>
           If you consent to participate, the following data will be collected:
         </p>
@@ -195,14 +195,14 @@
       </p>
     {/if}
     <button
-      class="absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 bg-blue-800 text-white rounded-full"
+      class="absolute right-0 top-0 transform -translate-x-1 xl:translate-x-1/2 -translate-y-1/2 bg-blue-800 text-white rounded-full"
       aria-label="Close this dialog"
       on:click={toggleDialog}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        class="w-8 h-8 p-1"
+        class="w-10 h-10 p-2 md:w-8 md:h-8 md:p-1"
         fill="currentColor"
         ><title>Close this dialog</title><path
           d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41L14.59,8Z"
