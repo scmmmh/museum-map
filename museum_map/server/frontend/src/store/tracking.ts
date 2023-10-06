@@ -10,9 +10,15 @@ function createTracker() {
         return localAllowTracking;
     });
 
-    function log(action: LogAction) {
+    async function log(action: LogAction) {
         if (localAllowTracking) {
-            console.log(Date.now() / 1000, action);
+            await window.fetch('/api/tracking/track', {
+                method: 'POST',
+                body: JSON.stringify({
+                    timestamp: Date.now() / 1000,
+                    action: action
+                }),
+            });
         }
     }
 
