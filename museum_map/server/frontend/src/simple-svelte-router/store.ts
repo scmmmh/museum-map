@@ -1,4 +1,5 @@
-import { writable, Subscriber } from "svelte/store";
+import { writable } from "svelte/store";
+import type { Subscriber } from "svelte/store";
 import history from "history/hash";
 import type { Location, Update } from "history";
 
