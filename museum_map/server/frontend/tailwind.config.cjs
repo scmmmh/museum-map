@@ -16,6 +16,7 @@ module.exports = {
         'items': 'repeat(auto-fill, 240px);',
       },
       maxHeight: {
+        '1/2': '50%',
         '4/6': '66.666666%',
         '5/6': '83.333333%'
       }
