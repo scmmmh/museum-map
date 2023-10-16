@@ -5,6 +5,7 @@ import postcss from './postcss.config.cjs';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [svelte()],
+  base: "/app",
   css: {
     postcss,
   },

@@ -30,3 +30,12 @@ def create_sessionmaker(config) -> Callable[[], AsyncSession]:
     if async_sessionmaker is None:
         async_sessionmaker = sessionmaker(create_engine(config), expire_on_commit=False, class_=AsyncSession)
     return async_sessionmaker
+
+
+def db_session() -> None:
+    global async_sessionmaker
+    dbsession = async_sessionmaker()
+    try:
+        yield dbsession
+    finally:
+        dbsession.close()

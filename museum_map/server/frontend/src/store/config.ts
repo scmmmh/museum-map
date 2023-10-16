@@ -2,7 +2,7 @@ import { writable, derived } from 'svelte/store';
 
 import { busyCounter } from './busy';
 
-export const status = writable(null as { version: string, ready: boolean });
+export const status = writable(null as { version: string, ready: boolean } | null);
 
 export async function fetchStatus() {
   busyCounter.start();
@@ -11,11 +11,17 @@ export async function fetchStatus() {
     if (response.status === 200) {
       const data = await response.json();
       status.set(data as { version: string, ready: boolean });
+    } else {
+      status.set(null);
     }
   } finally {
     busyCounter.stop();
   }
 }
+
+export const isReady = derived(status, (status) => {
+  return status !== null && status.ready;
+});
 
 export const isUpdatable = derived(status, (status) => {
   return status !== null && status.version !== '0.9.1';
