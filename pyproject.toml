@@ -129,6 +129,7 @@ select = [
   "ARG",
   "B",
   "C",
+  "D",
   "DTZ",
   "E",
   "EM",
@@ -160,6 +161,8 @@ ignore = [
   "S105", "S106", "S107",
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Pick the pydocstyle preferences (no blank line before class docs, multi-line starts on first line)
+  "D203", "D213"
 ]
 unfixable = [
   # Don't touch unused imports
