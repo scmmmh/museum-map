@@ -2,13 +2,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from museum_map.settings import settings
 from museum_map.models.base import Base  # noqa
 from museum_map.models.floor import Floor, FloorTopic  # noqa
 from museum_map.models.group import Group  # noqa
 from museum_map.models.item import Item  # noqa
 from museum_map.models.room import Room  # noqa
-
+from museum_map.settings import settings
 
 async_engine = create_async_engine(settings.db.dsn)
 async_sessionmaker = sessionmaker(

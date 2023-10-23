@@ -1,9 +1,8 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from museum_map.server import api
-
 
 app = FastAPI()
 
@@ -14,4 +13,4 @@ app.include_router(api.router)
 @app.get("/")
 def index() -> RedirectResponse:
     """Redirect the index to the application page."""
-    return RedirectResponse('/app')
+    return RedirectResponse("/app")
