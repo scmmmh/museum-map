@@ -13,4 +13,5 @@ app.include_router(api.router)
 
 @app.get("/")
 def index() -> RedirectResponse:
+    """Redirect the index to the application page."""
     return RedirectResponse('/app')

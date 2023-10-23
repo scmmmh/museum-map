@@ -1,4 +1,5 @@
 """Application configuration settings."""
+import logging
 import os
 
 from pydantic import BaseModel
@@ -25,5 +26,12 @@ class Settings(BaseModel):
 
 
 init_settings = InitSettings()
-with open(os.path.join(init_settings.config_path, "config.yml")) as config_file:
-    settings = Settings(**safe_load(config_file))
+if os.path.exists(os.path.join(init_settings.config_path, "config.yml")):
+    with open(os.path.join(init_settings.config_path, "config.yml")) as config_file:
+        settings = Settings(**safe_load(config_file))
+else:
+    settings = Settings()
+
+if os.path.exists(os.path.join(init_settings.config_path, "logging.yaml")):
+    with open(os.path.join(init_settings.config_path, "logging.yaml")) as config_file:
+        logging.config.dictConfig(safe_load(config_file))

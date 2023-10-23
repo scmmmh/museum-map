@@ -78,7 +78,7 @@ post-install-commands = [
   "python -m spacy download en_core_web_sm"
 ]
 [tool.hatch.envs.default.scripts]
-server = "cd dev && uvicorn --port 6543 --reload --reload-dir ../museum_map museum_map.server:app"
+server = "cd dev && uvicorn --port 6543 --reload --reload-dir ../museum_map --log-level debug museum_map.server:app"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
