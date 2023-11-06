@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from museum_map.models.base import Base  # noqa
-from museum_map.models.floor import Floor, FloorTopic  # noqa
+from museum_map.models.floor import Floor, FloorModel, FloorTopic  # noqa
 from museum_map.models.group import Group  # noqa
 from museum_map.models.item import Item  # noqa
 from museum_map.models.room import Room  # noqa
@@ -16,6 +16,7 @@ async_sessionmaker = sessionmaker(
 
 
 async def db_session() -> None:
+    """Generateor for a new dbsession."""
     dbsession = async_sessionmaker()
     try:
         yield dbsession

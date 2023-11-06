@@ -1,3 +1,4 @@
+"""The main REST API."""
 import logging
 from typing import Annotated
 
@@ -7,9 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from museum_map.__about__ import __tables__, __version__
 from museum_map.models import db_session
+from museum_map.server.api import floors
 
-router = APIRouter(prefix="/api")
 logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api")
+router.include_router(floors.router)
 
 
 @router.get("/")
