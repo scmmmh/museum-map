@@ -1,0 +1,316 @@
+app:
+  base_url: https://vam.museum-map.research.room3b.eu
+  intro: |
+    Welcome to the Museum Map, which contains approximately 15 thousand objects from the Victoria &amp; Albert's digital collection.
+    You can use the major collections links and individual objects below to jump directly into the collection or use the "Explore the whole collection"
+    to see what you can find and explore.
+  footer:
+    center:
+      label: Images and Metadata provided by the V&amp;A
+      url: https://collections.vam.ac.uk/
+    right:
+      label: Includes part of the AAT
+      url: http://www.getty.edu/research/tools/vocabularies/aat/
+  item:
+    texts:
+      - name: description
+        label: Description
+      - name: notes
+        label: Notes
+    fields:
+      - name: object
+        label: Object
+      - name: concepts
+        label: Concepts
+      - name: materials
+        label: Materials
+      - name: techniques
+        label: Techniques
+      - name: styles
+        label: Styles
+      - name: dimensions
+        label: Dimensions
+      - name: place_made
+        label: Place made
+      - name: subjects
+        label: Subjects
+      - name: people
+        label: People
+      - name: organisations
+        label: Organisations
+      - name: events
+        label: Events
+      - name: marks
+        label: Marks
+      - name: credit
+        label: Credit
+      - name: collections
+        label: Collections
+      - name: physical_location
+        label: Physical location
+data:
+  topic_fields:
+    - title
+    - description
+    - physical_description
+    - notes
+  hierarchy:
+    field: object
+    expansions:
+      - nlp
+      - aat
+  year_field: year_start
+db:
+  dsn: postgresql+asyncpg://postgres:devPWD@localhost/postgres
+search:
+  url: http://localhost:7700
+  key: ff2e87a28b482fd787091a5824e05af3
+images:
+  basepath: /home/mhall/Documents/Data/V&A Images
+layout:
+  rooms:
+    - id: c1
+      direction: vert
+      items: 70
+      splits: 1
+      position:
+        x: 240
+        y: 351
+        width:  58
+        height:  47
+    - id: c2
+      direction: vert
+      items: 40
+      splits: 1
+      position:
+        x: 240
+        y: 321
+        width:  58
+        height:  28
+    - id: c3
+      direction: vert
+      items: 250
+      splits: 5
+      position:
+        x: 240
+        y: 81
+        width:  58
+        height:  238
+    - id: c4
+      direction: vert
+      items: 40
+      splits: 1
+      position:
+        x: 240
+        y: 51
+        width:  58
+        height:  28
+    - id: l1
+      direction: horiz
+      items: 150
+      splits: 3
+      position:
+        x: 90
+        y: 361
+        width: 148
+        height: 28
+    - id: l2
+      direction: horiz
+      items: 200
+      splits: 4
+      position:
+        x: 40
+        y: 321
+        width: 198
+        height: 28
+    - id: l3
+      direction: vert
+      items: 250
+      splits: 5
+      position:
+        x: 190
+        y: 81
+        width: 48
+        height: 238
+    - id: l4
+      direction: vert
+      items: 250
+      splits: 5
+      position:
+        x: 140
+        y: 81
+        width: 48
+        height: 238
+    - id: l5
+      direction: vert
+      items: 250
+      splits: 5
+      position:
+        x: 90
+        y: 81
+        width: 48
+        height: 238
+    - id: l6
+      direction: vert
+      items: 250
+      splits: 5
+      position:
+        x: 40
+        y: 81
+        width: 48
+        height: 238
+    - id: l7
+      direction: vert
+      items: 70
+      splits: 1
+      position:
+        x: 2
+        y: 151
+        width: 36
+        height: 98
+    - id: l8
+      direction: horiz
+      items: 200
+      splits: 4
+      position:
+        x: 40
+        y: 51
+        width: 198
+        height: 28
+    - id: l9
+      direction: horiz
+      items: 70
+      splits: 1
+      position:
+        x: 150
+        y: 2
+        width: 78
+        height: 38
+    - id: r1
+      direction: horiz
+      items: 150
+      splits: 3
+      position:
+        x: 300
+        y: 361
+        width: 148
+        height: 28
+    - id: r2
+      direction: horiz
+      items: 200
+      splits: 4
+      position:
+        x: 300
+        y: 321
+        width: 198
+        height: 28
+    - id: r3
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 300
+        y: 211
+        width: 48
+        height: 108
+    - id: r4
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 350
+        y: 211
+        width: 48
+        height: 108
+    - id: r5
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 400
+        y: 211
+        width: 48
+        height: 108
+    - id: r6
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 450
+        y: 211
+        width: 48
+        height: 108
+    - id: r7
+      direction: horiz
+      items: 200
+      splits: 4
+      position:
+        x: 300
+        y: 181
+        width: 198
+        height: 28
+    - id: r8
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 300
+        y: 81
+        width: 48
+        height: 98
+    - id: r9
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 350
+        y: 81
+        width: 48
+        height: 98
+    - id: r10
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 400
+        y: 81
+        width: 48
+        height: 98
+    - id: r11
+      direction: vert
+      items: 110
+      splits: 2
+      position:
+        x: 450
+        y: 81
+        width: 48
+        height: 98
+    - id: r12
+      direction: horiz
+      items: 200
+      splits: 4
+      position:
+        x: 300
+        y: 51
+        width: 198
+        height: 28
+logging:
+  version: 1
+  loggers:
+    museum_map:
+      level: DEBUG
+      qualname: museum_map
+      handlers:
+        - console
+  formatters:
+    default:
+      format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+      datefmt: '%Y-%m-%d %H:%M:%S'
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: default
+      level: DEBUG
+      stream: ext://sys.stdout
+  root:
+    level: WARN

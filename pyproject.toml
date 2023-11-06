@@ -21,21 +21,23 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-"click>8.0.0,<9",
-"inflection>=0.5.1,<1",
-"requests>=2.31.0,<3",
-"SQLAlchemy>=1.4.49,<2",
-"sqlalchemy_json>=0.6.0,<1",
-"lxml>=4.9.3,<5",
-"spacy>=3.6.0,<3.7",
-"gensim>=4.3.1,<5",
-"scipy>=1.11.2,<2",
-"tornado>=6.3.3,<7",
-"asyncpg>=0.28.0,<1",
-"PyYAML>=6.0,<7",
-"Cerberus>=1.3.5,<2",
-"psycopg2-binary>=2.9.7,<3",
-"meilisearch-python-async>=1.6.2,<2",
+  "asyncpg>=0.28.0,<1",
+  "Cerberus>=1.3.5,<2",
+  "click>8.0.0,<9",
+  "fastapi[all]",
+  "gensim>=4.3.1,<5",
+  "inflection>=0.5.1,<1",
+  "lxml>=4.9.3,<5",
+  "meilisearch-python-async>=1.6.2,<2",
+  "pydantic>=2,<3",
+  "pydantic-settings>=2,<3",
+  "PyYAML>=6.0,<7",
+  "requests>=2.31.0,<3",
+  "scipy>=1.11.2,<2",
+  "spacy>=3.6.0,<3.7",
+  "SQLAlchemy>=1.4.49,<2",
+  "sqlalchemy_json>=0.6.0,<1",
+  "uvicorn[standard]",
 ]
 
 [project.urls]
@@ -76,6 +78,7 @@ post-install-commands = [
   "python -m spacy download en_core_web_sm"
 ]
 [tool.hatch.envs.default.scripts]
+server = "cd dev && uvicorn --port 6543 --reload --reload-dir ../museum_map --log-level debug museum_map.server:app"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
@@ -126,6 +129,7 @@ select = [
   "ARG",
   "B",
   "C",
+  "D",
   "DTZ",
   "E",
   "EM",
@@ -157,6 +161,8 @@ ignore = [
   "S105", "S106", "S107",
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Pick the pydocstyle preferences (no blank line before class docs, multi-line starts on first line)
+  "D203", "D213"
 ]
 unfixable = [
   # Don't touch unused imports

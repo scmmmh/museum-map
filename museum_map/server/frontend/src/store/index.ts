@@ -3,7 +3,7 @@ import { itemOfTheDay, fetchItemOfTheDay, randomItemsSelection, fetchRandomItems
 import { floorTopics, fetchFloorTopics, majorCollections, floors, fetchFloors } from './floors';
 import { cachedRooms, loadRooms } from './rooms';
 import { cachedItems, loadItems } from './items';
-import { config, fetchConfig, status, fetchStatus, isUpdatable } from './config';
+import { config, fetchConfig, status, fetchStatus, isUpdatable, isReady } from './config';
 import { cachedTopics, loadTopics } from './topics';
 import { localPreferences } from './preferences';
 import { searchTerm, searchRoom, matchingFloors, matchingRooms, matchingItems } from './search';
@@ -39,6 +39,7 @@ export {
     status,
     fetchStatus,
     isUpdatable,
+    isReady,
 
     localPreferences,
 

@@ -1,0 +1,18 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+  default:
+    class: uvicorn.logging.ColourizedFormatter
+    format: '{levelprefix:<8} @{name}: {message}'
+    style: "{"
+    use_colors: true
+handlers:
+  default:
+    formatter: default
+    class: logging.StreamHandler
+    stream: ext://sys.stderr
+loggers:
+  museum_map:
+    level: DEBUG
+    handlers:
+      - default
