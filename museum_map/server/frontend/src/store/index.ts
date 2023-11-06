@@ -3,12 +3,14 @@ import { itemOfTheDay, fetchItemOfTheDay, randomItemsSelection, fetchRandomItems
 import { floorTopics, fetchFloorTopics, majorCollections, floors, fetchFloors } from './floors';
 import { cachedRooms, loadRooms } from './rooms';
 import { cachedItems, loadItems } from './items';
-import { config, fetchConfig, status, fetchStatus, isUpdatable, isReady } from './config';
+import { config, fetchConfig } from './config';
 import { cachedTopics, loadTopics } from './topics';
 import { localPreferences } from './preferences';
 import { searchTerm, searchRoom, matchingFloors, matchingRooms, matchingItems } from './search';
 import { consent, ageBand } from './consent';
 import { tracker } from './tracking';
+import { status, isConnected, isUpdatable, isReady } from "./status";
+import { loadingProgress, isLoaded } from './loading';
 
 export {
     busyCounter,
@@ -36,10 +38,6 @@ export {
 
     config,
     fetchConfig,
-    status,
-    fetchStatus,
-    isUpdatable,
-    isReady,
 
     localPreferences,
 
@@ -53,4 +51,12 @@ export {
     ageBand,
 
     tracker,
+
+    status,
+    isConnected,
+    isUpdatable,
+    isReady,
+
+    loadingProgress,
+    isLoaded,
 };
