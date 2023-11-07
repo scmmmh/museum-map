@@ -41,6 +41,7 @@
         class="w-20 h-20 text-white stroke-current"
         viewBox="0 0 45 45"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
         <g
           fill="none"
@@ -113,12 +114,38 @@
         </g>
       </svg>
       {#if $isReady}
-        <progress
-          max="100"
-          value={$loadingProgress}
-          class="w-20 h-1"
-          aria-label="Loaded {$loadingProgress}%"
-        />
+        <svg
+          id="svg"
+          viewBox="0 0 200 200"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          style="stroke-dashoffset: 0;transition: stroke-dashoffset 1s linear;stroke: #666;stroke-width: 1em;"
+          class="absolute left-1/2 top-1/2 w-24 h-24 transform -translate-x-1/2 -translate-y-1/2"
+          aria-hidden="true"
+        >
+          <circle
+            r="90"
+            cx="100"
+            cy="100"
+            fill="transparent"
+            stroke-dasharray="565.48"
+            stroke-dashoffset="0"
+          />
+          <circle
+            id="bar"
+            r="90"
+            cx="100"
+            cy="100"
+            fill="transparent"
+            stroke-dasharray="565.48"
+            stroke-dashoffset="0"
+            style="stroke: #ffffff; stroke-dashoffset: {(Math.PI *
+              90 *
+              2 *
+              (100 - $loadingProgress)) /
+              100}"
+          />
+        </svg>
       {/if}
     </div>
   {/if}
