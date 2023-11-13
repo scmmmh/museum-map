@@ -1,13 +1,9 @@
 import { derived } from "svelte/store";
 
-import { floors } from "./floors";
+import { floors, floorTopics } from "./floors";
 
-export const loadingProgress = derived(floors, (floors) => {
-    if (floors !== null) {
-        return 100;
-    } else {
-        return 0;
-    }
+export const loadingProgress = derived([floors, floorTopics], (dependencies) => {
+    return 100 / 2 * dependencies.filter((dep) => { return dep !== null}).length;
 });
 
 export const isLoaded = derived(loadingProgress, (progress) => {

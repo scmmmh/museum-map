@@ -37,13 +37,13 @@ class FloorModel(BaseModel):
     samples: list[int]
     topics: list[int]
 
+    model_config = ConfigDict(from_attributes=True)
+
     @field_validator("rooms", "samples", "topics", mode="before")
     @classmethod
     def convert_model_to_ids(cls, value: list[any]) -> str:
         """Convert the lists of child models to lists of ids."""
         return [v.id for v in value]
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class FloorTopic(Base):
@@ -63,3 +63,21 @@ class FloorTopic(Base):
 
 Index(FloorTopic.group_id)
 Index(FloorTopic.floor_id)
+
+
+class FloorTopicModel(BaseModel):
+    """Pydantic model for validating a floor-topic."""
+
+    id: int  # noqa: A003
+    group: int
+    floor: int
+    label: str
+    size: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("group", "floor", mode="before")
+    @classmethod
+    def convert_model_to_id(cls, value: any) -> str:
+        """Convert the relationship objects to ids."""
+        return value.id
