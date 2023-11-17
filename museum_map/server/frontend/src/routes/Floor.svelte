@@ -27,10 +27,10 @@
     ($localPreferences.ui as NestedStorage).floorDisplayMode
       ? ($localPreferences.ui as NestedStorage).floorDisplayMode
       : MODE_MAP;
-  let floorListElement = null as HTMLElement;
+  let floorListElement: HTMLElement | null = null;
   let hoverRoomTimeout = 0;
-  const hoverRoom = writable(null as JsonApiObject | null);
-  const samples = writable([] as JsonApiObject[]);
+  const hoverRoom = writable(null as Room | null);
+  const samples = writable([] as Item[]);
   const mousePosition = { x: -1, y: -1 };
 
   type MapObject = {
@@ -40,13 +40,13 @@
   };
 
   class FloorScene extends Phaser.Scene {
-    floor: JsonApiObject;
+    floor: Floor;
     roomObjects: MapObject[];
     baseMap: Phaser.GameObjects.Image;
     zoom: number;
     cameraPosition: { x: number; y: number };
 
-    constructor(floor: JsonApiObject) {
+    constructor(floor: Floor) {
       super("floor-" + floor.id);
       this.floor = floor;
     }
@@ -60,13 +60,7 @@
       this.zoom = 1;
       this.baseMap = this.add.image(0, 0, "basemap");
       this.baseMap.setOrigin(0, 0);
-      loadRooms(
-        (this.floor.relationships.rooms.data as JsonApiObjectReference[]).map(
-          (ref) => {
-            return ref.id;
-          }
-        )
-      ).then((rooms) => {
+      loadRooms(this.floor.rooms).then((rooms) => {
         busyCounter.start();
         $matchingRooms = get(matchingRooms);
         for (let room of rooms) {
@@ -397,19 +391,21 @@
     },
   };
 
-  let game = null as Phaser.Game;
+  let game: Phaser.Game | null = null;
 
   const currentFloor = derived(
     [location, floors],
     ([location, floors]) => {
-      const floor = floors.filter((floor) => {
-        return floor.id === location.pathComponents[1];
-      });
+      if (floors !== null) {
+        const floor = floors.filter((floor) => {
+          return floor.id === Number.parseInt(location.pathComponents[1]);
+        });
+        if (floor.length > 0) {
+          return floor[0];
+        }
+      }
       hoverRoom.set(null);
       samples.set([]);
-      if (floor.length > 0) {
-        return floor[0];
-      }
       return null;
     },
     null
@@ -506,20 +502,14 @@
     currentFloor,
     (currentFloor, set) => {
       if (currentFloor) {
-        loadRooms(
-          (
-            currentFloor.relationships.rooms.data as JsonApiObjectReference[]
-          ).map((ref) => {
-            return ref.id;
-          })
-        ).then((rooms) => {
+        loadRooms(currentFloor.rooms).then((rooms) => {
           set(rooms);
         });
       } else {
         set([]);
       }
     },
-    [] as JsonApiObject[]
+    [] as Room[]
   );
 
   const topics = derived(

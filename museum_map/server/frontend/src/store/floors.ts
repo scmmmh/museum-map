@@ -4,6 +4,7 @@ import { busyCounter } from './busy';
 import { isReady } from './status';
 import { DependentStore } from './util';
 
+// The list of available floors
 export const floors = DependentStore<null | Floor[], boolean>([], async (isReady) => {
   if (isReady) {
     busyCounter.start();
@@ -25,6 +26,7 @@ export const floors = DependentStore<null | Floor[], boolean>([], async (isReady
   }
 }, isReady);
 
+// The list of all floor topics
 export const floorTopics = DependentStore<null | FloorTopic[], boolean>(null, async (isReady) => {
   if (isReady) {
     busyCounter.start();
@@ -46,6 +48,7 @@ export const floorTopics = DependentStore<null | FloorTopic[], boolean>(null, as
   }
 }, isReady);
 
+// Major collections (defined as the six largest floor topics)
 export const majorCollections = derived([floorTopics, floors], ([floorTopics, floors]) => {
   if (floorTopics !== null && floors !== null) {
     const topics: MajorCollection[] = [];

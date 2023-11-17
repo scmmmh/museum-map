@@ -4,13 +4,13 @@ import { busyCounter } from './busy';
 
 const activeQueries = [];
 
-export const cachedRooms = writable({} as {[x:string]: JsonApiObject});
+export const cachedRooms = writable({} as { [x: number]: Room });
 
-export async function loadRooms(roomIds: string[]): Promise<JsonApiObject[]> {
+export async function loadRooms(roomIds: number[]): Promise<JsonApiObject[]> {
     const $cachedRooms = get(cachedRooms);
-    const missingIds = roomIds.filter((id) => { return !$cachedRooms[id]});
+    const missingIds = roomIds.filter((id) => { return !$cachedRooms[id] });
     if (missingIds.length > 0) {
-        const url = '/api/rooms?filter[id]=' + missingIds.map((id) => { return id}).join(',');
+        const url = '/api/rooms?filter[id]=' + missingIds.map((id) => { return id }).join(',');
         if (activeQueries.indexOf(url) < 0) {
             busyCounter.start();
             const response = await window.fetch(url);

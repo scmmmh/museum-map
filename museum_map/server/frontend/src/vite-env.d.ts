@@ -28,6 +28,10 @@ type FloorTopic = {
   group: number,
 };
 
+type Room = {
+  id: number,
+}
+
 type MajorCollection = {
   id: number,
   label: string,
