@@ -8,12 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from museum_map.__about__ import __tables__, __version__
 from museum_map.models import db_session
-from museum_map.server.api import floor_topics, floors
+from museum_map.server.api import floor_topics, floors, picks
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api")
 router.include_router(floors.router)
 router.include_router(floor_topics.router)
+router.include_router(picks.router)
 
 
 @router.get("/")

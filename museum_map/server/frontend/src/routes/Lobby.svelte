@@ -1,25 +1,16 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   import Header from "../components/Header.svelte";
   import Footer from "../components/Footer.svelte";
   import Thumnail from "../components/Thumbnail.svelte";
   import {
     config,
-    fetchItemOfTheDay,
     itemOfTheDay,
-    fetchRandomItemsSelection,
     randomItemsSelection,
     majorCollections,
     floors,
     localPreferences,
     tracker,
   } from "../store";
-
-  onMount(() => {
-    fetchItemOfTheDay();
-    fetchRandomItemsSelection();
-  });
 </script>
 
 <Header title="Museum Map - Lobby" nav={[]} />
@@ -74,27 +65,27 @@
                       on:mouseenter={() => {
                         tracker.log({
                           action: "mouseenter",
-                          params: { object: "floor-link", thumbnail: floor.id },
+                          params: { object: "floor-link", floor: floor.id },
                         });
                       }}
                       on:mouseleave={() => {
                         tracker.log({
                           action: "mouseleave",
-                          params: { object: "floor-link", thumbnail: floor.id },
+                          params: { object: "floor-link", floor: floor.id },
                         });
                       }}
                       on:focus={() => {
                         tracker.log({
                           action: "focus",
-                          params: { object: "floor-link", thumbnail: floor.id },
+                          params: { object: "floor-link", floor: floor.id },
                         });
                       }}
                       on:blur={() => {
                         tracker.log({
                           action: "blur",
-                          params: { object: "floor-link", thumbnail: floor.id },
+                          params: { object: "floor-link", floor: floor.id },
                         });
-                      }}>⇒ {floor.attributes.label}</a
+                      }}>⇒ {floor.label}</a
                     >
                   </li>
                 {/each}
@@ -102,7 +93,7 @@
             </li>
           {/each}
         </ul>
-        {#if $floors.length > 0}
+        {#if $floors && $floors.length > 0}
           <div class="mt-16 mb-8 text-center">
             <a
               href={"#/floor/" + $floors[0].id}
@@ -143,7 +134,7 @@
         </h2>
         <button
           on:click={() => {
-            fetchRandomItemsSelection();
+            randomItemsSelection.refresh();
           }}
           on:mouseenter={() => {
             tracker.log({
@@ -185,9 +176,11 @@
         </button>
       </div>
       <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {#each $randomItemsSelection as item}
-          <li><Thumnail {item} /></li>
-        {/each}
+        {#if $randomItemsSelection !== null}
+          {#each $randomItemsSelection as item}
+            <li><Thumnail {item} /></li>
+          {/each}
+        {/if}
       </ul>
     </section>
   </div>

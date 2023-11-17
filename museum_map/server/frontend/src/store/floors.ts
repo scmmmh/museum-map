@@ -47,30 +47,31 @@ export const floorTopics = DependentStore<null | FloorTopic[], boolean>(null, as
 }, isReady);
 
 export const majorCollections = derived([floorTopics, floors], ([floorTopics, floors]) => {
-  return [];
-  /*const topics = [];
-  floorTopics.forEach((topic) => {
-    if (topic.relationships && topic.relationships.group && topic.relationships.floor && topic.attributes) {
-      const existingTopic = topics.filter((t) => { return topic.relationships && topic.relationships.group && t.groupId === (topic.relationships.group.data as JsonApiObjectReference).id });
-      const floor = floors.filter((floor) => { return (topic.relationships.floor.data as JsonApiObjectReference).id === floor.id; });
+  if (floorTopics !== null && floors !== null) {
+    const topics: MajorCollection[] = [];
+    floorTopics.forEach((topic) => {
+      const existingTopic = topics.filter((t) => { return t.group === topic.group });
+      const floor = floors.filter((floor) => { return topic.floor === floor.id; });
       if (floor.length > 0) {
         if (existingTopic.length === 0) {
           topics.push({
             id: topic.id,
-            label: topic.attributes.label as string,
-            size: topic.attributes.size as number,
-            groupId: (topic.relationships.group.data as JsonApiObjectReference).id,
+            label: topic.label,
+            size: topic.size,
+            group: topic.group,
             floors: floor
           });
         } else {
-          existingTopic[0].size = existingTopic[0].size + (topic.attributes.size as number);
+          existingTopic[0].size = existingTopic[0].size + topic.size;
           existingTopic[0].floors.push(floor[0]);
         }
       }
-    }
-  });
-  topics.sort((a, b) => {
-    return b.size - a.size;
-  });
-  return topics.slice(0, 6);*/
-});
+    });
+    topics.sort((a, b) => {
+      return b.size - a.size;
+    });
+    return topics.slice(0, 6);
+  } else {
+    return [];
+  }
+}, [] as MajorCollection[]);

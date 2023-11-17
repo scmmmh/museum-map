@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { tracker } from "../store";
 
-  export let item: JsonApiObject;
+  export let item: Item;
   export let noLink = false;
   export let noTitle = false;
   export let size = "small";
@@ -22,14 +22,9 @@
     }
   }
 
-  function linkTo(item: JsonApiObject) {
-    if (item && item.relationships.room) {
-      return (
-        "#/room/" +
-        (item.relationships.room.data as JsonApiObjectReference).id +
-        "/" +
-        item.id
-      );
+  function linkTo(item: Item) {
+    if (item && item.room) {
+      return "#/room/" + item.room + "/" + item.id;
     } else {
       return "/";
     }

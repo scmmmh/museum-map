@@ -27,3 +27,24 @@ type FloorTopic = {
   floor: number,
   group: number,
 };
+
+type MajorCollection = {
+  id: number,
+  label: string,
+  size: number,
+  group: number,
+  floors: Floor[],
+};
+
+type Item = {
+  id: number,
+  group: number,
+  room: number,
+  attributes: ItemAttributes,
+  sequence: number,
+};
+
+type ItemAttributes = {
+  title: string,
+  images: string[][],
+};

@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import type { Subscriber, Unsubscriber, Readable } from 'svelte/store';
 
 /**
@@ -12,36 +12,36 @@ import type { Subscriber, Unsubscriber, Readable } from 'svelte/store';
  * @returns A new store
  */
 export function IntervalStore<StoreType>(initial: StoreType, value: () => StoreType | Promise<StoreType>, interval: number) {
-    const store = writable(initial);
-    let subscriberCount = 0;
-    let updateInterval = -1;
+  const store = writable(initial);
+  let subscriberCount = 0;
+  let updateInterval = -1;
 
-    function subscribe(subscriber: Subscriber<StoreType>): Unsubscriber {
-        if (subscriberCount === 0) {
-            Promise.resolve(value()).then((value) => {
-                store.set(value);
-            });
-            updateInterval = window.setInterval(() => {
-                Promise.resolve(value()).then((value) => {
-                    store.set(value);
-                });
-            }, interval);
-        }
-        subscriberCount++;
-        const unsubscribe = store.subscribe(subscriber)
-
-        return () => {
-            unsubscribe();
-            subscriberCount--;
-            if (subscriberCount === 0) {
-                window.clearInterval(updateInterval);
-            }
-        };
+  function subscribe(subscriber: Subscriber<StoreType>): Unsubscriber {
+    if (subscriberCount === 0) {
+      Promise.resolve(value()).then((value) => {
+        store.set(value);
+      });
+      updateInterval = window.setInterval(() => {
+        Promise.resolve(value()).then((value) => {
+          store.set(value);
+        });
+      }, interval);
     }
+    subscriberCount++;
+    const unsubscribe = store.subscribe(subscriber)
 
-    return {
-        subscribe,
-    }
+    return () => {
+      unsubscribe();
+      subscriberCount--;
+      if (subscriberCount === 0) {
+        window.clearInterval(updateInterval);
+      }
+    };
+  }
+
+  return {
+    subscribe,
+  }
 }
 
 
@@ -54,30 +54,38 @@ export function IntervalStore<StoreType>(initial: StoreType, value: () => StoreT
  * @returns A new store
  */
 export function DependentStore<StoreType, ParentType>(initial: StoreType, value: (v: ParentType) => StoreType | Promise<StoreType>, parent: Readable<ParentType>) {
-    const store = writable(initial);
-    let subscriberCount = 0;
-    let parentUnsubscribe: null | Unsubscriber = null;
+  const store = writable(initial);
+  let subscriberCount = 0;
+  let parentUnsubscribe: null | Unsubscriber = null;
 
-    function subscribe(subscriber: Subscriber<StoreType>) {
-      if (subscriberCount === 0) {
-        parentUnsubscribe = parent.subscribe((parentValue: any) => {
-          Promise.resolve(value(parentValue)).then((v) => {
-            store.set(v);
-          })
-        });
-      }
-      subscriberCount++;
-      const unsubscribe = store.subscribe(subscriber);
-      return () => {
-        unsubscribe();
-        subscriberCount--;
-        if (subscriberCount === 0 && parentUnsubscribe !== null) {
-          parentUnsubscribe();
-          parentUnsubscribe = null;
-        }
-      }
+  function subscribe(subscriber: Subscriber<StoreType>) {
+    if (subscriberCount === 0) {
+      parentUnsubscribe = parent.subscribe((parentValue: any) => {
+        Promise.resolve(value(parentValue)).then((v) => {
+          store.set(v);
+        })
+      });
     }
-    return {
-      subscribe,
+    subscriberCount++;
+    const unsubscribe = store.subscribe(subscriber);
+    return () => {
+      unsubscribe();
+      subscriberCount--;
+      if (subscriberCount === 0 && parentUnsubscribe !== null) {
+        parentUnsubscribe();
+        parentUnsubscribe = null;
+      }
     }
   }
+
+  function refresh() {
+    Promise.resolve(value(get(parent))).then((v) => {
+      store.set(v);
+    });
+  }
+
+  return {
+    subscribe,
+    refresh,
+  }
+}

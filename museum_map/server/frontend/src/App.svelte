@@ -26,7 +26,7 @@
     <main
       class="container mx-auto bg-neutral-700 text-white shadow-lg shadow-black font-serif tracking-default"
     >
-      Ready!
+      <Route path="/"><Lobby /></Route>
     </main>
   {:else}
     <div
