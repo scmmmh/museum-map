@@ -134,6 +134,10 @@
         </h2>
         <button
           on:click={() => {
+            tracker.log({
+              action: "refresh-random-items",
+              params: {},
+            });
             randomItemsSelection.refresh();
           }}
           on:mouseenter={() => {

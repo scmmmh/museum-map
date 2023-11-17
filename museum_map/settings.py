@@ -3,7 +3,7 @@ import logging
 import os
 
 from pydantic import BaseModel
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from yaml import safe_load
 
 
@@ -11,6 +11,9 @@ class InitSettings(BaseSettings):
     """Initial settings for loading the configuration."""
 
     config_path: str = "./"
+    images_path: str
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
 class DatabaseSettings(BaseModel):
