@@ -9,8 +9,8 @@
   import Item from "./Item.svelte";
   import {
     floors,
-    cachedRooms,
-    loadRooms,
+    rooms,
+    fetchRooms,
     cachedItems,
     loadItems,
     matchingItems,

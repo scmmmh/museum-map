@@ -9,7 +9,7 @@
   import Thumbnail from "../components/Thumbnail.svelte";
   import {
     floors,
-    loadRooms,
+    fetchRooms,
     busyCounter,
     localPreferences,
     loadTopics,

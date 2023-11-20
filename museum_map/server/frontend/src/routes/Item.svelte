@@ -6,9 +6,9 @@
   import Thumbnail from "../components/Thumbnail.svelte";
   import {
     cachedItems,
-    cachedRooms,
+    rooms,
     loadItems,
-    loadRooms,
+    fetchRooms,
     config,
     tracker,
   } from "../store";

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { tracker } from "../store";
+  import { derived } from "svelte/store";
+  import { tracker, rooms, fetchRooms, floors } from "../store";
 
   export let item: Item;
   export let noLink = false;
@@ -22,17 +23,28 @@
     }
   }
 
-  function linkTo(item: Item) {
-    if (item && item.room) {
-      return "#/room/" + item.room + "/" + item.id;
-    } else {
-      return "/";
-    }
-  }
-
   function loaded() {
     dispatch("load");
   }
+
+  const itemRoom = derived(rooms, (rooms) => {
+    const room = rooms[item.room];
+    if (room === undefined) {
+      fetchRooms([item.room]);
+    }
+    return room;
+  });
+
+  const itemFloor = derived([itemRoom, floors], ([itemRoom, floors]) => {
+    if (itemRoom && floors) {
+      for (let floor of floors) {
+        if (floor.id === itemRoom.floor) {
+          return floor;
+        }
+      }
+    }
+    return null;
+  });
 </script>
 
 {#if item !== null}
@@ -58,7 +70,9 @@
     </div>
   {:else}
     <a
-      href={linkTo(item)}
+      href="/floor/{$itemFloor ? $itemFloor.id : -1}/room/{$itemRoom
+        ? $itemRoom.id
+        : -1}/item/{item.id}"
       class="block h-full w-full overflow-hidden underline-offset-2 hover:img-brightness hover:underline focus:underline"
       aria-label={item.attributes.title}
       on:mouseenter={() => {

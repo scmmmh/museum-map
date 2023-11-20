@@ -30,6 +30,13 @@ type FloorTopic = {
 
 type Room = {
   id: number,
+  label: string,
+  levelnumber: string,
+  position: { [x: string]: number },
+  group: number,
+  floor: number,
+  sample: number,
+  items: number[],
 }
 
 type MajorCollection = {

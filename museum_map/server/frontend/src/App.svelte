@@ -27,9 +27,10 @@
       class="container mx-auto bg-neutral-700 text-white shadow-lg shadow-black font-serif tracking-default"
     >
       <Route path="/"><Lobby /></Route>
-      <Route path="/floor/:id"
+      <Route path="/floor/:fid"
         >{#if Floor !== null}<svelte:component this={Floor} />{/if}</Route
       >
+      <Route path="/floor/:fid/room/:rid"><Room /></Route>
     </main>
   {:else}
     <div

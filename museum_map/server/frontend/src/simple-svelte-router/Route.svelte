@@ -1,12 +1,11 @@
 <script lang="ts">
   import { onDestroy, tick } from "svelte";
   import { location } from "./store";
-  import type { RouterLocation } from "./store";
 
   export let path: string;
   export let handleFocus: boolean = true;
 
-  let pathComponents: string[] = [];
+  let routeName: string = location.registerRoute(path);
   let matches = false;
   let startMarker: HTMLElement | null = null;
   let endMarker: HTMLElement | null = null;
@@ -34,59 +33,21 @@
   }
 
   /**
-   * Check if the current location matches the path for this Route
-   *
-   * @param location The current location
-   */
-  function checkMatch(location: RouterLocation) {
-    matches = true;
-    for (let idx = 0; idx < pathComponents.length; idx++) {
-      if (idx < location.pathComponents.length) {
-        if (pathComponents[idx] === "*") {
-          continue;
-        } else if (pathComponents[idx].startsWith(":")) {
-          continue;
-        } else if (pathComponents[idx] === location.pathComponents[idx]) {
-          continue;
-        } else {
-          matches = false;
-          break;
-        }
-      } else {
-        matches = false;
-        break;
-      }
-    }
-  }
-
-  /**
    * Process a location change.
    *
    * First check for matches and if there is one, then call the focus handling.
-   *
-   * @param location The current location
    */
-  function process(location: RouterLocation) {
-    checkMatch(location);
-    if (
-      handleFocus &&
-      matches &&
-      location.pathComponents.length == pathComponents.length
-    ) {
+  const locationUnsubscribe = location.subscribe((location) => {
+    matches = location.currentRoute === routeName;
+    if (handleFocus && matches) {
       tick().then(focusElement);
     }
-  }
-
-  $: {
-    pathComponents = path.substring(1).split("/");
-    process($location);
-  }
-
-  const locationUnsubscribe = location.subscribe((location) => {
-    process(location);
   });
 
-  onDestroy(locationUnsubscribe);
+  onDestroy(() => {
+    locationUnsubscribe();
+    location.unRegisterRoute(routeName);
+  });
 </script>
 
 {#if matches}
