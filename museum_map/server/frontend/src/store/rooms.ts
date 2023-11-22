@@ -1,9 +1,9 @@
 import deepcopy from "deepcopy";
-import { writable, get } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
+import { location } from "../simple-svelte-router";
 
 import { busyCounter } from './busy';
-
-export const rooms = writable({} as { [x: number]: Room });
+import { currentFloor } from "./floors";
 
 let roomsIdQueryCache: number[] = [];
 let roomsQueryPromise: Promise<Room[]> | null = null;
@@ -40,15 +40,33 @@ export async function fetchRooms(roomIds: number[]): Promise<Room[]> {  // TODO:
     roomsIdQueryCache = roomsIdQueryCache.concat(roomIds);
   }
   return roomsQueryPromise;
-  /*    try {
-          busyCounter.start();
-          const response = await window.fetch("/api/rooms/?" + roomIds.map((id) => { return "rid=" + id }).join("&"));
-          if (response.status === 200) {
-              return await response.json() as Room[];
-          } else {
-              return [];
-          }
-      } finally {
-          busyCounter.stop();
-      }*/
 }
+
+export const rooms = writable({} as { [x: number]: Room });
+
+export const currentRooms = derived([rooms, currentFloor], ([rooms, currentFloor]) => {
+  if (currentFloor) {
+    return currentFloor.rooms.map((roomId) => {
+      if (rooms[roomId]) {
+        return rooms[roomId];
+      } else {
+        fetchRooms([roomId]);
+        return null;
+      }
+    }).filter((room) => {
+      return room !== null;
+    }) as Room[];
+  }
+  return [];
+});
+
+export const currentRoom = derived([rooms, location], ([rooms, location]) => {
+  if (location.pathComponents.rid) {
+    if (rooms[Number.parseInt(location.pathComponents.rid)]) {
+      return rooms[Number.parseInt(location.pathComponents.rid)];
+    } else {
+      fetchRooms([Number.parseInt(location.pathComponents.rid)]);
+    }
+  }
+  return null;
+});

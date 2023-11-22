@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_model=list[RoomModel])
-async def get_floors(
+async def get_rooms(
     dbsession: Annotated[AsyncSession, Depends(db_session)], rid: Annotated[list[int] | None, Query()] = None
 ):
-    """Retrieve all floors."""
+    """Retrieve rooms."""
     query = (
         select(Room)
         .options(selectinload(Room.group))

@@ -1,4 +1,5 @@
-import { writable, derived } from 'svelte/store';
+import { derived } from 'svelte/store';
+import { location } from '../simple-svelte-router';
 
 import { busyCounter } from './busy';
 import { isReady } from './status';
@@ -25,6 +26,18 @@ export const floors = DependentStore<null | Floor[], boolean>([], async (isReady
     return null;
   }
 }, isReady);
+
+// The current floor or null for the lobby
+export const currentFloor = derived([floors, location], ([floors, location]) => {
+  if (location.pathComponents.fid && floors) {
+    for (let floor of floors) {
+      if (floor.id === Number.parseInt(location.pathComponents.fid)) {
+        return floor;
+      }
+    }
+  }
+  return null;
+});
 
 // The list of all floor topics
 export const floorTopics = DependentStore<null | FloorTopic[], boolean>(null, async (isReady) => {

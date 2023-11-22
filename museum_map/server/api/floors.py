@@ -18,6 +18,7 @@ async def get_floors(dbsession: Annotated[AsyncSession, Depends(db_session)]):
     """Retrieve all floors."""
     query = (
         select(Floor)
+        .order_by(Floor.level)
         .options(selectinload(Floor.rooms))
         .options(selectinload(Floor.samples))
         .options(selectinload(Floor.topics))

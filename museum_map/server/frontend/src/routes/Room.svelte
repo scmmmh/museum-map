@@ -7,75 +7,15 @@
   import Footer from "../components/Footer.svelte";
   import Thumnail from "../components/Thumbnail.svelte";
   import Item from "./Item.svelte";
-  import {
-    floors,
-    rooms,
-    fetchRooms,
-    cachedItems,
-    loadItems,
-    matchingItems,
-  } from "../store";
+  import { currentFloor, currentRoom, currentItems } from "../store";
 
-  const currentRoom = derived(
-    [location, cachedRooms],
-    ([location, cachedRooms]) => {
-      if (!cachedRooms[location.pathComponents[1]]) {
-        loadRooms([location.pathComponents[1]]);
-      }
-      return cachedRooms[location.pathComponents[1]];
-    },
-    null
-  );
+  const matchedItems = derived(currentItems, (currentItems) => {
+    return currentItems.map((item) => {
+      return [item, false];
+    });
+  });
 
-  const currentFloor = derived(
-    [currentRoom, floors],
-    ([currentRoom, floors]) => {
-      if (currentRoom) {
-        const floor = floors.filter((floor) => {
-          return (
-            floor.id ===
-            (currentRoom.relationships.floor.data as JsonApiObjectReference).id
-          );
-        });
-        if (floor.length > 0) {
-          return floor[0];
-        }
-      }
-      return null;
-    },
-    null
-  );
-
-  const items = derived(
-    [currentRoom, cachedItems, matchingItems],
-    ([currentRoom, cachedItems, matchingItems]) => {
-      if (currentRoom) {
-        let itemIds = (
-          currentRoom.relationships.items.data as JsonApiObjectReference[]
-        ).map((ref) => {
-          return ref.id;
-        });
-        let items = itemIds
-          .map((id) => {
-            return cachedItems[id];
-          })
-          .filter((item) => {
-            return item;
-          })
-          .map((item) => {
-            return [item, matchingItems.indexOf(item.id) >= 0];
-          });
-        if (itemIds.length != items.length) {
-          loadItems(itemIds);
-        }
-        return items;
-      }
-      return [];
-    },
-    []
-  );
-
-  const unsubscribeItems = items.subscribe((items) => {
+  const unsubscribeItems = currentItems.subscribe((currentItems) => {
     tick().then(() => {
       focusFirstMatch(true);
     });
@@ -96,8 +36,7 @@
         block: "center",
         behavior: smooth ? "smooth" : "auto",
       });
-    }
-    if ($location.pathComponents.length === 2) {
+    } else {
       const element = document.querySelector("h1");
       if (element) {
         (element as HTMLElement).focus();
@@ -117,15 +56,15 @@
 
 {#if $currentRoom && $currentFloor}
   <Header
-    title={$currentRoom.attributes.label}
+    title={$currentRoom.label}
     nav={[
       {
-        label: $currentFloor.attributes.label,
+        label: $currentFloor.label,
         path: "/floor/" + $currentFloor.id,
       },
       {
-        label: $currentRoom.attributes.label,
-        path: "/room/" + $currentRoom.id,
+        label: $currentRoom.label,
+        path: "/floor/" + $currentFloor.id + "/room/" + $currentRoom.id,
       },
     ]}
   />
@@ -133,7 +72,7 @@
     <ul
       class="grid grid-cols-1 md:grid-cols-items justify-around p-4 overflow-hidden"
     >
-      {#each $items as [item, matches]}
+      {#each $matchedItems as [item, matches]}
         <li
           class="p-4 mb-3 {matches
             ? 'bg-blue-600 rounded-lg data-matching'
@@ -143,7 +82,9 @@
         </li>
       {/each}
     </ul>
-    <Route path="/room/:rid/:iid" handleFocus={false}><Item /></Route>
+    <Route path="/floor/:fid/room/:rid/item/:iid" handleFocus={false}
+      ><Item /></Route
+    >
   </article>
   <Footer />
 {/if}

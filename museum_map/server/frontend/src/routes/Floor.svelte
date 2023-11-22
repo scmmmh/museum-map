@@ -9,11 +9,11 @@
   import Thumbnail from "../components/Thumbnail.svelte";
   import {
     floors,
-    fetchRooms,
-    busyCounter,
+    floorTopics,
+    currentFloor,
+    rooms,
+    currentRooms,
     localPreferences,
-    loadTopics,
-    loadItems,
     matchingFloors,
     matchingRooms,
     tracker,
@@ -41,7 +41,7 @@
 
   class FloorScene extends Phaser.Scene {
     floor: Floor;
-    roomObjects: MapObject[];
+    roomObjects: MapObject[] = [];
     baseMap: Phaser.GameObjects.Image;
     zoom: number;
     cameraPosition: { x: number; y: number };
@@ -60,7 +60,7 @@
       this.zoom = 1;
       this.baseMap = this.add.image(0, 0, "basemap");
       this.baseMap.setOrigin(0, 0);
-      loadRooms(this.floor.rooms).then((rooms) => {
+      /*loadRooms(this.floor.rooms).then((rooms) => {
         busyCounter.start();
         $matchingRooms = get(matchingRooms);
         for (let room of rooms) {
@@ -126,7 +126,7 @@
         }
         this.scaleObjects(false, false);
         busyCounter.stop();
-      });
+      });*/
 
       this.cameraPosition = {
         x: -this.game.canvas.width / 2 + this.baseMap.width / 2,
@@ -393,6 +393,7 @@
 
   let game: Phaser.Game | null = null;
 
+  /*
   const currentFloor = derived(
     [location, floors],
     ([location, floors]) => {
@@ -409,12 +410,12 @@
       return null;
     },
     null
-  );
+  );*/
 
   const previousFloor = derived(
     [currentFloor, floors],
     ([currentFloor, floors]) => {
-      if (currentFloor) {
+      if (currentFloor && floors) {
         let previousFloor = null;
         for (const floor of floors) {
           if (floor === currentFloor) {
@@ -431,7 +432,7 @@
   const nextFloor = derived(
     [currentFloor, floors],
     ([currentFloor, floors]) => {
-      if (currentFloor) {
+      if (currentFloor && floors) {
         let found = false;
         for (const floor of floors) {
           if (found) {
@@ -447,9 +448,65 @@
       }
     }
   );
+  // The floor topics as a floor.id -> topic dictionary
+  const topicsDict = derived(
+    floorTopics,
+    (floorTopics) => {
+      if (floorTopics) {
+        tick().then(() => {
+          if (floorListElement) {
+            const currentElement = floorListElement.querySelector(
+              ".current-floor"
+            ) as HTMLElement;
+            if (currentElement) {
+              currentElement.scrollIntoView();
+            }
+          }
+        });
+
+        const topicsDict: { [x: number]: FloorTopic[] } = {};
+        for (let floorTopic of floorTopics) {
+          if (topicsDict[floorTopic.floor]) {
+            topicsDict[floorTopic.floor].push(floorTopic);
+          } else {
+            topicsDict[floorTopic.floor] = [floorTopic];
+          }
+        }
+        return topicsDict;
+      }
+      return {};
+    },
+    {}
+  );
+
+  const searchedFloors = derived(
+    [floors, matchingFloors],
+    ([floors, matchingFloors]) => {
+      if (floors) {
+        return floors.map((floor) => {
+          return [floor, false];
+        });
+      }
+      return [];
+    },
+    []
+  );
+
+  const searchedRooms = derived(
+    [currentRooms, matchingRooms],
+    ([currentRooms, matchingRooms]) => {
+      if (currentRooms) {
+        return currentRooms.map((room) => {
+          return [room, false];
+        });
+      }
+      return [];
+    },
+    []
+  );
 
   const currentFloorUnsubscribe = currentFloor.subscribe((currentFloor) => {
-    if (currentFloor && game) {
+    /*if (currentFloor && game) {
       if (!game.scene.getScene("floor-" + currentFloor.id)) {
         game.scene.add(
           "floor-" + currentFloor.id,
@@ -479,7 +536,7 @@
           }
         });
       }
-    }
+    }*/
   });
 
   const matchingRoomsUnsubscribe = matchingRooms.subscribe((matchingRooms) => {
@@ -497,83 +554,6 @@
       }
     }
   });
-
-  const rooms = derived(
-    currentFloor,
-    (currentFloor, set) => {
-      if (currentFloor) {
-        loadRooms(currentFloor.rooms).then((rooms) => {
-          set(rooms);
-        });
-      } else {
-        set([]);
-      }
-    },
-    [] as Room[]
-  );
-
-  const topics = derived(
-    floors,
-    (floors, set) => {
-      if (floors) {
-        let topicIds = [] as string[];
-        for (const floor of floors) {
-          topicIds = topicIds.concat(
-            (floor.relationships.topics.data as JsonApiObjectReference[]).map(
-              (rel) => {
-                return rel.id;
-              }
-            )
-          );
-        }
-        loadTopics(topicIds).then((topics) => {
-          const topicsMap = {} as { [x: string]: JsonApiObject[] };
-          for (const floor of floors) {
-            topicIds = (
-              floor.relationships.topics.data as JsonApiObjectReference[]
-            ).map((rel) => {
-              return rel.id;
-            });
-            topicsMap[floor.id] = topics.filter((topic) => {
-              return topicIds.indexOf(topic.id) >= 0;
-            });
-          }
-          set(topicsMap);
-          if (floorListElement) {
-            tick().then(() => {
-              const currentElement = floorListElement.querySelector(
-                ".current-floor"
-              ) as HTMLElement;
-              if (currentElement) {
-                currentElement.scrollIntoView();
-              }
-            });
-          }
-        });
-      }
-    },
-    {} as { [x: string]: JsonApiObject[] }
-  );
-
-  const searchedFloors = derived(
-    [floors, matchingFloors],
-    ([floors, matchingFloors]) => {
-      return floors.map((floor: JsonApiObject) => {
-        return [floor, matchingFloors.indexOf(floor.id) >= 0];
-      });
-    },
-    [] as [JsonApiObject, boolean][]
-  );
-
-  const searchedRooms = derived(
-    [rooms, matchingRooms],
-    ([rooms, matchingRooms]) => {
-      return rooms.map((room) => {
-        return [room, matchingRooms.indexOf(room.id) >= 0];
-      });
-    },
-    [] as [JsonApiObject, boolean][]
-  );
 
   onMount(() => {
     document.body.addEventListener("mousemove", (ev: MouseEvent) => {
@@ -609,10 +589,10 @@
 
 <div class="flex flex-col h-screen">
   <Header
-    title={$currentFloor ? $currentFloor.attributes.label : "Loading..."}
+    title={$currentFloor ? $currentFloor.label : "Loading..."}
     nav={[
       {
-        label: $currentFloor ? $currentFloor.attributes.label : "Loading...",
+        label: $currentFloor ? $currentFloor.label : "Loading...",
         path: "/floor/" + ($currentFloor ? $currentFloor.id : "0"),
       },
     ]}
@@ -626,27 +606,27 @@
           on:mouseenter={() => {
             tracker.log({
               action: "mouseenter",
-              params: { object: "previous-floor", floor: $previousFloor.id },
+              params: { object: "previous-floor", floor: $previousFloor?.id },
             });
           }}
           on:mouseleave={() => {
             tracker.log({
               action: "mouseleave",
-              params: { object: "previous-floor", floor: $previousFloor.id },
+              params: { object: "previous-floor", floor: $previousFloor?.id },
             });
           }}
           on:focus={() => {
             tracker.log({
               action: "focus",
-              params: { object: "previous-floor", floor: $previousFloor.id },
+              params: { object: "previous-floor", floor: $previousFloor?.id },
             });
           }}
           on:blur={() => {
             tracker.log({
               action: "blur",
-              params: { object: "previous-floor", floor: $previousFloor.id },
+              params: { object: "previous-floor", floor: $previousFloor?.id },
             });
-          }}>⇧ {$previousFloor.attributes.label}</a
+          }}>⇧ {$previousFloor.label}</a
         >
       {:else}
         <span class="inline-block px-4 py-3 lg:py-2 rounded-lg">&nbsp;</span>
@@ -704,7 +684,7 @@
             <a
               href="#/floor/{floor.id}"
               class="mb-4 block group hover:underline {floor.id ===
-              $currentFloor.id
+              $currentFloor?.id
                 ? 'current-floor'
                 : ''}"
               on:mouseenter={() => {
@@ -745,17 +725,17 @@
               }}
             >
               <span
-                class="inline-block {floor.id === $currentFloor.id
+                class="inline-block {floor.id === $currentFloor?.id
                   ? 'bg-blue-600'
                   : 'bg-neutral-600'} px-4 lg:px-3 py-3 lg:py-1 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800 lg:group-hover:bg-blue-800 lg:group-focus:bg-blue-800"
-                >⇒ {floor.attributes.label}</span
+                >⇒ {floor.label}</span
               >
               <span class="flex flex-row flex-wrap text-sm pl-4 pt-2">
-                {#if $topics[floor.id]}
-                  {#each $topics[floor.id] as topic}
+                {#if $topicsDict[floor.id]}
+                  {#each $topicsDict[floor.id] as topic}
                     <span
                       class="after:content-[','] after:mr-1 last:after:hidden"
-                      >{topic.attributes.label}</span
+                      >{topic.label}</span
                     >
                   {/each}
                 {/if}
@@ -819,7 +799,7 @@
           <h3
             class="truncate block px-2 py-1 hover:underline focus:underline bg-blue-800 text-white"
           >
-            {$hoverRoom.attributes.label}
+            {$hoverRoom.label}
           </h3>
           <ul class="flex-1 flex flex-col overflow-hidden px-2 py-2">
             {#each $samples as sample}
@@ -836,7 +816,7 @@
             <a
               href="#/room/{$hoverRoom.id}"
               class="flex-1 truncate block hover:underline focus:underline"
-              >{$hoverRoom.attributes.label}</a
+              >{$hoverRoom.label}</a
             >
             <button
               on:click={() => {
@@ -871,7 +851,7 @@
                 : ''}"
             >
               <a
-                href="#/room/{room.id}"
+                href="#/floor/{$currentFloor?.id}/room/{room.id}"
                 class="flex-1 block py-2 hover:underline focus:underline"
                 on:mouseenter={() => {
                   tracker.log({
@@ -908,7 +888,7 @@
                       floor: room.id,
                     },
                   });
-                }}>{room.attributes.label}</a
+                }}>{room.label}</a
               >
             </li>
           {/each}
@@ -924,27 +904,27 @@
         on:mouseenter={() => {
           tracker.log({
             action: "mouseenter",
-            params: { object: "next-floor", floor: $nextFloor.id },
+            params: { object: "next-floor", floor: $nextFloor?.id },
           });
         }}
         on:mouseleave={() => {
           tracker.log({
             action: "mouseleave",
-            params: { object: "next-floor", floor: $nextFloor.id },
+            params: { object: "next-floor", floor: $nextFloor?.id },
           });
         }}
         on:focus={() => {
           tracker.log({
             action: "focus",
-            params: { object: "next-floor", floor: $nextFloor.id },
+            params: { object: "next-floor", floor: $nextFloor?.id },
           });
         }}
         on:blur={() => {
           tracker.log({
             action: "blur",
-            params: { object: "next-floor", floor: $nextFloor.id },
+            params: { object: "next-floor", floor: $nextFloor?.id },
           });
-        }}>⇩ {$nextFloor.attributes.label}</a
+        }}>⇩ {$nextFloor.label}</a
       >
     {:else}
       <span

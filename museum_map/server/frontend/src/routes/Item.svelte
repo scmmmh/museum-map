@@ -4,14 +4,7 @@
   import { location } from "../simple-svelte-router";
 
   import Thumbnail from "../components/Thumbnail.svelte";
-  import {
-    cachedItems,
-    rooms,
-    loadItems,
-    fetchRooms,
-    config,
-    tracker,
-  } from "../store";
+  import { items, rooms, fetchRooms, config, tracker } from "../store";
 
   let itemHeading: HTMLElement | null = null;
 

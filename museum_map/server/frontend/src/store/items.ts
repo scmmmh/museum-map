@@ -1,16 +1,85 @@
-import { writable, get } from 'svelte/store';
+import deepcopy from "deepcopy";
+import { writable, derived } from 'svelte/store';
+import { location } from "../simple-svelte-router";
 
 import { busyCounter } from './busy';
+import { currentRoom } from "./rooms";
 
-const activeQueries = [];
+let itemsIdQueryCache: number[] = [];
+let itemsQueryPromise: Promise<Room[]> | null = null;
 
-export const cachedItems = writable({} as {[x: string]: JsonApiObject});
+export async function fetchItems(itemIds: number[]): Promise<Room[]> {  // TODO: Filter existing items for caching
+  if (itemsQueryPromise === null) {
+    itemsIdQueryCache = deepcopy(itemIds);
+    itemsQueryPromise = new Promise<Room[]>((resolve) => {
+      setTimeout(async () => {
+        try {
+          busyCounter.start();
+          const fetchitemIds = itemsIdQueryCache;
+          itemsIdQueryCache = [];
+          itemsQueryPromise = null;
+          const response = await window.fetch("/api/items/?" + fetchitemIds.map((id) => { return "iid=" + id }).join("&"));
+          if (response.status === 200) {
+            const newitems = await response.json() as Room[];
+            items.update((items) => {
+              for (let room of newitems) {
+                items[room.id] = room;
+              }
+              return items;
+            })
+            resolve(newitems);
+          } else {
+            resolve([]);
+          }
+        } finally {
+          busyCounter.stop();
+        }
+      }, 5);
+    });
+  } else {
+    itemsIdQueryCache = itemsIdQueryCache.concat(itemIds);
+  }
+  return itemsQueryPromise;
+}
+
+export const items = writable({} as { [x: number]: Room });
+
+export const currentItems = derived([items, currentRoom], ([items, currentRoom]) => {
+  if (currentRoom) {
+    return currentRoom.items.map((itemId) => {
+      if (items[itemId]) {
+        return items[itemId];
+      } else {
+        fetchItems([itemId]);
+        return null;
+      }
+    }).filter((room) => {
+      return room !== null;
+    }) as Room[];
+  }
+  return [];
+});
+
+export const currentItem = derived([items, location], ([items, location]) => {
+  if (location.pathComponents.iid) {
+    if (items[Number.parseInt(location.pathComponents.iid)]) {
+      return items[Number.parseInt(location.pathComponents.iid)];
+    } else {
+      fetchItems([Number.parseInt(location.pathComponents.iid)]);
+    }
+  }
+  return null;
+});
+
+/*const activeQueries = [];
+
+export const cachedItems = writable({} as { [x: string]: JsonApiObject });
 
 export async function loadItems(itemIds: string[]): Promise<JsonApiObject[]> {
     const $cachedItems = get(cachedItems);
-    const missingIds = itemIds.filter((id) => { return !$cachedItems[id]});
+    const missingIds = itemIds.filter((id) => { return !$cachedItems[id] });
     if (missingIds.length > 0) {
-        const url = '/api/items?filter[id]=' + missingIds.map((id) => { return id}).join(',');
+        const url = '/api/items?filter[id]=' + missingIds.map((id) => { return id }).join(',');
         if (activeQueries.indexOf(url) < 0) {
             busyCounter.start();
             activeQueries.push(url);
@@ -28,3 +97,4 @@ export async function loadItems(itemIds: string[]): Promise<JsonApiObject[]> {
     }
     return itemIds.map((id) => { return $cachedItems[id]; });
 }
+*/
