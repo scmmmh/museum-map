@@ -16,7 +16,7 @@
 <Header title="Museum Map - Lobby" nav={[]} />
 <article id="content" tabindex="-1">
   <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
-    {#if $config && $config.attributes.intro && (!$localPreferences.lobby || !$localPreferences.lobby.hideWelcome)}
+    {#if $config && $config.intro && (!$localPreferences.lobby || !$localPreferences.lobby.hideWelcome)}
       <section class="col-span-12 my-5">
         <div
           class="relative max-w-4xl mx-auto border border-neutral-500 shadow-xl px-2 py-2"
@@ -35,7 +35,7 @@
               />
             </svg>
           </button>
-          {#each $config.attributes.intro.split("\n\n") as line}
+          {#each $config.intro.split("\n\n") as line}
             <p>{@html line}</p>
           {/each}
         </div>

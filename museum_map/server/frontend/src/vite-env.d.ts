@@ -11,6 +11,33 @@ type LogAction = {
   params: object,
 };
 
+type FooterConfig = {
+  label: string,
+  url: string,
+};
+
+type FootersConfig = {
+  center: FooterConfig,
+  right: FooterConfig,
+};
+
+type ItemMetadataConfig = {
+  name: string,
+  label: string,
+};
+
+type ItemConfig = {
+  texts: ItemMetadataConfig[],
+  fields: ItemMetadataConfig[],
+};
+
+type Config = {
+  base_url: string,
+  intro: string,
+  footer: FootersConfig,
+  item: ItemConfig,
+}
+
 type Floor = {
   id: number,
   label: string,

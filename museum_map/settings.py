@@ -16,15 +16,53 @@ class InitSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
-class DatabaseSettings(BaseModel):
+class DatabaseSettings(BaseModel):  # TODO: Need to refactor this into the InitSettings
     """Settings for the database."""
 
     dsn: str
 
 
+class AppFooter(BaseModel):
+    """The settings for a single footer."""
+
+    label: str
+    url: str
+
+
+class AppFooters(BaseModel):
+    """The settings for the UI footers."""
+
+    center: AppFooter
+    right: AppFooter
+
+
+class AppItemMetadata(BaseModel):
+    """The settings for a single item metadata field."""
+
+    name: str
+    label: str
+
+
+class AppItems(BaseModel):
+    """The settings for the item configuration."""
+
+    texts: list[AppItemMetadata]
+    fields: list[AppItemMetadata]
+
+
+class AppSettings(BaseModel):
+    """The web application settings."""
+
+    base_url: str
+    intro: str
+    footer: AppFooters
+    item: AppItems
+
+
 class Settings(BaseModel):
     """Application settings."""
 
+    app: AppSettings
     db: DatabaseSettings
 
 
