@@ -10,9 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 keywords = []
-authors = [
-  { name = "Mark Hall", email = "mark.hall@work.room3b.eu" },
-]
+authors = [{ name = "Mark Hall", email = "mark.hall@work.room3b.eu" }]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -65,56 +63,29 @@ exclude = [
   "prepare_release.py",
   "museum_map/server/frontend",
 ]
-artifacts = [
-  "museum_map/server/frontend/dist/**/*.*",
-]
+artifacts = ["museum_map/server/frontend/dist/**/*.*"]
 
 [tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
-post-install-commands = [
-  "python -m spacy download en_core_web_sm"
-]
+dependencies = ["coverage[toml]>=6.5", "pytest"]
+post-install-commands = ["python -m spacy download en_core_web_sm"]
 [tool.hatch.envs.default.scripts]
-server = "cd dev && uvicorn --port 6543 --reload --reload-dir ../museum_map --log-level debug museum_map.server:app"
+server = "cd dev && uvicorn --reload --reload-dir ../museum_map --log-level debug museum_map.server:app"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
+cov-report = ["- coverage combine", "coverage report"]
+cov = ["test-cov", "cov-report"]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.11"]
 
 [tool.hatch.envs.lint]
 detached = true
-dependencies = [
-  "black>=23.1.0",
-  "mypy>=1.0.0",
-  "ruff>=0.0.243",
-]
+dependencies = ["black>=23.1.0", "mypy>=1.0.0", "ruff>=0.0.243"]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:museum_map tests}"
-style = [
-  "ruff {args:.}",
-  "black --check --diff {args:.}",
-]
-fmt = [
-  "black {args:.}",
-  "ruff --fix {args:.}",
-  "style",
-]
-all = [
-  "style",
-  "typing",
-]
+style = ["ruff {args:.}", "black --check --diff {args:.}"]
+fmt = ["black {args:.}", "ruff --fix {args:.}", "style"]
+all = ["style", "typing"]
 
 [tool.black]
 target-version = ["py311"]
@@ -158,11 +129,18 @@ ignore = [
   # Allow boolean positional values in function calls, like `dict.get(... True)`
   "FBT003",
   # Ignore checks for possible passwords
-  "S105", "S106", "S107",
+  "S105",
+  "S106",
+  "S107",
   # Ignore complexity
-  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
   # Pick the pydocstyle preferences (no blank line before class docs, multi-line starts on first line)
-  "D203", "D213"
+  "D203",
+  "D213",
 ]
 unfixable = [
   # Don't touch unused imports
@@ -183,17 +161,11 @@ ban-relative-imports = "all"
 source_pkgs = ["museum_map", "tests"]
 branch = true
 parallel = true
-omit = [
-  "museum_map/__about__.py",
-]
+omit = ["museum_map/__about__.py"]
 
 [tool.coverage.paths]
 museum_map = ["museum_map", "*/museum-map/museum_map"]
 tests = ["tests", "*/museum-map/tests"]
 
 [tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
