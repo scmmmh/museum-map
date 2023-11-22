@@ -1,9 +1,19 @@
 <script lang="ts">
-  import { onDestroy, tick } from "svelte";
+  import { onDestroy, tick, getContext, setContext } from "svelte";
   import { location } from "./store";
 
   export let path: string;
   export let handleFocus: boolean = true;
+
+  const basePath = getContext("simple-svelte-router-base") || "";
+  if (path.endsWith("*")) {
+    setContext(
+      "simple-svelte-router-base",
+      basePath + path.substring(0, path.length - 1),
+    );
+  } else {
+    setContext("simple-svelte-router-base", basePath + path);
+  }
 
   let routeName: string = location.registerRoute(path);
   let matches = false;
