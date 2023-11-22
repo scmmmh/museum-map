@@ -6,12 +6,12 @@ import { busyCounter } from './busy';
 import { currentRoom } from "./rooms";
 
 let itemsIdQueryCache: number[] = [];
-let itemsQueryPromise: Promise<Room[]> | null = null;
+let itemsQueryPromise: Promise<Item[]> | null = null;
 
-export async function fetchItems(itemIds: number[]): Promise<Room[]> {  // TODO: Filter existing items for caching
+export async function fetchItems(itemIds: number[]): Promise<Item[]> {  // TODO: Filter existing items for caching
   if (itemsQueryPromise === null) {
     itemsIdQueryCache = deepcopy(itemIds);
-    itemsQueryPromise = new Promise<Room[]>((resolve) => {
+    itemsQueryPromise = new Promise<Item[]>((resolve) => {
       setTimeout(async () => {
         try {
           busyCounter.start();
@@ -20,14 +20,14 @@ export async function fetchItems(itemIds: number[]): Promise<Room[]> {  // TODO:
           itemsQueryPromise = null;
           const response = await window.fetch("/api/items/?" + fetchitemIds.map((id) => { return "iid=" + id }).join("&"));
           if (response.status === 200) {
-            const newitems = await response.json() as Room[];
+            const newItems = await response.json() as Item[];
             items.update((items) => {
-              for (let room of newitems) {
-                items[room.id] = room;
+              for (let item of newItems) {
+                items[item.id] = item;
               }
               return items;
             })
-            resolve(newitems);
+            resolve(newItems);
           } else {
             resolve([]);
           }
@@ -42,7 +42,7 @@ export async function fetchItems(itemIds: number[]): Promise<Room[]> {  // TODO:
   return itemsQueryPromise;
 }
 
-export const items = writable({} as { [x: number]: Room });
+export const items = writable({} as { [x: number]: Item });
 
 export const currentItems = derived([items, currentRoom], ([items, currentRoom]) => {
   if (currentRoom) {
@@ -55,7 +55,7 @@ export const currentItems = derived([items, currentRoom], ([items, currentRoom])
       }
     }).filter((room) => {
       return room !== null;
-    }) as Room[];
+    }) as Item[];
   }
   return [];
 });

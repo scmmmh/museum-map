@@ -4,94 +4,55 @@
   import { location } from "../simple-svelte-router";
 
   import Thumbnail from "../components/Thumbnail.svelte";
-  import { items, rooms, fetchRooms, config, tracker } from "../store";
+  import {
+    currentFloor,
+    currentRoom,
+    currentItem,
+    currentItems,
+    config,
+    tracker,
+  } from "../store";
 
   let itemHeading: HTMLElement | null = null;
 
-  const currentItem = derived(
-    [location, cachedItems],
-    ([location, cachedItems]) => {
-      if (!cachedItems[location.pathComponents[2]]) {
-        loadItems([location.pathComponents[2]]);
-      }
-      return cachedItems[location.pathComponents[2]];
-    },
-    null
-  );
-
-  const currentRoom = derived(
-    [currentItem, cachedRooms],
-    ([currentItem, cachedRooms]) => {
+  const previousItem = derived(
+    [currentItem, currentItems],
+    ([currentItem, currentItems]) => {
       if (currentItem) {
-        if (
-          !cachedRooms[
-            (currentItem.relationships.room.data as JsonApiObjectReference).id
-          ]
-        ) {
-          loadRooms([
-            (currentItem.relationships.room.data as JsonApiObjectReference).id,
-          ]);
+        let previousItem = null;
+        for (const item of currentItems) {
+          if (item.id === currentItem.id) {
+            return previousItem;
+          }
         }
-        return cachedRooms[
-          (currentItem.relationships.room.data as JsonApiObjectReference).id
-        ];
+        if (currentItems.length > 0) {
+          return currentItems[currentItems.length - 1];
+        }
       }
       return null;
     },
-    null
+    null as Item | null,
   );
 
-  const prevItemRel = derived(
-    [currentItem, currentRoom],
-    ([currentItem, currentRoom]) => {
-      if (currentItem && currentRoom) {
-        let lastItemRel = null;
-        for (const itemRel of currentRoom.relationships.items
-          .data as JsonApiObjectReference[]) {
-          if (itemRel.id === currentItem.id) {
-            break;
-          }
-          lastItemRel = itemRel;
-        }
-        if (lastItemRel) {
-          return lastItemRel;
-        } else {
-          return (
-            currentRoom.relationships.items.data as JsonApiObjectReference[]
-          )[
-            (currentRoom.relationships.items.data as JsonApiObjectReference[])
-              .length - 1
-          ];
-        }
-      } else {
-        return null;
-      }
-    },
-    null
-  );
-
-  const nextItemRel = derived(
-    [currentItem, currentRoom],
-    ([currentItem, currentRoom]) => {
-      if (currentItem && currentRoom) {
+  const nextItem = derived(
+    [currentItem, currentItems],
+    ([currentItem, currentItems]) => {
+      if (currentItem) {
         let found = false;
-        for (const itemRel of currentRoom.relationships.items
-          .data as JsonApiObjectReference[]) {
+        for (const item of currentItems) {
           if (found) {
-            return itemRel;
+            return item;
           }
-          if (itemRel.id === currentItem.id) {
+          if (item.id === currentItem.id) {
             found = true;
           }
         }
-        return (
-          currentRoom.relationships.items.data as JsonApiObjectReference[]
-        )[0];
-      } else {
-        return null;
+        if (currentItems.length > 0) {
+          return currentItems[currentItems.length - 1];
+        }
       }
+      return null;
     },
-    null
   );
 
   let touchStartX = 0;
@@ -106,10 +67,24 @@
     const touchEndX = ev.changedTouches[0].clientX;
     const touchEndY = ev.changedTouches[0].clientY;
     if (Math.abs(touchEndY - touchStartY) < 100) {
-      if (touchEndX - touchStartX < 50 && $nextItemRel) {
-        location.push("/room/" + $currentRoom.id + "/" + $nextItemRel.id);
-      } else if (touchEndX - touchStartX > 50 && $prevItemRel) {
-        location.push("/room/" + $currentRoom.id + "/" + $prevItemRel.id);
+      if (touchEndX - touchStartX < 50 && $nextItem) {
+        location.push(
+          "/floor/" +
+            $currentFloor?.id +
+            "/room/" +
+            $currentRoom?.id +
+            "/" +
+            $nextItem.id,
+        );
+      } else if (touchEndX - touchStartX > 50 && $previousItem) {
+        location.push(
+          "/floor/" +
+            $currentFloor?.id +
+            "/room/" +
+            $currentRoom?.id +
+            "/" +
+            $previousItem.id,
+        );
       }
     }
   }
@@ -165,7 +140,7 @@
   on:touchend={touchEnd}
   class="fixed left-0 top-0 w-screen h-screen bg-neutral-800 bg-opacity-80 z-20"
   on:click={() => {
-    location.push("/room/" + $currentRoom.id);
+    location.push("/floor/" + $currentFloor?.id + "/room/" + $currentRoom?.id);
   }}
 >
   <div
@@ -177,7 +152,9 @@
     {#if $currentItem}
       <button
         on:click={() => {
-          location.push("/room/" + $currentRoom.id);
+          location.push(
+            "floor/" + $currentFloor?.id + "/room/" + $currentRoom?.id,
+          );
         }}
         class="block absolute right-0 top-0 lg:transform lg:translate-x-1/2 lg:-translate-y-1/2 rounded-full shadow-lg text-2xl w-10 h-10 bg-neutral-800 z-10"
         >✖</button
@@ -194,7 +171,7 @@
         </h2>
         <a
           href="https://twitter.com/intent/tweet?url={encodeURIComponent(
-            window.location.href
+            window.location.href,
           )}&text={$currentItem.attributes.title}&via=Hallicek"
           target="_blank"
           rel="noopener"
@@ -209,7 +186,7 @@
         </a>
         <a
           href="https://www.facebook.com/sharer/sharer.php?u={encodeURIComponent(
-            window.location.href
+            window.location.href,
           )}"
           target="_blank"
           rel="noopener"
@@ -226,13 +203,10 @@
       </div>
       <div class="flex-none lg:flex-1 lg:flex lg:flex-row lg:overflow-hidden">
         <div class="hidden lg:flex flex-none flex-col justify-center px-4">
-          {#if $prevItemRel}
-            <a
-              href="#/room/{$currentRoom.id}/{$prevItemRel.id}"
-              class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg"
-              >&laquo;</a
-            >
-          {/if}
+          <a
+            href="#/floor/{$currentFloor?.id}/room/{$currentRoom?.id}/{$previousItem.id}"
+            class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&laquo;</a
+          >
         </div>
         <div class="p-4 lg:flex-1 lg:h-full lg:self-start lg:overflow-hidden">
           <Thumbnail
@@ -290,7 +264,7 @@
                   >
                   <td
                     >{formatField(
-                      $currentItem.attributes[fieldConfig.name]
+                      $currentItem.attributes[fieldConfig.name],
                     )}</td
                   >
                 </tr>
@@ -300,7 +274,7 @@
         </div>
         <div class="hidden lg:flex flex-none flex-col justify-center px-4">
           <a
-            href="#/room/{$currentRoom.id}/{$nextItemRel.id}"
+            href="#/floor/{$currentFloor?.id}/room/{$currentRoom?.id}/item/{$nextItem.id}"
             class="block text-xl bg-neutral-600 px-2 py-1 rounded-lg">&raquo;</a
           >
         </div>

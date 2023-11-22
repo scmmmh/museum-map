@@ -5,6 +5,7 @@ import type { Location, Update } from "history";
 
 export interface RouterLocation extends Location {
   currentRoute: string | null,
+  matchingRoutes: string[],
   pathComponents: { [x: string]: string },
 };
 
@@ -33,19 +34,23 @@ export function createRouter() {
   function processLocation(newLocation: Location) {
     let pathComponents = {};
     let currentRoute = null;
+    const matchingRoutes = [];
     for (let pattern of routePatterns) {
       const match = newLocation.pathname.match(pattern.pattern);
       if (match !== null) {
         if (match.groups !== undefined) {
-          pathComponents = match.groups;
+          pathComponents = { ...pathComponents, ...match.groups };
         }
-        currentRoute = pattern.name;
-        break
+        if (currentRoute === null) {
+          currentRoute = pattern.name;
+        }
+        matchingRoutes.push(pattern.name);
       }
     }
     location.set({
       ...newLocation,
       pathComponents,
+      matchingRoutes,
       currentRoute,
     });
   }
@@ -94,7 +99,7 @@ export function createRouter() {
   function registerRoute(path: string): string {
     routeCounter++;
     const routeName = "route-" + routeCounter;
-    const regex = new RegExp("^" + path.replace(/:([^\/]+)/g, "(?<$1>[^/]+)") + "$");
+    const regex = new RegExp("^" + path.replace(/:([^\/]+)/g, "(?<$1>[^/]+)").replace(/\/\*/, "\/?.*") + "$");
     let length = 0;
     for (let idx = 0; idx < path.length; idx++) {
       if (path.charAt(idx) === "/") {

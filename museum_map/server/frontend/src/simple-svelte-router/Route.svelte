@@ -6,10 +6,10 @@
   export let handleFocus: boolean = true;
 
   const basePath = getContext("simple-svelte-router-base") || "";
-  if (path.endsWith("*")) {
+  if (path.endsWith("/*")) {
     setContext(
       "simple-svelte-router-base",
-      basePath + path.substring(0, path.length - 1),
+      basePath + path.substring(0, path.length - 2),
     );
   } else {
     setContext("simple-svelte-router-base", basePath + path);
@@ -48,7 +48,7 @@
    * First check for matches and if there is one, then call the focus handling.
    */
   const locationUnsubscribe = location.subscribe((location) => {
-    matches = location.currentRoute === routeName;
+    matches = location.matchingRoutes.indexOf(routeName) >= 0;
     if (handleFocus && matches) {
       tick().then(focusElement);
     }

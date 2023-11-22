@@ -70,7 +70,7 @@
     </div>
   {:else}
     <a
-      href="/floor/{$itemFloor ? $itemFloor.id : -1}/room/{$itemRoom
+      href="#/floor/{$itemFloor ? $itemFloor.id : -1}/room/{$itemRoom
         ? $itemRoom.id
         : -1}/item/{item.id}"
       class="block h-full w-full overflow-hidden underline-offset-2 hover:img-brightness hover:underline focus:underline"

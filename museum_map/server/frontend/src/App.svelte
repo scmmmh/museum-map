@@ -30,7 +30,7 @@
       <Route path="/floor/:fid"
         >{#if Floor !== null}<svelte:component this={Floor} />{/if}</Route
       >
-      <Route path="/floor/:fid/room/:rid"><Room /></Route>
+      <Route path="/floor/:fid/room/:rid/*"><Room /></Route>
     </main>
   {:else}
     <div
