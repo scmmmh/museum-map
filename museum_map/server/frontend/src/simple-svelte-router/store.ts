@@ -122,7 +122,7 @@ export function createRouter() {
    */
   function unRegisterRoute(routeName: string): void {
     routePatterns = routePatterns.filter((pattern) => {
-      pattern.name !== routeName;
+      return pattern.name !== routeName;
     });
     processLocation(history.location);
   }
