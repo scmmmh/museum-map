@@ -21,7 +21,14 @@ async def get_item_of_the_day(dbsession: Annotated[AsyncSession, Depends(db_sess
     query = select(func.count()).select_from(Item)
     total = (await dbsession.execute(query)).scalar()
     row_nr = math.floor(datetime.now(tz=UTC).timestamp() / 86400) % total + 1
-    query = select(Item).offset(row_nr).limit(1).options(selectinload(Item.group)).options(selectinload(Item.room))
+    query = (
+        select(Item)
+        .order_by(Item.id)
+        .offset(row_nr)
+        .limit(1)
+        .options(selectinload(Item.group))
+        .options(selectinload(Item.room))
+    )
     item = (await dbsession.execute(query)).scalar()
     if item is not None:
         return item
