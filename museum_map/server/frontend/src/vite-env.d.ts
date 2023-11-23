@@ -59,7 +59,7 @@ type Room = {
   id: number,
   label: string,
   levelnumber: string,
-  position: { [x: string]: number },
+  position: MapObjectPosition,
   group: number,
   floor: number,
   sample: number,
@@ -85,4 +85,17 @@ type Item = {
 type ItemAttributes = {
   title: string,
   images: string[][],
+};
+
+type MapObjectPosition = {
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+};
+
+type MapObject = {
+  position: MapObjectPosition;
+  rect: Phaser.GameObjects.Rectangle;
+  text: Phaser.GameObjects.Text;
 };

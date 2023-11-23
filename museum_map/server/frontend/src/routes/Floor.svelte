@@ -8,10 +8,12 @@
   import Footer from "../components/Footer.svelte";
   import Thumbnail from "../components/Thumbnail.svelte";
   import {
+    busyCounter,
     floors,
     floorTopics,
     currentFloor,
-    rooms,
+    fetchRooms,
+    fetchItems,
     currentRooms,
     localPreferences,
     matchingFloors,
@@ -32,12 +34,6 @@
   const hoverRoom = writable(null as Room | null);
   const samples = writable([] as Item[]);
   const mousePosition = { x: -1, y: -1 };
-
-  type MapObject = {
-    position: { x: number; y: number; width: number; height: number };
-    rect: Phaser.GameObjects.Rectangle;
-    text: Phaser.GameObjects.Text;
-  };
 
   class FloorScene extends Phaser.Scene {
     floor: Floor;
@@ -60,15 +56,15 @@
       this.zoom = 1;
       this.baseMap = this.add.image(0, 0, "basemap");
       this.baseMap.setOrigin(0, 0);
-      /*loadRooms(this.floor.rooms).then((rooms) => {
+      fetchRooms(this.floor.rooms).then((rooms) => {
         busyCounter.start();
         $matchingRooms = get(matchingRooms);
         for (let room of rooms) {
           const rect = this.add.rectangle(
-            room.attributes.position.x,
-            room.attributes.position.y,
-            room.attributes.position.width,
-            room.attributes.position.height,
+            room.position.x,
+            room.position.y,
+            room.position.width,
+            room.position.height,
             $matchingRooms.indexOf(room.id) >= 0 ? 0x2563eb : 0xffffff
           );
           rect.setOrigin(0, 0);
@@ -82,8 +78,8 @@
                 action: "show-samples",
                 params: { object: "room", room: room.id },
               });
-              loadItems([
-                (room.relationships.sample.data as JsonApiObjectReference).id,
+              fetchItems([
+                room.sample,
               ]).then((items) => {
                 hoverRoom.set(room);
                 samples.set(items);
@@ -105,9 +101,9 @@
           });
 
           const text = this.add.text(
-            room.attributes.position.x + room.attributes.position.width / 2,
-            room.attributes.position.y + room.attributes.position.height / 2,
-            room.attributes.label.replace(" - ", "\n"),
+            room.position.x + room.position.width / 2,
+            room.position.y + room.position.height / 2,
+            room.label.replace(" - ", "\n"),
             {
               color:
                 $matchingRooms.indexOf(room.id) >= 0 ? "#ffffff" : "#000000",
@@ -119,14 +115,14 @@
           text.setOrigin(0.5, 0.5);
 
           this.roomObjects.push({
-            position: room.attributes.position,
+            position: room.position,
             rect: rect,
             text: text,
           });
         }
         this.scaleObjects(false, false);
         busyCounter.stop();
-      });*/
+      });
 
       this.cameraPosition = {
         x: -this.game.canvas.width / 2 + this.baseMap.width / 2,
@@ -238,6 +234,7 @@
           }
         }
       );
+      // Finish dragging
       this.input.on(
         "pointerup",
         (
@@ -257,9 +254,8 @@
                   tick().then(() => {
                     const room = objectsClicked[0].getData("room");
                     hoverRoom.set(room);
-                    loadItems([
-                      (room.relationships.sample.data as JsonApiObjectReference)
-                        .id,
+                    fetchItems([
+                      room.sample,
                     ]).then((items) => {
                       hoverRoom.set(room);
                       samples.set(items);
@@ -278,7 +274,8 @@
           pointer2Down = false;
         }
       );
-      this.input.on("wheel", (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
+      // Zoom the map
+      this.input.on("wheel", (pointer, gameObjects, deltaX: number, deltaY: number, deltaZ: number) => {
         if (deltaY > 0) {
           this.zoom = Math.max(this.zoom - 0.1, 0.5);
         } else if (deltaY < 0) {
@@ -304,6 +301,7 @@
         });
       });
 
+      // Handle re-scaling of the map
       this.scale.on("resize", () => {
         this.zoom = Math.min(
           (this.game.canvas.width / this.baseMap.width) * 0.9,
@@ -319,6 +317,8 @@
           },
         });
       });
+
+      // Log the map floor setup
       tracker.log({
         action: "initial-size-map",
         params: {
@@ -349,7 +349,7 @@
           obj.rect.y = obj.position.y * this.zoom;
           obj.rect.width = obj.position.width * this.zoom;
           obj.rect.height = obj.position.height * this.zoom;
-          obj.rect.input.hitArea.setTo(
+          obj.rect.input?.hitArea.setTo(
             0,
             0,
             obj.position.width * this.zoom,
@@ -448,6 +448,7 @@
       }
     }
   );
+
   // The floor topics as a floor.id -> topic dictionary
   const topicsDict = derived(
     floorTopics,
@@ -506,7 +507,7 @@
   );
 
   const currentFloorUnsubscribe = currentFloor.subscribe((currentFloor) => {
-    /*if (currentFloor && game) {
+    if (currentFloor && game) {
       if (!game.scene.getScene("floor-" + currentFloor.id)) {
         game.scene.add(
           "floor-" + currentFloor.id,
@@ -528,7 +529,7 @@
       }
       if (floorListElement) {
         tick().then(() => {
-          const currentElement = floorListElement.querySelector(
+          const currentElement = floorListElement?.querySelector(
             ".current-floor"
           ) as HTMLElement;
           if (currentElement) {
@@ -536,7 +537,7 @@
           }
         });
       }
-    }*/
+    }
   });
 
   const matchingRoomsUnsubscribe = matchingRooms.subscribe((matchingRooms) => {
