@@ -11,11 +11,17 @@
     localPreferences,
     tracker,
   } from "../store";
+  import NotFoundRoute from "../simple-svelte-router/NotFoundRoute.svelte";
 </script>
 
 <Header title="Museum Map - Lobby" nav={[]} />
 <article id="content" tabindex="-1">
   <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
+    <NotFoundRoute>
+      <section class="col-span-12 mt-2">
+        <div class="relative max-w-4xl mx-auto border border-red-500 shadow shadow-red-500 px-2 py-2 bg-red-800">You find yourself in a dark and dusty corner of the museum. Unfortunately what you were looking for cannot be found here. Please use the links below or the search box in the top-right corner to look for something else.</div>
+      </section>
+    </NotFoundRoute>
     {#if $config && $config.intro && (!$localPreferences.lobby || !$localPreferences.lobby.hideWelcome)}
       <section class="col-span-12 my-5">
         <div

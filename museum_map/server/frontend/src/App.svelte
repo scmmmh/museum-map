@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { fade } from "svelte/transition";
-  import { Route } from "./simple-svelte-router";
+  import { Route, NotFoundRoute } from "./simple-svelte-router";
 
   import Lobby from "./routes/Lobby.svelte";
   import Room from "./routes/Room.svelte";
@@ -31,6 +31,7 @@
         >{#if Floor !== null}<svelte:component this={Floor} />{/if}</Route
       >
       <Route path="/floor/:fid/room/:rid/*"><Room /></Route>
+      <NotFoundRoute><Lobby/></NotFoundRoute>
     </main>
   {:else}
     <div
