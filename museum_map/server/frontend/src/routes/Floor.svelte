@@ -12,8 +12,6 @@
     floors,
     floorTopics,
     currentFloor,
-    fetchRooms,
-    fetchItems,
     currentRooms,
     localPreferences,
     matchingFloors,
@@ -263,7 +261,7 @@
                   });
                 } else {
                   location.push(
-                    "/room/" + objectsClicked[0].getData("room_id")
+                    "/floor/" + $currentFloor?.id + "/room/" + objectsClicked[0].getData("room_id")
                   );
                 }
               }

@@ -1,8 +1,8 @@
 import { busyCounter, isBusy } from './busy';
 import { itemOfTheDay, randomItemsSelection } from './picks';
 import { floorTopics, majorCollections, floors, currentFloor } from './floors';
-import { rooms, fetchRooms, currentRooms, currentRoom } from './rooms';
-import { items, fetchItems, currentItems, currentItem } from './items';
+import { rooms, currentRooms, currentRoom } from './rooms';
+import { items, currentItems, currentItem } from './items';
 import { config } from './config';
 import { cachedTopics, loadTopics } from './topics';
 import { localPreferences } from './preferences';
@@ -27,10 +27,8 @@ export {
     currentRoom,
     currentRooms,
     rooms,
-    fetchRooms,
 
     items,
-    fetchItems,
     currentItems,
     currentItem,
 

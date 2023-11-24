@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { derived } from "svelte/store";
-  import { tracker, rooms, fetchRooms, floors } from "../store";
+  import { tracker, rooms, floors } from "../store";
 
   export let item: Item;
   export let noLink = false;
@@ -27,10 +27,10 @@
     dispatch("load");
   }
 
-  const itemRoom = derived(rooms, (rooms) => {
-    const room = rooms[item.room];
+  const itemRoom = derived(rooms, (roomsDict) => {
+    const room = roomsDict[item.room];
     if (room === undefined) {
-      fetchRooms([item.room]);
+      rooms.fetch([item.room]);
     }
     return room;
   });

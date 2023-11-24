@@ -22,12 +22,13 @@
         let previousItem = null;
         for (const item of currentItems) {
           if (item.id === currentItem.id) {
-            return previousItem;
+            if (previousItem) {
+              return previousItem;
+            } else if (currentItems.length > 0) {
+              return currentItems[currentItems.length - 1];
+            }
           }
           previousItem = item;
-        }
-        if (currentItems.length > 0) {
-          return currentItems[currentItems.length - 1];
         }
       }
       return null;
@@ -49,7 +50,7 @@
           }
         }
         if (currentItems.length > 0) {
-          return currentItems[currentItems.length - 1];
+          return currentItems[0];
         }
       }
       return null;

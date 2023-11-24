@@ -41,4 +41,7 @@ class ItemModel(BaseModel):
     @classmethod
     def convert_model_to_ids(cls, value: any) -> int:
         """Convert the child models to ids."""
-        return value.id
+        if value is not None:
+            return value.id
+        else:
+            return None

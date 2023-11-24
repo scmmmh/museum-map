@@ -1,5 +1,6 @@
 import { writable, get } from "svelte/store";
 import type { Subscriber, Unsubscriber, Readable } from 'svelte/store';
+import deepcopy from "deepcopy";
 
 /**
  * A readable store that updates its value at the given interval.
@@ -87,5 +88,65 @@ export function DependentStore<StoreType, ParentType>(initial: StoreType, value:
   return {
     subscribe,
     refresh,
+  }
+}
+
+type IdType = {
+  id: number,
+};
+
+/**
+ * A store that acts as a cache.
+ *
+ * When requesting items via the fetch function, will automatically fetch any uncached items from remote.
+ *
+ * @param value The function to load uncached ids
+ * @returns A new store
+ */
+export function createCachingStore<StoreType extends IdType>(value: (ids: number[]) => StoreType[] | Promise<StoreType[]>) {
+  const store = writable({} as {[x: number]: StoreType});
+
+  let idsBuffer: number[] = [];
+  let requestPromise: Promise<{[x: number]: StoreType}> | null = null;
+
+  async function fetch(ids: number[]): Promise<StoreType[]> {
+    if (requestPromise === null) {
+      idsBuffer = deepcopy(ids);
+      requestPromise = new Promise<{[x: number]: StoreType}>((resolve) => {
+        setTimeout(() => {
+          const idsToFetch: number[] = [];
+          const $store = get(store);
+          for (const id of idsBuffer) {
+            if (!$store[id] && idsToFetch.indexOf(id) < 0) {
+              idsToFetch.push(id);
+            }
+          }
+          idsBuffer = [];
+          requestPromise = null;
+          if (idsToFetch.length > 0) {
+            Promise.resolve(value(idsToFetch)).then((items) => {
+              store.update((store) => {
+                for (const item of items) {
+                  store[item.id] = item;
+                }
+                return store;
+              });
+              resolve($store);
+            });
+          } else {
+            resolve($store);
+          }
+        }, 5);
+      });
+    } else {
+      idsBuffer = idsBuffer.concat(ids);
+    }
+    const items = await requestPromise;
+    return ids.map((id) => { return items[id]; });
+  }
+
+  return {
+    subscribe: store.subscribe,
+    fetch,
   }
 }
