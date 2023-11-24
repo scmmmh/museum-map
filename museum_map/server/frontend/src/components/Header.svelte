@@ -1,9 +1,10 @@
 <script lang="ts">
   import { afterUpdate, onDestroy, onMount, tick } from "svelte";
   import { location } from "../simple-svelte-router";
-  import { useIsFetching } from "@tanstack/svelte-query";
+  import { createQuery, useIsFetching } from "@tanstack/svelte-query";
 
-  import { searchTerm, searchRoom, floors, tracker } from "../store";
+  import { searchTerm, searchRoom, tracker } from "../store";
+  import { apiRequest } from "../util";
 
   export let title: string;
   export let nav: { path: string; label: string }[];
@@ -12,6 +13,11 @@
   let showNav = false;
   let showSearch = false;
   let searchElement: HTMLElement | null = null;
+
+  const floors = createQuery({
+    queryKey: ["/floors/"],
+    queryFn: apiRequest<Floor[]>,
+  });
 
   const unsubscribeLocation = location.subscribe((location) => {
     if (location.pathname.startsWith("/room")) {
@@ -26,9 +32,10 @@
     if (
       searchTerm.trim() !== "" &&
       $location.pathname === "/" &&
-      $floors.length > 0
+      $floors.isSuccess &&
+      $floors.data.length > 0
     ) {
-      location.push("/floor/" + $floors[0].id + "?search");
+      location.push("/floor/" + $floors.data[0].id + "?search");
     }
     if (searchTerm.trim() !== "") {
       showSearch = true;
