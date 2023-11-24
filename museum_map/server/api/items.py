@@ -2,7 +2,7 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -21,3 +21,14 @@ async def get_items(
     """Retrieve items."""
     query = select(Item).filter(Item.id.in_(iid)).options(selectinload(Item.group)).options(selectinload(Item.room))
     return (await dbsession.execute(query)).scalars()
+
+
+@router.get("/{iid}", response_model=ItemModel)
+async def get_item(iid: int, dbsession: Annotated[AsyncSession, Depends(db_session)]):
+    """Fetch a single item."""
+    query = select(Item).filter(Item.id == iid).options(selectinload(Item.group)).options(selectinload(Item.room))
+    item = (await dbsession.execute(query)).scalar()
+    if item is not None:
+        return item
+    else:
+        raise HTTPException(404)

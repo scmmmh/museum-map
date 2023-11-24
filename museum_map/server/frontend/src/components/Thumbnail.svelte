@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { createEventDispatcher } from "svelte";
   import { derived } from "svelte/store";
-  import { tracker, rooms, floors } from "../store";
+  import { tracker } from "../store";
+  import { apiRequest } from "../util";
 
   export let item: Item;
   export let noLink = false;
@@ -27,18 +29,20 @@
     dispatch("load");
   }
 
-  const itemRoom = derived(rooms, (roomsDict) => {
-    const room = roomsDict[item.room];
-    if (room === undefined) {
-      rooms.fetch([item.room]);
-    }
-    return room;
+  const room = createQuery({
+    queryKey: ["/rooms/", item.room],
+    queryFn: apiRequest<Room>,
   });
 
-  const itemFloor = derived([itemRoom, floors], ([itemRoom, floors]) => {
-    if (itemRoom && floors) {
-      for (let floor of floors) {
-        if (floor.id === itemRoom.floor) {
+  const floors = createQuery({
+    queryKey: ["/floors/"],
+    queryFn: apiRequest<Floor[]>,
+  });
+
+  const floor = derived([floors, room], ([floors, room]) => {
+    if (floors.isSuccess && room.isSuccess) {
+      for (const floor of floors.data) {
+        if (floor.id === room.data.floor) {
           return floor;
         }
       }
@@ -70,8 +74,8 @@
     </div>
   {:else}
     <a
-      href="#/floor/{$itemFloor ? $itemFloor.id : -1}/room/{$itemRoom
-        ? $itemRoom.id
+      href="#/floor/{$floor !== null ? $floor.id : null}/room/{$room.isSuccess
+        ? $room.data.id
         : -1}/item/{item.id}"
       class="block h-full w-full overflow-hidden underline-offset-2 hover:img-brightness hover:underline focus:underline"
       aria-label={item.attributes.title}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createQuery } from "@tanstack/svelte-query";
   import { onDestroy, onMount, tick } from "svelte";
   import { derived } from "svelte/store";
   import { location, Route } from "../simple-svelte-router";
@@ -7,15 +8,54 @@
   import Footer from "../components/Footer.svelte";
   import Thumnail from "../components/Thumbnail.svelte";
   import Item from "./Item.svelte";
-  import { currentFloor, currentRoom, currentItems } from "../store";
+  import { apiRequest } from "../util";
 
-  const matchedItems = derived(currentItems, (currentItems) => {
-    return currentItems.map((item) => {
-      return [item, false];
-    });
+  const floors = createQuery({
+    queryKey: ["/floors/"],
+    queryFn: apiRequest<Floor[]>,
   });
 
-  const unsubscribeItems = currentItems.subscribe((currentItems) => {
+  const floor = derived([floors, location], ([floors, location]) => {
+    if (location.pathComponents.fid && floors.isSuccess) {
+      for (const floor of floors.data) {
+        if (floor.id === Number.parseInt(location.pathComponents.fid)) {
+          return floor;
+        }
+      }
+    }
+    return null;
+  });
+
+  const roomQueryOptions = derived(location, (location) => {
+    return {
+      queryKey: ["/rooms/", Number.parseInt(location.pathComponents.rid)],
+      queryFn: apiRequest<Room>,
+    };
+  });
+  const room = createQuery(roomQueryOptions);
+
+  const itemsQueryOptions = derived(location, (location) => {
+    return {
+      queryKey: [
+        "/rooms/",
+        Number.parseInt(location.pathComponents.rid),
+        "/items",
+      ],
+      queryFn: apiRequest<Item[]>,
+    };
+  });
+  const items = createQuery(itemsQueryOptions);
+
+  const matchedItems = derived(items, (items) => {
+    if (items.isSuccess) {
+      return items.data.map((item) => {
+        return [item, false];
+      });
+    }
+    return [];
+  });
+
+  const unsubscribeItems = items.subscribe((currentItems) => {
     tick().then(() => {
       focusFirstMatch(true);
     });
@@ -54,17 +94,17 @@
   }
 </script>
 
-{#if $currentRoom && $currentFloor}
+{#if $floor !== null && $room.isSuccess}
   <Header
-    title={$currentRoom.label}
+    title={$room.data.label}
     nav={[
       {
-        label: $currentFloor.label,
-        path: "/floor/" + $currentFloor.id,
+        label: $floor.label,
+        path: "/floor/" + $floor.id,
       },
       {
-        label: $currentRoom.label,
-        path: "/floor/" + $currentFloor.id + "/room/" + $currentRoom.id,
+        label: $room.data.label,
+        path: "/floor/" + $floor.id + "/room/" + $room.data.id,
       },
     ]}
   />

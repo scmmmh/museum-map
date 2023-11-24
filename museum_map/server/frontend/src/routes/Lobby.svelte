@@ -1,28 +1,98 @@
 <script lang="ts">
+  import { createQuery } from "@tanstack/svelte-query";
+  import { derived } from "svelte/store";
+
   import Header from "../components/Header.svelte";
   import Footer from "../components/Footer.svelte";
   import Thumnail from "../components/Thumbnail.svelte";
-  import {
-    config,
-    itemOfTheDay,
-    randomItemsSelection,
-    majorCollections,
-    floors,
-    localPreferences,
-    tracker,
-  } from "../store";
   import NotFoundRoute from "../simple-svelte-router/NotFoundRoute.svelte";
+  import Loading from "../components/Loading.svelte";
+  import { apiRequest } from "../util";
+  import { localPreferences, tracker } from "../store";
+
+  const config = createQuery({
+    queryKey: ["/config/"],
+    queryFn: apiRequest<Config>,
+  });
+
+  const itemOfTheDay = createQuery({
+    queryKey: ["/picks/item-of-the-day"],
+    queryFn: apiRequest<Item>,
+  });
+
+  const randomItemsSelection = createQuery({
+    queryKey: ["/picks/random-items"],
+    queryFn: apiRequest<Item[]>,
+  });
+
+  const floors = createQuery({
+    queryKey: ["/floors/"],
+    queryFn: apiRequest<Floor[]>,
+  });
+
+  const floorTopics = createQuery({
+    queryKey: ["/floor-topics/"],
+    queryFn: apiRequest<FloorTopic[]>,
+  });
+
+  const majorCollections = derived(
+    [floorTopics, floors],
+    ([floorTopics, floors]) => {
+      if (floorTopics.isSuccess && floors.isSuccess) {
+        const topics: MajorCollection[] = [];
+        floorTopics.data.forEach((topic) => {
+          const existingTopic = topics.filter((t) => {
+            return t.group === topic.group;
+          });
+          const floor = floors.data.filter((floor) => {
+            return topic.floor === floor.id;
+          });
+          if (floor.length > 0) {
+            if (existingTopic.length === 0) {
+              topics.push({
+                id: topic.id,
+                label: topic.label,
+                size: topic.size,
+                group: topic.group,
+                floors: floor,
+              });
+            } else {
+              existingTopic[0].size = existingTopic[0].size + topic.size;
+              existingTopic[0].floors.push(floor[0]);
+            }
+          }
+        });
+        topics.sort((a, b) => {
+          return b.size - a.size;
+        });
+        return topics.slice(0, 6);
+      } else {
+        return [];
+      }
+    },
+    [] as MajorCollection[],
+  );
 </script>
 
+{#if $config.isLoading || $itemOfTheDay.isLoading || $randomItemsSelection.isLoading || $floors.isLoading || $floorTopics.isLoading}
+  <Loading />
+{/if}
 <Header title="Museum Map - Lobby" nav={[]} />
 <article id="content" tabindex="-1">
   <div class="flex flex-col md:grid md:grid-cols-12 gap-8 p-4">
     <NotFoundRoute>
       <section class="col-span-12 mt-2">
-        <div class="relative max-w-4xl mx-auto border border-red-500 shadow shadow-red-500 px-2 py-2 bg-red-800">You find yourself in a dark and dusty corner of the museum. Unfortunately what you were looking for cannot be found here. Please use the links below or the search box in the top-right corner to look for something else.</div>
+        <div
+          class="relative max-w-4xl mx-auto border border-red-500 shadow shadow-red-500 px-2 py-2 bg-red-800"
+        >
+          You find yourself in a dark and dusty corner of the museum.
+          Unfortunately what you were looking for cannot be found here. Please
+          use the links below or the search box in the top-right corner to look
+          for something else.
+        </div>
       </section>
     </NotFoundRoute>
-    {#if $config && $config.intro && (!$localPreferences.lobby || !$localPreferences.lobby.hideWelcome)}
+    {#if $config.isSuccess && $config.data.intro && (!$localPreferences.lobby || !$localPreferences.lobby.hideWelcome)}
       <section class="col-span-12 my-5">
         <div
           class="relative max-w-4xl mx-auto border border-neutral-500 shadow-xl px-2 py-2"
@@ -41,17 +111,17 @@
               />
             </svg>
           </button>
-          {#each $config.intro.split("\n\n") as line}
+          {#each $config.data.intro.split("\n\n") as line}
             <p>{@html line}</p>
           {/each}
         </div>
       </section>
     {/if}
-    {#if $itemOfTheDay}
+    {#if $itemOfTheDay.isSuccess}
       <section class="md:col-span-6 lg:col-span-4 flex flex-col h-[25rem]">
         <h2 class="flex-none text-xl font-bold mb-4">Item of the Day</h2>
         <div class="flex-1 overflow-hidden">
-          <Thumnail item={$itemOfTheDay} size="large" />
+          <Thumnail item={$itemOfTheDay.data} size="large" />
         </div>
       </section>
     {/if}
@@ -99,10 +169,10 @@
             </li>
           {/each}
         </ul>
-        {#if $floors && $floors.length > 0}
+        {#if $floors.isSuccess && $floors.data.length > 0}
           <div class="mt-16 mb-8 text-center">
             <a
-              href={"#/floor/" + $floors[0].id}
+              href={"#/floor/" + $floors.data[0].id}
               class="inline-block text-xl tracking-widest font-bold bg-blue-800 px-4 py-2 rounded-lg hover:underline focus:underline"
               on:mouseenter={() => {
                 tracker.log({
@@ -133,66 +203,68 @@
         {/if}
       </div>
     </section>
-    <section class="col-span-12 mt-4">
-      <div class="flex flex-row">
-        <h2 class="flex-1 text-xl font-bold mb-4">
-          Selection from our collections
-        </h2>
-        <button
-          on:click={() => {
-            tracker.log({
-              action: "refresh-random-items",
-              params: {},
-            });
-            randomItemsSelection.refresh();
-          }}
-          on:mouseenter={() => {
-            tracker.log({
-              action: "mouseenter",
-              params: { object: "reload-random-selection" },
-            });
-          }}
-          on:mouseleave={() => {
-            tracker.log({
-              action: "mouseleave",
-              params: { object: "reload-random-selection" },
-            });
-          }}
-          on:focus={() => {
-            tracker.log({
-              action: "focus",
-              params: { object: "reload-random-selection" },
-            });
-          }}
-          on:blur={() => {
-            tracker.log({
-              action: "blur",
-              params: { object: "reload-random-selection" },
-            });
-          }}
-          class="flex-none px-2 py-2"
-          aria-label="Update the selection of items from the collection"
-          title="Update the selection of items from the collection"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            class="w-6 h-6 fill-white"
-            aria-hidden="true"
+    {#if $randomItemsSelection.isSuccess}
+      <section class="col-span-12 mt-4">
+        <div class="flex flex-row">
+          <h2 class="flex-1 text-xl font-bold mb-4">
+            Selection from our collections
+          </h2>
+          <button
+            on:click={() => {
+              tracker.log({
+                action: "refresh-random-items",
+                params: {},
+              });
+              $randomItemsSelection.refetch();
+            }}
+            on:mouseenter={() => {
+              tracker.log({
+                action: "mouseenter",
+                params: { object: "reload-random-selection" },
+              });
+            }}
+            on:mouseleave={() => {
+              tracker.log({
+                action: "mouseleave",
+                params: { object: "reload-random-selection" },
+              });
+            }}
+            on:focus={() => {
+              tracker.log({
+                action: "focus",
+                params: { object: "reload-random-selection" },
+              });
+            }}
+            on:blur={() => {
+              tracker.log({
+                action: "blur",
+                params: { object: "reload-random-selection" },
+              });
+            }}
+            class="flex-none px-2 py-2"
+            aria-label="Update the selection of items from the collection"
+            title="Update the selection of items from the collection"
           >
-            <path
-              d="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z"
-            />
-          </svg>
-        </button>
-      </div>
-      <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {#if $randomItemsSelection !== null}
-          {#each $randomItemsSelection as item}
-            <li><Thumnail {item} /></li>
-          {/each}
-        {/if}
-      </ul>
-    </section>
+            <svg
+              viewBox="0 0 24 24"
+              class="w-6 h-6 fill-white"
+              aria-hidden="true"
+            >
+              <path
+                d="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z"
+              />
+            </svg>
+          </button>
+        </div>
+        <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {#if $randomItemsSelection !== null}
+            {#each $randomItemsSelection.data as item}
+              <li><Thumnail {item} /></li>
+            {/each}
+          {/if}
+        </ul>
+      </section>
+    {/if}
   </div>
 </article>
 <Footer />

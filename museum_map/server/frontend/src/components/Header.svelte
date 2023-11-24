@@ -1,12 +1,14 @@
 <script lang="ts">
   import { afterUpdate, onDestroy, onMount, tick } from "svelte";
   import { location } from "../simple-svelte-router";
+  import { useIsFetching } from "@tanstack/svelte-query";
 
-  import { isBusy, searchTerm, searchRoom, floors, tracker } from "../store";
+  import { searchTerm, searchRoom, floors, tracker } from "../store";
 
   export let title: string;
   export let nav: { path: string; label: string }[];
 
+  const isFetching = useIsFetching();
   let showNav = false;
   let showSearch = false;
   let searchElement: HTMLElement | null = null;
@@ -99,7 +101,7 @@
       class="block fixed z-50 top-[-200px] focus:top-0 left-1/2 transform -translate-x-1/2 bg-neutral-600 px-10 py-2 rounded-b-lg shadow-even shadow-black"
       >Jump to content</button
     >
-    {#if $isBusy}
+    {#if $isFetching > 0}
       <div class="sr-only" role="alert">Loading data</div>
       <svg
         viewBox="0 0 38 38"
