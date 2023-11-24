@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "@tanstack/svelte-query": "^5.8.4",
     "@tsconfig/svelte": "^5.0.0",
     "autoprefixer": "^10.4.15",
     "deepcopy": "^2.1.0",
