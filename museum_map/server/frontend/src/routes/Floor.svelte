@@ -735,7 +735,8 @@
             </li>
           {/each}
         </ol>
-      {:else if $floors.isLoading}
+      {/if}
+      {#if $floors.isLoading || $rooms.isLoading}
         <Loading />
       {/if}
     </nav>
