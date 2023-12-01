@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterUpdate, onDestroy, onMount, tick } from "svelte";
+  import { afterUpdate, onDestroy } from "svelte";
   import { location } from "../simple-svelte-router";
   import { createQuery, useIsFetching } from "@tanstack/svelte-query";
 

@@ -1,7 +1,5 @@
 <script lang="ts">
   import { onMount, onDestroy, tick } from "svelte";
-  import { derived } from "svelte/store";
-  import { createQuery } from "@tanstack/svelte-query";
   import { location } from "../simple-svelte-router";
 
   import { searchTerm, tracker } from "../store";
