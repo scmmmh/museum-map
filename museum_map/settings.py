@@ -2,7 +2,7 @@
 import logging
 import os
 
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from yaml import safe_load
 
@@ -59,11 +59,19 @@ class AppSettings(BaseModel):
     item: AppItems
 
 
+class SearchSettings(BaseModel):
+    """The search index settings."""
+
+    url: HttpUrl
+    key: str
+
+
 class Settings(BaseModel):
     """Application settings."""
 
     app: AppSettings
     db: DatabaseSettings
+    search: SearchSettings
 
 
 init_settings = InitSettings()

@@ -3,7 +3,8 @@
   import { location } from "../simple-svelte-router";
   import { createQuery, useIsFetching } from "@tanstack/svelte-query";
 
-  import { searchTerm, searchRoom, tracker } from "../store";
+  import SearchBox from "./SearchBox.svelte";
+  import { searchTerm } from "../store";
   import { apiRequest } from "../util";
 
   export let title: string;
@@ -12,21 +13,18 @@
   const isFetching = useIsFetching();
   let showNav = false;
   let showSearch = false;
-  let searchElement: HTMLElement | null = null;
 
   const floors = createQuery({
     queryKey: ["/floors/"],
     queryFn: apiRequest<Floor[]>,
   });
 
-  const unsubscribeLocation = location.subscribe((location) => {
-    if (location.pathname.startsWith("/room")) {
-      const parts = location.pathname.split("/");
-      searchRoom.set(parts[2]);
-    } else {
-      searchRoom.set(null);
+  function focusContent() {
+    const element = document.querySelector("#content");
+    if (element !== null) {
+      (element as HTMLElement).focus();
     }
-  });
+  }
 
   const unsubscribeSearchTerm = searchTerm.subscribe((searchTerm) => {
     if (
@@ -37,60 +35,13 @@
     ) {
       location.push("/floor/" + $floors.data[0].id + "?search");
     }
-    if (searchTerm.trim() !== "") {
-      showSearch = true;
-    }
-  });
-
-  function searchToggle() {
-    showSearch = !showSearch;
-    searchTerm.set("");
-    if (showSearch) {
-      tick().then(() => {
-        if (searchElement) {
-          searchElement.focus();
-        }
-      });
-    }
-  }
-
-  function submitSearch(ev: SubmitEvent) {
-    ev.preventDefault();
-  }
-
-  function focusContent() {
-    const element = document.querySelector("#content");
-    if (element !== null) {
-      (element as HTMLElement).focus();
-    }
-  }
-
-  onMount(() => {
-    if ($location.search === "?search") {
-      location.push($location.pathname);
-      tick().then(() => {
-        tick().then(() => {
-          if (searchElement) {
-            showSearch = true;
-            tick().then(() => {
-              if (searchElement) {
-                searchElement.focus();
-              }
-            });
-          }
-        });
-      });
-    }
   });
 
   afterUpdate(() => {
     document.title = title;
   });
 
-  onDestroy(() => {
-    unsubscribeLocation();
-    unsubscribeSearchTerm();
-  });
+  onDestroy(unsubscribeSearchTerm);
 </script>
 
 <header class="sticky top-0 shadow-even shadow-black z-20 bg-inherit">
@@ -133,54 +84,7 @@
         </g>
       </svg>
     {/if}
-    <form
-      class="mr-2 flex flex-row border rounded-lg text-black bg-white text-black relative"
-      on:submit={submitSearch}
-      on:mouseenter={() => {
-        tracker.log({ action: "mouseenter", params: { object: "searchform" } });
-      }}
-      on:mouseleave={() => {
-        tracker.log({ action: "mouseleave", params: { object: "searchform" } });
-      }}
-    >
-      <input
-        bind:this={searchElement}
-        bind:value={$searchTerm}
-        type="search"
-        placeholder="Search the museum..."
-        class="{!showSearch
-          ? 'hidden'
-          : 'block'} md:block flex-1 px-2 py-1 bg-transparent items-center"
-        on:focus={() => {
-          tracker.log({ action: "focus", params: { object: "searchinput" } });
-        }}
-        on:blur={() => {
-          tracker.log({ action: "blur", params: { object: "searchinput" } });
-        }}
-      />
-      <button
-        on:click={searchToggle}
-        type="button"
-        class="block"
-        aria-label={$searchTerm.trim() === ""
-          ? "Search the museum"
-          : "Clear your search"}
-      >
-        <svg viewBox="0 0 24 24" class="w-6 h-6" aria-hidden="true">
-          {#if $searchTerm.trim() === ""}
-            <path
-              fill="currentColor"
-              d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"
-            />
-          {:else}
-            <path
-              fill="currentColor"
-              d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-            />
-          {/if}
-        </svg>
-      </button>
-    </form>
+    <SearchBox />
   </div>
   <nav class="flex flex-row items-start" aria-label="Main">
     <ol class="flex-1 flex flex-col md:flex-row md:child-separator">

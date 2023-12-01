@@ -9,7 +9,7 @@
   import Footer from "../components/Footer.svelte";
   import Thumbnail from "../components/Thumbnail.svelte";
   import Loading from "../components/Loading.svelte";
-  import { localPreferences, tracker } from "../store";
+  import { localPreferences, tracker, searchTerm } from "../store";
   import type { NestedStorage } from "../store/preferences";
   import { apiRequest } from "../util";
 
@@ -142,6 +142,25 @@
   });
   const samples = createQuery(samplesQueryOptions);
 
+  const searchQueryOptions = derived(searchTerm, (searchTerm) => {
+    return {
+      queryKey: ["/api/search", searchTerm],
+      queryFn: async () => {
+        if (searchTerm.trim() !== "") {
+          const response = await window.fetch("/api/search/?q=" + searchTerm);
+          if (response.ok) {
+            return await response.json();
+          } else {
+            throw new Error("Could not fetch search results");
+          }
+        } else {
+          return { floors: [], rooms: [] };
+        }
+      },
+    };
+  });
+  const searchResultsQuery = createQuery(searchQueryOptions);
+
   class FloorScene extends Phaser.Scene {
     floorId: number;
     rooms: Room[];
@@ -181,8 +200,10 @@
           room.position.y,
           room.position.width,
           room.position.height,
-          0xffffff,
-          //$matchingRooms.indexOf(room.id) >= 0 ? 0x2563eb : 0xffffff,
+          $searchResultsQuery.isSuccess &&
+            $searchResultsQuery.data.rooms.indexOf(room.id) >= 0
+            ? 0x2563eb
+            : 0xffffff,
         );
         rect.setOrigin(0, 0);
         rect.setData("room", room);
@@ -514,22 +535,27 @@
     });
   });
 
-  /*
-  const matchingRoomsUnsubscribe = matchingRooms.subscribe((matchingRooms) => {
-    if (game) {
-      for (const scene of game.scene.getScenes()) {
-        for (const obj of (scene as FloorScene).roomObjects) {
-          if (matchingRooms.indexOf(obj.rect.getData("room_id")) >= 0) {
-            obj.rect.fillColor = 0x2563eb;
-            obj.text.setColor("#ffffff");
-          } else {
-            obj.rect.fillColor = 0xffffff;
-            obj.text.setColor("#000000");
+  const searchResultsQueryUnsubscribe = searchResultsQuery.subscribe(
+    (searchResultsQuery) => {
+      if (game && searchResultsQuery.isSuccess) {
+        for (const scene of game.scene.getScenes()) {
+          for (const obj of (scene as FloorScene).roomObjects) {
+            if (
+              searchResultsQuery.data.rooms.indexOf(
+                obj.rect.getData("room_id"),
+              ) >= 0
+            ) {
+              obj.rect.fillColor = 0x2563eb;
+              obj.text.setColor("#ffffff");
+            } else {
+              obj.rect.fillColor = 0xffffff;
+              obj.text.setColor("#000000");
+            }
           }
         }
       }
-    }
-  });*/
+    },
+  );
 
   function loadFloorRooms() {
     if (game && $rooms.isSuccess) {
@@ -565,6 +591,7 @@
   onDestroy(() => {
     roomsUnsubcribe();
     currentFloorUnsubscribe();
+    searchResultsQueryUnsubscribe();
   });
 
   async function changeMode(newMode: number) {
@@ -668,7 +695,8 @@
         <ol bind:this={floorListElement} class="p-4 w-full">
           {#each $floors.data as floor}
             <li
-              class="border-r-2 {false // TODO: Fix
+              class="border-r-2 {$searchResultsQuery.isSuccess &&
+              $searchResultsQuery.data.floors.indexOf(floor.id) >= 0
                 ? 'border-r-blue-600'
                 : 'border-r-neutral-700'}"
             >

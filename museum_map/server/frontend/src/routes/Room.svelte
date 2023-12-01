@@ -8,6 +8,7 @@
   import Footer from "../components/Footer.svelte";
   import Thumnail from "../components/Thumbnail.svelte";
   import Item from "./Item.svelte";
+  import { searchTerm } from "../store";
   import { apiRequest } from "../util";
 
   const floors = createQuery({
@@ -46,14 +47,36 @@
   });
   const items = createQuery(itemsQueryOptions);
 
-  const matchedItems = derived(items, (items) => {
-    if (items.isSuccess) {
-      return items.data.map((item) => {
-        return [item, false];
-      });
-    }
-    return [];
-  });
+  const searchQueryOptions = derived(
+    [searchTerm, location],
+    ([searchTerm, location]) => {
+      return {
+        queryKey: [
+          "/api/search/room/",
+          location.pathComponents.rid,
+          searchTerm,
+        ],
+        queryFn: async () => {
+          if (searchTerm.trim() !== "") {
+            const response = await window.fetch(
+              "/api/search/room/" +
+                location.pathComponents.rid +
+                "?q=" +
+                searchTerm,
+            );
+            if (response.ok) {
+              return await response.json();
+            } else {
+              throw new Error("Could not fetch search results");
+            }
+          } else {
+            return { items: [] };
+          }
+        },
+      };
+    },
+  );
+  const searchResults = createQuery(searchQueryOptions);
 
   const unsubscribeItems = items.subscribe((currentItems) => {
     tick().then(() => {
@@ -109,19 +132,22 @@
     ]}
   />
   <article id="content" tabindex="-1">
-    <ul
-      class="grid grid-cols-1 md:grid-cols-items justify-around p-4 overflow-hidden"
-    >
-      {#each $matchedItems as [item, matches]}
-        <li
-          class="p-4 mb-3 {matches
-            ? 'bg-blue-600 rounded-lg data-matching'
-            : ''}"
-        >
-          <Thumnail {item} on:load={debounceFocusFirstMatch} />
-        </li>
-      {/each}
-    </ul>
+    {#if $items.isSuccess}
+      <ul
+        class="grid grid-cols-1 md:grid-cols-items justify-around p-4 overflow-hidden"
+      >
+        {#each $items.data as item}
+          <li
+            class="p-4 mb-3 {$searchResults.isSuccess &&
+            $searchResults.data.items.indexOf(item.id) >= 0
+              ? 'bg-blue-600 rounded-lg data-matching'
+              : ''}"
+          >
+            <Thumnail {item} on:load={debounceFocusFirstMatch} />
+          </li>
+        {/each}
+      </ul>
+    {/if}
     <Route path="/floor/:fid/room/:rid/item/:iid" handleFocus={false}
       ><Item /></Route
     >
