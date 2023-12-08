@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends
 from pydantic import UUID4, BaseModel
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from museum_map.models import LogEntry, User, UserModel, db_session
@@ -21,6 +21,18 @@ async def register_user(dbsession: Annotated[AsyncSession, Depends(db_session)])
     dbsession.add(user)
     await dbsession.commit()
     return user
+
+
+@router.delete("/{uid}", status_code=204)
+async def delete_user(uid: UUID4, dbsession: Annotated[AsyncSession, Depends(db_session)]) -> None:
+    """Delete a user and all their logs."""
+    query = select(User).filter(User.public_id == str(uid))
+    user = (await dbsession.execute(query)).scalar()
+    if user:
+        query = delete(LogEntry).filter(LogEntry.user_id == user.id)
+        await dbsession.execute(query)
+        await dbsession.delete(user)
+        await dbsession.commit()
 
 
 class TrackingAction(BaseModel):

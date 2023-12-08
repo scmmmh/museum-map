@@ -14,11 +14,15 @@ export const trackingAllowed = derived([consent, ageBand], ([consent, ageBand]) 
   localAllowTracking = consent && Number.parseInt(ageBand) > 0;
   if (localAllowTracking) {
     track({ action: "ready", params: {} })
+  } else {
+    window.fetch("/api/tracking/" + userId, {
+      method: "DELETE",
+    });
+    localPreferences.deletePreference("tracking.userId");
+    userId = null;
   }
   return localAllowTracking;
 });
-
-console.log(prefs.tracking);
 
 let trackLog: TrackEntry[] = [];
 let trackTimeout = -1;
@@ -54,6 +58,7 @@ export function track(action: LogAction) {
             localPreferences.setPreference("tracking.userId", user.id);
           });
         }
+        gettingUserId = false;
       });
     }
   }
