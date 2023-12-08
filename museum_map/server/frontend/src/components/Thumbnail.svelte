@@ -2,7 +2,7 @@
   import { createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { createEventDispatcher } from "svelte";
   import { derived } from "svelte/store";
-  import { tracker } from "../store";
+  import { track } from "../store";
   import { apiRequest } from "../util";
 
   export let item: Item;
@@ -80,25 +80,25 @@
       class="block h-full w-full overflow-hidden underline-offset-2 hover:img-brightness hover:underline focus:underline"
       aria-label={item.attributes.title}
       on:mouseenter={() => {
-        tracker.log({
+        track({
           action: "mouseenter",
           params: { object: "thumbnail", thumbnail: item.id },
         });
       }}
       on:mouseleave={() => {
-        tracker.log({
+        track({
           action: "mouseleave",
           params: { object: "thumbnail", thumbnail: item.id },
         });
       }}
       on:focus={() => {
-        tracker.log({
+        track({
           action: "focus",
           params: { object: "thumbnail", thumbnail: item.id },
         });
       }}
       on:blur={() => {
-        tracker.log({
+        track({
           action: "blur",
           params: { object: "thumbnail", thumbnail: item.id },
         });

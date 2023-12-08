@@ -9,7 +9,7 @@
   import Footer from "../components/Footer.svelte";
   import Thumbnail from "../components/Thumbnail.svelte";
   import Loading from "../components/Loading.svelte";
-  import { localPreferences, tracker, searchTerm } from "../store";
+  import { localPreferences, track, searchTerm } from "../store";
   import type { NestedStorage } from "../store/preferences";
   import { apiRequest } from "../util";
 
@@ -212,13 +212,13 @@
         rect.addListener("pointerover", () => {
           window.clearTimeout(hoverRoomTimeout);
           hoverRoomTimeout = window.setTimeout(() => {
-            tracker.log({
+            track({
               action: "show-samples",
               params: { object: "room", room: room.id },
             });
             hoverRoom.set(room);
           }, 500);
-          tracker.log({
+          track({
             action: "mousenter",
             params: { object: "room", room: room.id },
           });
@@ -226,7 +226,7 @@
         rect.addListener("pointerout", () => {
           window.clearTimeout(hoverRoomTimeout);
           hoverRoom.set(null);
-          tracker.log({
+          track({
             action: "mouseleave",
             params: { object: "room", room: room.id },
           });
@@ -303,7 +303,7 @@
               pointerX = pointer.x;
               pointerY = pointer.y;
             }
-            tracker.log({
+            track({
               action: "drag-map",
               params: { x: this.cameraPosition.x, y: this.cameraPosition.y },
             });
@@ -350,7 +350,7 @@
                 ((centerY + this.cameraPosition.y) /
                   this.baseMap.displayHeight);
             this.scaleObjects(false, false);
-            tracker.log({
+            track({
               action: "zoom-map",
               params: { zoom: this.zoom },
             });
@@ -429,7 +429,7 @@
               ((pointer.y + this.cameraPosition.y) /
                 this.baseMap.displayHeight);
           this.scaleObjects(false, false);
-          tracker.log({
+          track({
             action: "zoom-map",
             params: { zoom: this.zoom },
           });
@@ -443,7 +443,7 @@
           (this.game.canvas.height / this.baseMap.height) * 0.9,
         );
         this.scaleObjects(true, false);
-        tracker.log({
+        track({
           action: "resize-map",
           params: {
             zoom: this.zoom,
@@ -454,7 +454,7 @@
       });
 
       // Log the map floor setup
-      tracker.log({
+      track({
         action: "initial-size-map",
         params: {
           zoom: this.zoom,
@@ -604,7 +604,7 @@
     if (mode === MODE_MAP) {
       await tick();
     }
-    tracker.log({ action: "switch-map-mode", params: { mode: newMode } });
+    track({ action: "switch-map-mode", params: { mode: newMode } });
   }
 </script>
 
@@ -625,25 +625,25 @@
           href="#/floor/{$previousFloor.id}"
           class="inline-block bg-neutral-600 px-4 py-3 lg:py-2 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800"
           on:mouseenter={() => {
-            tracker.log({
+            track({
               action: "mouseenter",
               params: { object: "previous-floor", floor: $previousFloor?.id },
             });
           }}
           on:mouseleave={() => {
-            tracker.log({
+            track({
               action: "mouseleave",
               params: { object: "previous-floor", floor: $previousFloor?.id },
             });
           }}
           on:focus={() => {
-            tracker.log({
+            track({
               action: "focus",
               params: { object: "previous-floor", floor: $previousFloor?.id },
             });
           }}
           on:blur={() => {
-            tracker.log({
+            track({
               action: "blur",
               params: { object: "previous-floor", floor: $previousFloor?.id },
             });
@@ -711,7 +711,7 @@
                   ? 'current-floor'
                   : ''}"
                 on:mouseenter={() => {
-                  tracker.log({
+                  track({
                     action: "mouseenter",
                     params: {
                       object: "floor",
@@ -720,7 +720,7 @@
                   });
                 }}
                 on:mouseleave={() => {
-                  tracker.log({
+                  track({
                     action: "mouseleave",
                     params: {
                       object: "floor",
@@ -729,7 +729,7 @@
                   });
                 }}
                 on:focus={() => {
-                  tracker.log({
+                  track({
                     action: "focus",
                     params: {
                       object: "floor",
@@ -738,7 +738,7 @@
                   });
                 }}
                 on:blur={() => {
-                  tracker.log({
+                  track({
                     action: "blur",
                     params: {
                       object: "floor",
@@ -881,7 +881,7 @@
                   href="#/floor/{$currentFloor?.id}/room/{room.id}"
                   class="flex-1 block py-2 hover:underline focus:underline"
                   on:mouseenter={() => {
-                    tracker.log({
+                    track({
                       action: "mouseenter",
                       params: {
                         object: "room",
@@ -890,7 +890,7 @@
                     });
                   }}
                   on:mouseleave={() => {
-                    tracker.log({
+                    track({
                       action: "mouseleave",
                       params: {
                         object: "room",
@@ -899,7 +899,7 @@
                     });
                   }}
                   on:focus={() => {
-                    tracker.log({
+                    track({
                       action: "focus",
                       params: {
                         object: "room",
@@ -908,7 +908,7 @@
                     });
                   }}
                   on:blur={() => {
-                    tracker.log({
+                    track({
                       action: "blur",
                       params: {
                         object: "room",

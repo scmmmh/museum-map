@@ -1,5 +1,6 @@
 """Application configuration settings."""
 import logging
+import logging.config
 import os
 
 from pydantic import BaseModel, HttpUrl

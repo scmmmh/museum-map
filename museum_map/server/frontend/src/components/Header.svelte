@@ -37,12 +37,10 @@
     }
   });
 
-  afterUpdate(() => {
-    document.title = title;
-  });
-
   onDestroy(unsubscribeSearchTerm);
 </script>
+
+<svelte:head><title>{title}</title></svelte:head>
 
 <header class="sticky top-0 shadow-even shadow-black z-20 bg-inherit">
   <div class="flex flex-row border-b border-b-neutral-500 items-center">

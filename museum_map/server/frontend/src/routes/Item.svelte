@@ -5,7 +5,7 @@
   import { location } from "../simple-svelte-router";
 
   import Thumbnail from "../components/Thumbnail.svelte";
-  import { tracker } from "../store";
+  import { track } from "../store";
   import { apiRequest } from "../util";
 
   let itemHeading: HTMLElement | null = null;
@@ -229,13 +229,13 @@
                   <p
                     class="mb-2"
                     on:mouseenter={() => {
-                      tracker.log({
+                      track({
                         action: "mouseenter",
                         params: { object: "metadata", field: textConfig.name },
                       });
                     }}
                     on:mouseleave={() => {
-                      tracker.log({
+                      track({
                         action: "mouseleave",
                         params: { object: "metadata", field: textConfig.name },
                       });
@@ -251,13 +251,13 @@
                 {#if $item.attributes[fieldConfig.name] && $item.attributes[fieldConfig.name].length}
                   <tr
                     on:mouseenter={() => {
-                      tracker.log({
+                      track({
                         action: "mouseenter",
                         params: { object: "metadata", field: fieldConfig.name },
                       });
                     }}
                     on:mouseleave={() => {
-                      tracker.log({
+                      track({
                         action: "mouseleave",
                         params: { object: "metadata", field: fieldConfig.name },
                       });

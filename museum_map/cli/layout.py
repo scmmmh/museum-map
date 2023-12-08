@@ -1,3 +1,4 @@
+"""Layout generation CLI commands."""
 import asyncio
 import math
 from copy import deepcopy
@@ -11,7 +12,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from museum_map.cli.groups import fill_vector
-from museum_map.models import Floor, FloorTopic, Group, Item, Room, create_sessionmaker
+from museum_map.models import Floor, FloorTopic, Group, Item, Room, async_sessionmaker
 
 
 async def count_items(dbsession, group):
@@ -76,7 +77,7 @@ def pluralize_label(label):
 
 
 async def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
-    """Generate the rooms"""
+    """Generate the rooms."""
     while room_ids:
         rid = room_ids.pop()
         room = rooms[rid]
@@ -105,7 +106,7 @@ async def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
 
 async def generate_structure_impl(config):
     """Generate the floors and rooms structure."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         room_ids = [room["id"] for room in config["layout"]["rooms"]]
         room_ids.reverse()
 
@@ -135,7 +136,7 @@ def generate_structure(ctx):
 
 
 def get_basic_group(group):
-    """Find the first basic group"""
+    """Find the first basic group."""
     if group.split == "basic":
         return group
     else:
@@ -212,9 +213,9 @@ async def summarise_floors(dbsession):
             await dbsession.commit()
 
 
-async def generate_summaries_impl(config):
-    """Generate the floor and room summaries"""
-    async with create_sessionmaker(config)() as dbsession:
+async def generate_summaries_impl():
+    """Generate the floor and room summaries."""
+    async with async_sessionmaker() as dbsession:
         stmt = delete(FloorTopic)
         await dbsession.execute(stmt)
         await summarise_rooms(dbsession)
@@ -222,14 +223,14 @@ async def generate_summaries_impl(config):
 
 
 @click.command()
-@click.pass_context
-def generate_summaries(ctx):
-    """Generate the floor and room summaries"""
-    asyncio.run(generate_summaries_impl(ctx.obj["config"]))
+def generate_summaries():
+    """Generate the floor and room summaries."""
+    asyncio.run(generate_summaries_impl())
 
 
-async def order_items_impl(config):
-    async with create_sessionmaker(config)() as dbsession:
+async def order_items_impl():
+    """Order the items by LDA similarity."""
+    async with async_sessionmaker() as dbsession:
         stmt = select(Room).options(selectinload(Room.items))
         result = await dbsession.execute(stmt)
         stmt_count = select(func.count(Room.id))
@@ -262,24 +263,22 @@ async def order_items_impl(config):
 
 
 @click.command()
-@click.pass_context
-def order_items(ctx):
-    """Order the items in each room"""
-    asyncio.run(order_items_impl(ctx.obj["config"]))
+def order_items():
+    """Order the items in each room."""
+    asyncio.run(order_items_impl())
 
 
-async def pipeline_impl(config):
+async def pipeline_impl():
     """Run the layout pipeline."""
-    await generate_structure_impl(config)
-    await generate_summaries_impl(config)
-    await order_items_impl(config)
+    await generate_structure_impl()
+    await generate_summaries_impl()
+    await order_items_impl()
 
 
 @click.command()
-@click.pass_context
-def pipeline(ctx):
+def pipeline():
     """Run the layout pipeline."""
-    asyncio.run(pipeline_impl(ctx.obj["config"]))
+    asyncio.run(pipeline_impl())
 
 
 @click.group()

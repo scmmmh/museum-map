@@ -8,7 +8,7 @@
   import NotFoundRoute from "../simple-svelte-router/NotFoundRoute.svelte";
   import Loading from "../components/Loading.svelte";
   import { apiRequest } from "../util";
-  import { localPreferences, tracker } from "../store";
+  import { localPreferences, track } from "../store";
 
   const config = createQuery({
     queryKey: ["/config/"],
@@ -139,25 +139,25 @@
                       href={"#/floor/" + floor.id}
                       class="inline-block bg-neutral-600 px-4 lg:px-3 py-3 lg:py-1 rounded-lg lg:underline-offset-2 lg:hover:bg-blue-800 lg:focus:bg-blue-800"
                       on:mouseenter={() => {
-                        tracker.log({
+                        track({
                           action: "mouseenter",
                           params: { object: "floor-link", floor: floor.id },
                         });
                       }}
                       on:mouseleave={() => {
-                        tracker.log({
+                        track({
                           action: "mouseleave",
                           params: { object: "floor-link", floor: floor.id },
                         });
                       }}
                       on:focus={() => {
-                        tracker.log({
+                        track({
                           action: "focus",
                           params: { object: "floor-link", floor: floor.id },
                         });
                       }}
                       on:blur={() => {
-                        tracker.log({
+                        track({
                           action: "blur",
                           params: { object: "floor-link", floor: floor.id },
                         });
@@ -175,25 +175,25 @@
               href={"#/floor/" + $floors.data[0].id}
               class="inline-block text-xl tracking-widest font-bold bg-blue-800 px-4 py-2 rounded-lg hover:underline focus:underline"
               on:mouseenter={() => {
-                tracker.log({
+                track({
                   action: "mouseenter",
                   params: { object: "explore-everything" },
                 });
               }}
               on:mouseleave={() => {
-                tracker.log({
+                track({
                   action: "mouseleave",
                   params: { object: "explore-everything" },
                 });
               }}
               on:focus={() => {
-                tracker.log({
+                track({
                   action: "focus",
                   params: { object: "explore-everything" },
                 });
               }}
               on:blur={() => {
-                tracker.log({
+                track({
                   action: "blur",
                   params: { object: "explore-everything" },
                 });
@@ -211,32 +211,32 @@
           </h2>
           <button
             on:click={() => {
-              tracker.log({
+              track({
                 action: "refresh-random-items",
                 params: {},
               });
               $randomItemsSelection.refetch();
             }}
             on:mouseenter={() => {
-              tracker.log({
+              track({
                 action: "mouseenter",
                 params: { object: "reload-random-selection" },
               });
             }}
             on:mouseleave={() => {
-              tracker.log({
+              track({
                 action: "mouseleave",
                 params: { object: "reload-random-selection" },
               });
             }}
             on:focus={() => {
-              tracker.log({
+              track({
                 action: "focus",
                 params: { object: "reload-random-selection" },
               });
             }}
             on:blur={() => {
-              tracker.log({
+              track({
                 action: "blur",
                 params: { object: "reload-random-selection" },
               });

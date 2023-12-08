@@ -1,3 +1,4 @@
+"""Group generation CLI commands."""
 import asyncio
 import math
 from collections import Counter
@@ -12,12 +13,12 @@ from sqlalchemy.orm import selectinload
 
 from museum_map.cli.items import apply_aat, apply_nlp
 from museum_map.cli.util import ClickIndeterminate
-from museum_map.models import Group, Item, create_sessionmaker
+from museum_map.models import Group, Item, async_sessionmaker
 
 
-async def generate_groups_impl(config):
+async def generate_groups_impl():
     """Generate the basic groups."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         item_stmt = select(Item).filter(Item.group_id == None)  # noqa: E711
         count_stmt = select(func.count(Item.id)).filter(Item.group_id == None)  # noqa: E711
         count = await dbsession.execute(count_stmt)
@@ -61,10 +62,9 @@ async def generate_groups_impl(config):
 
 
 @click.command()
-@click.pass_context
-def generate_groups(ctx):
+def generate_groups():
     """Generate the basic groups."""
-    asyncio.run(generate_groups_impl(ctx.obj["config"]))
+    asyncio.run(generate_groups_impl())
 
 
 def fill_vector(group):
@@ -303,7 +303,7 @@ def split_by_year(config, dbsession, group):
 
 async def split_large_groups_impl(config):
     """Split large groups into smaller ones."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         progress = ClickIndeterminate("Splitting large groups")
         progress.start()
         splitting = True
@@ -344,9 +344,9 @@ def split_large_groups(ctx):
     asyncio.run(split_large_groups_impl(ctx.obj["config"]))
 
 
-async def merge_singular_plural_impl(config):
+async def merge_singular_plural_impl():
     """Merge singular and plural groups."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         progress = ClickIndeterminate("Merging singular and plural")
         progress.start()
         modifying = True
@@ -374,15 +374,14 @@ async def merge_singular_plural_impl(config):
 
 
 @click.command()
-@click.pass_context
-def merge_singular_plural(ctx):
+def merge_singular_plural():
     """Merge singular and plural groups."""
-    asyncio.run(merge_singular_plural_impl(ctx.obj["config"]))
+    asyncio.run(merge_singular_plural_impl())
 
 
 async def add_parent_groups_impl(config):
     """Add any required parent groups."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         stmt = select(Group).filter(Group.parent_id == None).options(selectinload(Group.parent))  # noqa: E711
         result = await dbsession.execute(stmt)
         stmt = select(func.count(Group.id)).filter(Group.parent_id == None)  # noqa: E711
@@ -459,9 +458,9 @@ def add_parent_groups(ctx):
     asyncio.run(add_parent_groups_impl(ctx.obj["config"]))
 
 
-async def prune_single_groups_impl(config):
+async def prune_single_groups_impl():
     """Remove groups that have a single child and no items."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         progress = ClickIndeterminate("Pruning single groups")
         progress.start()
         pruning = True
@@ -480,15 +479,14 @@ async def prune_single_groups_impl(config):
 
 
 @click.command()
-@click.pass_context
-def prune_single_groups(ctx):
+def prune_single_groups():
     """Remove groups that have a single child and no items."""
-    asyncio.run(prune_single_groups_impl(ctx.obj["config"]))
+    asyncio.run(prune_single_groups_impl())
 
 
-async def move_inner_items_impl(config):
+async def move_inner_items_impl():
     """Move items from non-leaf groups into extra leaf groups."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         progress = ClickIndeterminate("Moving inner items")
         progress.start()
         moving = True
@@ -512,27 +510,25 @@ async def move_inner_items_impl(config):
 
 
 @click.command()
-@click.pass_context
-def move_inner_items(ctx):
+def move_inner_items():
     """Move items from non-leaf groups into extra leaf groups."""
-    asyncio.run(move_inner_items_impl(ctx.obj["config"]))
+    asyncio.run(move_inner_items_impl())
 
 
-async def pipeline_impl(config):
+async def pipeline_impl():
     """Run the group processing pipeline."""
-    await generate_groups_impl(config)
-    await merge_singular_plural_impl(config)
-    await add_parent_groups_impl(config)
-    await prune_single_groups_impl(config)
-    await move_inner_items_impl(config)
-    await split_large_groups_impl(config)
+    await generate_groups_impl()
+    await merge_singular_plural_impl()
+    await add_parent_groups_impl()
+    await prune_single_groups_impl()
+    await move_inner_items_impl()
+    await split_large_groups_impl()
 
 
 @click.command()
-@click.pass_context
-def pipeline(ctx):
+def pipeline():
     """Run the group processing pipeline."""
-    asyncio.run(pipeline_impl(ctx.obj["config"]))
+    asyncio.run(pipeline_impl())
 
 
 @click.group()

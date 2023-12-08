@@ -1,3 +1,4 @@
+"""Search setup CLI commands."""
 import asyncio
 
 import click
@@ -9,12 +10,12 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from museum_map.cli.util import ClickIndeterminate
-from museum_map.models import Room, create_sessionmaker
+from museum_map.models import Room, async_sessionmaker
 
 
 async def index_impl(config):
-    """The actual indexing implementation."""
-    async with create_sessionmaker(config)() as dbsession:
+    """Index the full collection."""
+    async with async_sessionmaker() as dbsession:
         async with Client(config["search"]["url"], config["search"]["key"]) as client:
             try:
                 index = await client.get_index("items")
@@ -57,15 +58,14 @@ async def index_impl(config):
 
 
 @click.command()
-@click.pass_context
-def index(ctx):
-    """Index the data"""
-    asyncio.run(index_impl(ctx.obj["config"]))
+def index():
+    """Index the data."""
+    asyncio.run(index_impl())
 
 
-async def pipeline_impl(config):
+async def pipeline_impl():
     """Run the search pipeline."""
-    await index_impl(config)
+    await index_impl()
 
 
 @click.group()

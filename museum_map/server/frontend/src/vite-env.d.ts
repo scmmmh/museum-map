@@ -11,6 +11,16 @@ type LogAction = {
   params: object,
 };
 
+type TrackEntry = {
+  timestamp: number,
+  action: string,
+  params: object,
+};
+
+type User = {
+  id: string,
+};
+
 type FooterConfig = {
   label: string,
   url: string,

@@ -2,7 +2,7 @@
   import { onMount, onDestroy, tick } from "svelte";
   import { location } from "../simple-svelte-router";
 
-  import { searchTerm, tracker } from "../store";
+  import { searchTerm, track } from "../store";
 
   let showSearchBox = false;
   let searchElement: HTMLElement | null = null;
@@ -27,6 +27,7 @@
     if (searchTerm.trim() !== "") {
       showSearchBox = true;
     }
+    track({ action: "search", params: { term: searchTerm } });
   });
 
   onMount(() => {
@@ -56,10 +57,10 @@
   class="mr-2 flex flex-row border rounded-lg text-black bg-white text-black relative"
   on:submit={submitSearch}
   on:mouseenter={() => {
-    tracker.log({ action: "mouseenter", params: { object: "searchform" } });
+    track({ action: "mouseenter", params: { object: "searchform" } });
   }}
   on:mouseleave={() => {
-    tracker.log({ action: "mouseleave", params: { object: "searchform" } });
+    track({ action: "mouseleave", params: { object: "searchform" } });
   }}
 >
   <input
@@ -71,10 +72,10 @@
       ? 'hidden'
       : 'block'} md:block flex-1 px-2 py-1 bg-transparent items-center"
     on:focus={() => {
-      tracker.log({ action: "focus", params: { object: "searchinput" } });
+      track({ action: "focus", params: { object: "searchinput" } });
     }}
     on:blur={() => {
-      tracker.log({ action: "blur", params: { object: "searchinput" } });
+      track({ action: "blur", params: { object: "searchinput" } });
     }}
   />
   <button
