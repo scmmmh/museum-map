@@ -1,5 +1,11 @@
 # Changelog
 
+## Dev
+
+* **New**: Implemented opt-in activity tracking
+* **Update**: Updated the backend to use FastAPI
+* **Update**: Frontend performance updates
+
 ## 0.9.1
 
 * **Bugfix**: Include the frontend in the package
