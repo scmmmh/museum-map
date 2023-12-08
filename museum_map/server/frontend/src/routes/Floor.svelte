@@ -237,7 +237,11 @@
           room.position.y + room.position.height / 2,
           room.label.replace(" - ", "\n"),
           {
-            color: "#000000", //$matchingRooms.indexOf(room.id) >= 0 ? "#ffffff" : "#000000",
+            color:
+              $searchResultsQuery.isSuccess &&
+              $searchResultsQuery.data.rooms.indexOf(room.id) >= 0
+                ? "#ffffff"
+                : "#000000",
             fontFamily:
               'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
             align: "center",
