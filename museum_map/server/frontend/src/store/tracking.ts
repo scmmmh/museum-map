@@ -13,7 +13,7 @@ export const ageBand = writable(prefs.tracking && (prefs.tracking as NestedStora
 export const trackingAllowed = derived([consent, ageBand], ([consent, ageBand]) => {
   localAllowTracking = consent && Number.parseInt(ageBand) > 0;
   if (localAllowTracking) {
-    track({ action: "ready", params: {} })
+    track({ action: "ready", params: { userAgent: navigator.userAgent } })
   } else {
     window.fetch("/api/tracking/" + userId, {
       method: "DELETE",
