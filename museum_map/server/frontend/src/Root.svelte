@@ -5,7 +5,7 @@
   import Lobby from "./routes/Lobby.svelte";
   import Room from "./routes/Room.svelte";
   import Loading from "./components/Loading.svelte";
-  import TrackingConfig from "./components/TrackingConfig.svelte";
+  import Research from "./components/Research.svelte";
   import { apiRequest } from "./util";
 
   let Floor = null;
@@ -32,7 +32,7 @@
       <Route path="/floor/:fid/room/:rid/*"><Room /></Route>
       <NotFoundRoute><Lobby /></NotFoundRoute>
     </main>
-    <TrackingConfig />
+    <Research />
   {:else if $apiStatus.isLoading}
     <Loading />
   {:else if $apiStatus.isError}
