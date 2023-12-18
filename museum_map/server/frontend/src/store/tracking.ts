@@ -43,7 +43,8 @@ export function track(action: LogAction) {
         window.fetch('/api/tracking/track/' + userId, {
           method: 'POST',
           body: JSON.stringify(trackLog),
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
         });
         trackLog = [];
       }, 1000);
