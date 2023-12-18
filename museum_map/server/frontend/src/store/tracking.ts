@@ -78,7 +78,7 @@ function sendTracking() {
  */
 window.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
-    window.clearTimeout(trackTimeout);
+    window.clearTimeout(trackTimeout);  // TODO: There is an edge case here where there is no user yet and the user switches away
     sendTracking();
   }
 })
