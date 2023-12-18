@@ -39,15 +39,7 @@ export function track(action: LogAction) {
     trackLog.push({ timestamp: Date.now() / 1000, ...action });
     window.clearTimeout(trackTimeout);
     if (userId !== null) {
-      trackTimeout = window.setTimeout(async () => {
-        window.fetch('/api/tracking/track/' + userId, {
-          method: 'POST',
-          body: JSON.stringify(trackLog),
-          headers: { 'Content-Type': 'application/json' },
-          keepalive: true,
-        });
-        trackLog = [];
-      }, 1000);
+      trackTimeout = window.setTimeout(sendTracking, 1000);
     } else if (gettingUserId === false) {
       gettingUserId = true;
       window.fetch("/api/tracking/register", {
@@ -57,6 +49,7 @@ export function track(action: LogAction) {
           response.json().then((user: User) => {
             userId = user.id;
             localPreferences.setPreference("tracking.userId", user.id);
+            trackTimeout = window.setTimeout(sendTracking, 1000);
           });
         }
         gettingUserId = false;
@@ -64,6 +57,25 @@ export function track(action: LogAction) {
     }
   }
 }
+
+function sendTracking() {
+  async () => {
+    window.fetch('/api/tracking/track/' + userId, {
+      method: 'POST',
+      body: JSON.stringify(trackLog),
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+    });
+    trackLog = [];
+  }
+}
+
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    window.clearTimeout(trackTimeout);
+    sendTracking();
+  }
+})
 
 location.subscribe((location) => {
   track({ action: "navigate", params: location });
