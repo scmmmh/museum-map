@@ -58,6 +58,9 @@ export function track(action: LogAction) {
   }
 }
 
+/**
+ * Send the tracking data to the server and exit.
+ */
 function sendTracking() {
   async () => {
     window.fetch('/api/tracking/track/' + userId, {
@@ -70,6 +73,9 @@ function sendTracking() {
   }
 }
 
+/**
+ * Listen to visibilitychange events and send tracking data when hiding.
+ */
 window.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     window.clearTimeout(trackTimeout);
