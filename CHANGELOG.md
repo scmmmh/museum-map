@@ -1,5 +1,9 @@
 # Changelog
 
+## Dev
+
+* **Bugfix**: Updated vite dependency to fix a security issue in dev mode
+
 ## 0.9.1
 
 * **Bugfix**: Include the frontend in the package
