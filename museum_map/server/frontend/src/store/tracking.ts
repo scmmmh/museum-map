@@ -15,11 +15,13 @@ export const trackingAllowed = derived([consent, ageBand], ([consent, ageBand]) 
   if (localAllowTracking) {
     track({ action: "ready", params: { userAgent: navigator.userAgent } })
   } else {
-    window.fetch("/api/tracking/" + userId, {
-      method: "DELETE",
-    });
-    localPreferences.deletePreference("tracking.userId");
-    userId = null;
+    if (userId !== null) {
+      window.fetch("/api/tracking/" + userId, {
+        method: "DELETE",
+      });
+      localPreferences.deletePreference("tracking.userId");
+      userId = null;
+    }
   }
   return localAllowTracking;
 });
@@ -62,7 +64,7 @@ export function track(action: LogAction) {
  * Send the tracking data to the server and exit.
  */
 function sendTracking() {
-  async () => {
+  if (userId !== null) {
     window.fetch('/api/tracking/track/' + userId, {
       method: 'POST',
       body: JSON.stringify(trackLog),

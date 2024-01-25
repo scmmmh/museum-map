@@ -1,20 +1,13 @@
 <script lang="ts">
   import { onDestroy, tick } from "svelte";
-  import { get } from "svelte/store";
 
   import ResearchConsent from "./ResearchConsent.svelte";
-  import {
-    localPreferences,
-    ageBand,
-    trackingAllowed,
-  } from "../store";
+  import { localPreferences, consent, trackingAllowed } from "../store";
 
   // Dialog defaults to visible, if the dialog has never been shown before
   let dialogVisible = !$localPreferences || !$localPreferences.tracking;
   let dialogHeader: HTMLElement | null = null;
   let researchButton: HTMLButtonElement | null = null;
-  let ageBandSelect: HTMLSelectElement | null = null;
-  let thankYouMessage: HTMLElement | null = null;
 
   if (dialogVisible) {
     tick().then(() => {
@@ -51,22 +44,25 @@
     }
   }
 
-  const ageBandUnsubscribe = ageBand.subscribe((ageBand) => {
-    if (get(trackingAllowed)) {
-      tick().then(() => {
-        if (thankYouMessage) {
-          thankYouMessage.focus();
+  const consentUnsubscribe = consent.subscribe((consent) => {
+    if (
+      $localPreferences !== undefined &&
+      $localPreferences.tracking !== undefined &&
+      $localPreferences.tracking !== null
+    ) {
+      if (dialogVisible) {
+        dialogVisible = false;
+        if (researchButton) {
+          researchButton.focus();
         }
-      });
+      }
     }
   });
 
-  onDestroy(() => {
-    ageBandUnsubscribe();
-  });
+  onDestroy(consentUnsubscribe);
 </script>
 
-<svelte:document on:keyup={keyboardListener}/>
+<svelte:document on:keyup={keyboardListener} />
 
 <div class="fixed left-0 bottom-0 ml-2 mb-2">
   <button
@@ -111,13 +107,7 @@
     >
       Participate in our Research
     </h2>
-      {#if $trackingAllowed}
-        <p bind:this={thankYouMessage} class="mb-4 text-md order-2" tabindex="-1">
-          Thank you for contributing to the Museum Map project. Your help is much
-          appreciated!
-        </p>
-      {/if}
-    <ResearchConsent/>
+    <ResearchConsent />
     <button
       class="absolute right-0 top-0 transform -translate-x-1 xl:translate-x-1/2 -translate-y-1/2 bg-blue-800 text-white rounded-full"
       aria-label="Close this dialog"

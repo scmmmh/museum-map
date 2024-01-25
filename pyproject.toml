@@ -67,8 +67,9 @@ artifacts = ["museum_map/server/frontend/dist/**/*.*"]
 [tool.hatch.envs.default]
 dependencies = ["coverage[toml]>=6.5", "pytest"]
 post-install-commands = ["python -m spacy download en_core_web_sm"]
+
 [tool.hatch.envs.default.scripts]
-server = "cd dev && uvicorn --reload --reload-dir ../museum_map --log-level debug museum_map.server:app"
+server = "cd dev && uvicorn --host 0.0.0.0 --reload --reload-dir ../museum_map --log-level debug museum_map.server:app"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = ["- coverage combine", "coverage report"]

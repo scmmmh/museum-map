@@ -6,6 +6,7 @@
   import Room from "./routes/Room.svelte";
   import Loading from "./components/Loading.svelte";
   import Research from "./components/Research.svelte";
+  import Demographics from "./routes/Demographics.svelte";
   import { apiRequest } from "./util";
 
   let Floor = null;
@@ -30,6 +31,7 @@
         >{#if Floor !== null}<svelte:component this={Floor} />{/if}</Route
       >
       <Route path="/floor/:fid/room/:rid/*"><Room /></Route>
+      <Route path="/demographics"><Demographics /></Route>
       <NotFoundRoute><Lobby /></NotFoundRoute>
     </main>
     <Research />
