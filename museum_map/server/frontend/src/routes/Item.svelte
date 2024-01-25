@@ -183,6 +183,11 @@
   on:click={() => {
     location.push("/floor/" + $floor?.id + "/room/" + $room.data?.id);
   }}
+  on:keyup={(ev) => {
+    if (ev.key === "Escape") {
+      location.push("/floor/" + $floor?.id + "/room/" + $room.data?.id);
+    }
+  }}
 >
   <div
     class="absolute left-0 top-0 lg:left-1/2 lg:top-1/2 lg:transform lg:-translate-x-1/2 lg:-translate-y-1/2 w-full lg:w-5/6 xl:w-4/6 h-full lg:max-h-5/6 xl:max-h-4/6 flex flex-col bg-neutral-800 shadow-xl shadow-black overflow-auto lg:overflow-visible"
