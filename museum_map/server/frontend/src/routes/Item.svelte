@@ -113,17 +113,22 @@
     const touchEndX = ev.changedTouches[0].clientX;
     const touchEndY = ev.changedTouches[0].clientY;
     if (Math.abs(touchEndY - touchStartY) < 100) {
-      if (touchEndX - touchStartX < 50 && $nextItem) {
+      if (touchEndX - touchStartX < -50 && $nextItem) {
         location.push(
-          "/floor/" + $floor?.id + "/room/" + $room?.id + "/" + $nextItem.id,
+          "/floor/" +
+            $floor?.id +
+            "/room/" +
+            $room.data?.id +
+            "/item/" +
+            $nextItem.id,
         );
       } else if (touchEndX - touchStartX > 50 && $previousItem) {
         location.push(
           "/floor/" +
             $floor?.id +
             "/room/" +
-            $room?.id +
-            "/" +
+            $room.data?.id +
+            "/item/" +
             $previousItem.id,
         );
       }
