@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { derived } from "svelte/store";
   import { Route, NotFoundRoute } from "./simple-svelte-router";
   import { createQuery } from "@tanstack/svelte-query";
 
@@ -6,6 +7,7 @@
   import Room from "./routes/Room.svelte";
   import Loading from "./components/Loading.svelte";
   import Research from "./components/Research.svelte";
+  import Reload from "./components/Reload.svelte";
   import Demographics from "./routes/Demographics.svelte";
   import { apiRequest } from "./util";
 
@@ -18,6 +20,13 @@
     queryKey: ["/"],
     queryFn: apiRequest<APIStatus>,
     refetchInterval: 60000,
+  });
+
+  const reloadRequired = derived(apiStatus, (apiStatus) => {
+    if (apiStatus.isSuccess && apiStatus.data.version !== "0.9.1") {
+      return true;
+    }
+    return false;
   });
 </script>
 
@@ -35,6 +44,9 @@
       <NotFoundRoute><Lobby /></NotFoundRoute>
     </main>
     <Research />
+    {#if $reloadRequired}
+      <Reload />
+    {/if}
   {:else if $apiStatus.isLoading}
     <Loading />
   {:else if $apiStatus.isError}
