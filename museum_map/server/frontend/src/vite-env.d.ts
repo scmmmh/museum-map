@@ -8,13 +8,13 @@ type APIStatus = {
 
 type LogAction = {
   action: string,
-  params: object,
+  params: {[x: string]: any},
 };
 
 type TrackEntry = {
   timestamp: number,
   action: string,
-  params: object,
+  params: {[x: string]: any},
 };
 
 type User = {
