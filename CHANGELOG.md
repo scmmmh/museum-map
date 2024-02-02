@@ -1,5 +1,9 @@
 # Changelog
 
+## Dev
+
+* **Bugfix**: Fix the docker command to use uvicorn
+
 ## 1.0.0
 
 * **New**: Implemented opt-in activity tracking

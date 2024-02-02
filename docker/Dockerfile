@@ -19,9 +19,7 @@ COPY dist/*.whl /tmp/
 # Install the application
 RUN python -m pip install /tmp/*.whl && \
     python -m spacy download en_core_web_sm
-COPY docker/start_museum_map.sh /usr/bin/
-RUN chmod a+x /usr/bin/start_museum_map.sh && \
-    mkdir /var/lib/museum-map && \
+RUN mkdir /var/lib/museum-map && \
     mkdir /etc/museum-map && \
     chmod 0755 /var/lib/museum-map && \
     chown -R ${MM_USER}:${MM_USER} /etc/museum-map && \
@@ -34,4 +32,4 @@ ENV LC_ALL=C
 WORKDIR /var/lib/museum-map
 EXPOSE 8080
 ENTRYPOINT [ "tini", "--" ]
-CMD [ "/usr/bin/start_museum_map.sh" ]
+CMD [ "uvicorn", "--host", "0.0.0.0", "--port", "8080", "museum_map.server:app" ]
