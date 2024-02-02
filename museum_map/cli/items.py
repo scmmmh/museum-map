@@ -1,3 +1,4 @@
+"""Item processing CLI commands."""
 import asyncio
 import json
 import os
@@ -11,13 +12,13 @@ from sqlalchemy import func
 from sqlalchemy.future import select
 
 from museum_map.cli.util import ClickIndeterminate
-from museum_map.models import Item, create_sessionmaker
+from museum_map.models import Item, async_sessionmaker
 
 
 async def tokenise_impl(config):
     """Generate token lists for each item."""
     nlp = spacy.load("en_core_web_sm")
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         count = await dbsession.execute(select(func.count(Item.id)))
         result = await dbsession.execute(select(Item))
         with click.progressbar(result.scalars(), length=count.scalar_one(), label="Tokenising items") as progress:
@@ -34,10 +35,9 @@ async def tokenise_impl(config):
 
 
 @click.command()
-@click.pass_context
-def tokenise(ctx):
+def tokenise():
     """Generate token lists for each item."""
-    asyncio.run(tokenise_impl(ctx.obj["config"]))
+    asyncio.run(tokenise_impl())
 
 
 def strip_article(text):
@@ -205,7 +205,7 @@ def apply_aat(category, merge=True):  # noqa: FBT002
 
 async def expand_categories_impl(config):
     """Expand the object categories."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         count = await dbsession.execute(select(func.count(Item.id)))
         result = await dbsession.execute(select(Item))
         with click.progressbar(result.scalars(), length=count.scalar_one(), label="Expanding categories") as progress:
@@ -228,9 +228,9 @@ def expand_categories(ctx):
     asyncio.run(expand_categories_impl(ctx.obj["config"]))
 
 
-async def generate_topic_vectors_impl(config):
+async def generate_topic_vectors_impl():
     """Generate topic vectors for all items."""
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
 
         async def texts(dictionary=None, label=""):
             count = await dbsession.execute(select(func.count(Item.id)))
@@ -267,24 +267,22 @@ async def generate_topic_vectors_impl(config):
 
 
 @click.command()
-@click.pass_context
-def generate_topic_vectors(ctx):
+def generate_topic_vectors():
     """Generate topic vectors for all items."""
-    asyncio.run(generate_topic_vectors_impl(ctx.obj["config"]))
+    asyncio.run(generate_topic_vectors_impl())
 
 
-async def pipeline_impl(config):
+async def pipeline_impl():
     """Run the items processing pipeline."""
-    await expand_categories_impl(config)
-    await tokenise_impl(config)
-    await generate_topic_vectors_impl(config)
+    await expand_categories_impl()
+    await tokenise_impl()
+    await generate_topic_vectors_impl()
 
 
 @click.command()
-@click.pass_context
-def pipeline(ctx):
+def pipeline():
     """Run the items processing pipeline."""
-    asyncio.run(pipeline_impl(ctx.obj["config"]))
+    asyncio.run(pipeline_impl())
 
 
 @click.group()

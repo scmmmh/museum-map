@@ -2,6 +2,9 @@
 
 ## Dev
 
+* **New**: Implemented opt-in activity tracking
+* **Update**: Updated the backend to use FastAPI
+* **Update**: Frontend performance updates
 * **Bugfix**: Updated vite dependency to fix a security issue in dev mode
 
 ## 0.9.1

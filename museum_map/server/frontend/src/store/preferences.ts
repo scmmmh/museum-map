@@ -84,7 +84,11 @@ function createPreferencesStore(storage: Storage) {
         setPreference(path: string, value: null | string | number | boolean | NestedStorage | string[]) {
             const updated = storeValue(storage, 'preferences.' + path, value);
             set((updated as NestedStorage).preferences as NestedStorage);
-        }
+        },
+        deletePreference(path: string) {
+            const updated = deleteValue(storage, 'preferences.' + path);
+            set((updated as NestedStorage).preferences as NestedStorage);
+        },
     }
 }
 

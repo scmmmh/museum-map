@@ -1,3 +1,4 @@
+"""Database manipulation CLI commands."""
 import asyncio
 import json
 import os
@@ -7,13 +8,12 @@ import subprocess
 import click
 
 from museum_map.cli.util import ClickIndeterminate
-from museum_map.models import Base, Item, create_engine, create_sessionmaker
+from museum_map.models import Base, Item, async_engine, async_sessionmaker
 
 
-async def init_impl(config, drop_existing):
+async def init_impl(drop_existing: bool):  # noqa: FBT001
     """Initialise the database."""
-    engine = create_engine(config)
-    async with engine.begin() as conn:
+    async with async_engine.begin() as conn:
         if drop_existing:
             await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -21,17 +21,16 @@ async def init_impl(config, drop_existing):
 
 @click.command()
 @click.option("--drop-existing", is_flag=True, help="Drop any existing tables.")
-@click.pass_context
-def init(ctx, drop_existing):
+def init(drop_existing: bool):  # noqa: FBT001
     """Initialise the database."""
-    asyncio.run(init_impl(ctx.obj["config"], drop_existing))
+    asyncio.run(init_impl(drop_existing))
 
 
-async def load_impl(config, source):
+async def load_impl(source):
     """Load the metadata."""
     progress = ClickIndeterminate("Loading items")
     progress.start()
-    async with create_sessionmaker(config)() as dbsession:
+    async with async_sessionmaker() as dbsession:
         for basepath, _, filenames in os.walk(source):
             for filename in filenames:
                 if filename.endswith(".json"):
@@ -43,17 +42,15 @@ async def load_impl(config, source):
 
 @click.command()
 @click.argument("source")
-@click.pass_context
-def load(ctx, source):
+def load(source):
     """Load the metadata."""
-    asyncio.run(load_impl(ctx.obj["config"], source))
+    asyncio.run(load_impl(source))
 
 
 @click.command()
 @click.argument("source")
 @click.argument("target")
-@click.pass_context
-def load_images(ctx, source, target):  # noqa: ARG001
+def load_images(source, target):
     """Load and convert images."""
     progress = ClickIndeterminate("Loading images")
     progress.start()

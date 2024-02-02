@@ -1,11 +1,8 @@
+"""Museum Map CLI application."""
 import asyncio
 import logging
-import os
-import sys
 
 import click
-import yaml
-from cerberus import Validator
 
 from museum_map.cli.db import db
 from museum_map.cli.groups import groups
@@ -16,10 +13,10 @@ from museum_map.cli.layout import layout
 from museum_map.cli.layout import pipeline_impl as layout_pipeline
 from museum_map.cli.search import pipeline_impl as search_pipeline
 from museum_map.cli.search import search
-from museum_map.cli.server import server
 
 logger = logging.getLogger("scr")
 
+"""
 CONFIG_SCHEMA = {
     "server": {
         "type": "dict",
@@ -249,77 +246,37 @@ CONFIG_SCHEMA = {
     },
     "logging": {"type": "dict"},
 }
-
-
-def validate_config(config: dict) -> dict:
-    """Validate the configuration.
-
-    :param config: The configuration to validate
-    :type config: dict
-    :return: The validated and normalised configuration
-    :rtype: dict
-    """
-    validator = Validator(CONFIG_SCHEMA)
-    if validator.validate(config):
-        return validator.normalized(config)
-    else:
-        error_list = []
-
-        def walk_error_tree(err: dict | list, path: str) -> None:
-            if isinstance(err, dict):
-                for key, value in err.items():
-                    walk_error_tree(value, (*path, str(key)))
-            elif isinstance(err, list):
-                for sub_err in err:
-                    walk_error_tree(sub_err, path)
-            else:
-                error_list.append(f'{".".join(path)}: {err}')
-
-        walk_error_tree(validator.errors, ())
-        error_str = "\n".join(error_list)
-        msg = f"Configuration errors:\n\n{error_str}"
-        raise click.ClickException(msg)
+"""
 
 
 @click.group()
 @click.option("-v", "--verbose", count=True)
-@click.option("-c", "--config", default="production.yml")
-@click.pass_context
-def cli(ctx, verbose, config):
-    """Museum Map CLI"""
-    ctx.ensure_object(dict)
+def cli(verbose: bool):  # noqa: FBT001
+    """Museum Map CLI."""
     if verbose == 1:
         logging.basicConfig(level=logging.INFO)
     elif verbose > 1:
         logging.basicConfig(level=logging.DEBUG)
     logger.debug("Logging set up")
-    if not os.path.exists(config):
-        logger.error(f"Configuration file {config} not found")
-        sys.exit(1)
-    with open(config) as in_f:
-        config = yaml.safe_load(in_f)
-        ctx.obj["config"] = validate_config(config)
 
 
-async def pipeline_impl(config):
+async def pipeline_impl():
     """Run the full processing pipline."""
-    await items_pipeline(config)
-    await groups_pipeline(config)
-    await layout_pipeline(config)
-    await search_pipeline(config)
+    await items_pipeline()
+    await groups_pipeline()
+    await layout_pipeline()
+    await search_pipeline()
 
 
 @click.command()
-@click.pass_context
-def pipeline(ctx):
+def pipeline():
     """Run the full processing pipline."""
-    asyncio.run(pipeline_impl(ctx.obj["config"]))
+    asyncio.run(pipeline_impl())
 
 
 cli.add_command(pipeline)
 cli.add_command(db)
 cli.add_command(groups)
 cli.add_command(items)
-cli.add_command(server)
 cli.add_command(layout)
 cli.add_command(search)

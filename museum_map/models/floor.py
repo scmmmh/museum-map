@@ -1,3 +1,5 @@
+"""Data model for the floors and floor-topics."""
+from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import Column, ForeignKey, Index, Integer, Table, Unicode
 from sqlalchemy.orm import relationship
 
@@ -12,6 +14,8 @@ floors_items = Table(
 
 
 class Floor(Base):
+    """Represents a single floor in the database."""
+
     __tablename__ = "floors"
 
     id = Column(Integer, primary_key=True)  # noqa: A003
@@ -22,23 +26,29 @@ class Floor(Base):
     samples = relationship("Item", secondary=floors_items)
     topics = relationship("FloorTopic", back_populates="floor")
 
-    def as_jsonapi(self):
-        return {
-            "type": "floors",
-            "id": str(self.id),
-            "attributes": {
-                "label": self.label,
-                "level": self.level,
-            },
-            "relationships": {
-                "rooms": {"data": [{"type": "rooms", "id": str(room.id)} for room in self.rooms]},
-                "samples": {"data": [{"type": "items", "id": str(item.id)} for item in self.samples]},
-                "topics": {"data": [{"type": "floor-topics", "id": str(topic.id)} for topic in self.topics]},
-            },
-        }
+
+class FloorModel(BaseModel):
+    """Pydantic model for validating a floor."""
+
+    id: int  # noqa: A003
+    label: str
+    level: int
+    rooms: list[int]
+    samples: list[int]
+    topics: list[int]
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("rooms", "samples", "topics", mode="before")
+    @classmethod
+    def convert_model_to_ids(cls, value: list[any]) -> str:
+        """Convert the lists of child models to lists of ids."""
+        return [v.id for v in value]
 
 
 class FloorTopic(Base):
+    """Represents a single floor topic in the database."""
+
     __tablename__ = "floor_topics"
 
     id = Column(Integer, primary_key=True)  # noqa: A003
@@ -50,20 +60,24 @@ class FloorTopic(Base):
     group = relationship("Group")
     floor = relationship("Floor", back_populates="topics")
 
-    def as_jsonapi(self):
-        return {
-            "type": "floor-topics",
-            "id": str(self.id),
-            "attributes": {
-                "label": self.label,
-                "size": self.size,
-            },
-            "relationships": {
-                "group": {"data": {"type": "groups", "id": str(self.group_id)}},
-                "floor": {"data": {"type": "floors", "id": str(self.floor_id)}},
-            },
-        }
-
 
 Index(FloorTopic.group_id)
 Index(FloorTopic.floor_id)
+
+
+class FloorTopicModel(BaseModel):
+    """Pydantic model for validating a floor-topic."""
+
+    id: int  # noqa: A003
+    group: int
+    floor: int
+    label: str
+    size: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("group", "floor", mode="before")
+    @classmethod
+    def convert_model_to_id(cls, value: any) -> str:
+        """Convert the relationship objects to ids."""
+        return value.id

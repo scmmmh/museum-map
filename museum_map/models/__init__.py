@@ -1,32 +1,26 @@
 """Database models."""
-from collections.abc import Callable
-
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from .base import Base  # noqa
-from .floor import Floor, FloorTopic  # noqa
-from .group import Group  # noqa
-from .item import Item  # noqa
-from .room import Room  # noqa
+from museum_map.models.base import Base  # noqa
+from museum_map.models.floor import Floor, FloorModel, FloorTopic, FloorTopicModel  # noqa
+from museum_map.models.group import Group  # noqa
+from museum_map.models.item import Item, ItemModel  # noqa
+from museum_map.models.log_entry import LogEntry  # noqa
+from museum_map.models.room import Room, RoomModel  # noqa
+from museum_map.models.user import User, UserModel  # noqa
+from museum_map.settings import settings
 
-engine = None
-
-
-def create_engine(config) -> AsyncEngine:
-    """Get a new singleton DB engine."""
-    global engine  # noqa: PLW0603
-    if engine is None:
-        engine = create_async_engine(config["db"]["dsn"])
-    return engine
+async_engine = create_async_engine(settings.db.dsn)
+async_sessionmaker = sessionmaker(
+    bind=async_engine, expire_on_commit=False, autoflush=False, autocommit=False, class_=AsyncSession
+)
 
 
-async_sessionmaker = None
-
-
-def create_sessionmaker(config) -> Callable[[], AsyncSession]:
-    """Get a new singleton DB session maker."""
-    global async_sessionmaker  # noqa: PLW0603
-    if async_sessionmaker is None:
-        async_sessionmaker = sessionmaker(create_engine(config), expire_on_commit=False, class_=AsyncSession)
-    return async_sessionmaker
+async def db_session() -> None:
+    """Generateor for a new dbsession."""
+    dbsession = async_sessionmaker()
+    try:
+        yield dbsession
+    finally:
+        await dbsession.close()
