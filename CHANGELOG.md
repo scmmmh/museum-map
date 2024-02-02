@@ -1,6 +1,6 @@
 # Changelog
 
-## Dev
+## 1.0.0
 
 * **New**: Implemented opt-in activity tracking
 * **Update**: Updated the backend to use FastAPI
