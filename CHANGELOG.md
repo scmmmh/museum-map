@@ -1,6 +1,6 @@
 # Changelog
 
-## Dev
+## 1.0.1
 
 * **Bugfix**: Fix the docker command to use uvicorn
 
