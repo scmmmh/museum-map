@@ -1,4 +1,5 @@
 """The main REST API."""
+
 import logging
 from typing import Annotated
 
