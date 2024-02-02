@@ -5,6 +5,7 @@
 * **New**: Implemented opt-in activity tracking
 * **Update**: Updated the backend to use FastAPI
 * **Update**: Frontend performance updates
+* **Update**: Switch to using main as the default branch
 * **Bugfix**: Updated vite dependency to fix a security issue in dev mode
 
 ## 0.9.1
