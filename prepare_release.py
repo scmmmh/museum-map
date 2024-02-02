@@ -1,6 +1,6 @@
 """Script to prepare the version information for a release."""
+
 import re
-from typing import List
 
 VERSION = "0.9.1"
 
@@ -33,7 +33,5 @@ update_version(
     "museum_map/server/frontend/package.json", r'(^  "version": ")[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?(",$)', VERSION
 )
 update_version("museum_map/__about__.py", r'(^__version__ = ")[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?("$)', VERSION)
-update_version(
-    "museum_map/server/frontend/src/store/config.ts", r'^(.*)[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?(.*$)', VERSION
-)
+update_version("museum_map/server/frontend/src/Root.svelte", r"^(.*)[0-9]+\.[0-9]+\.[0-9]+(?:b[0-9]+)?(.*$)", VERSION)
 update_version("CHANGELOG.md", r"(## )Dev($)", VERSION)
