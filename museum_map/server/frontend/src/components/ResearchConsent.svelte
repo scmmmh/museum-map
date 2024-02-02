@@ -32,7 +32,9 @@
       please use the consent button <span class="md:hidden">below</span><span
         class="hidden md:inline">on the right</span
       >
-      to give your consent to collecting your data as outlined.
+      to give your consent to collecting your data as outlined. The data collection
+      is undertaken with the approval of the Open University's Human Research Ethics
+      Committee under the reference number 2024-0084-3.
     </p>
   </div>
   <div class="md:w-3/6">
@@ -52,6 +54,16 @@
         Anonymised and cleaned data will be used in research publications.
       </li>
     </ul>
+    <p class="pb-4">
+      If you have any questions please contact the pricipal Investigator <a
+        href="mailto:mark.hall@work.room3b.eu"
+        class="underline">Mark Hall</a
+      >. Alternatively, if you have any concerns, please contact the Open
+      University's School of Computing & Communication's
+      <a href="mailto:stem-cc-hos@open.ac.uk" class="underline"
+        >Head of School</a
+      >.
+    </p>
     <p class="pb-4">
       You can withdraw your consent at any point using the research icon in the
       bottom-left corner of the page.
