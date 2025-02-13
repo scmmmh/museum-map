@@ -1,6 +1,6 @@
 # Changelog
 
-## Dev
+## 1.1.0
 
 * **New**: Multi-platform builds (linux/amd64, linux/arm64)
 
