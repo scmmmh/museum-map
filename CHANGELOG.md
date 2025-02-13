@@ -1,5 +1,9 @@
 # Changelog
 
+## Dev
+
+* **New**: Multi-platform builds (linux/amd64, linux/arm64)
+
 ## 1.0.1
 
 * **Bugfix**: Fix the docker command to use uvicorn
