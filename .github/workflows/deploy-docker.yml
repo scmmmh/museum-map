@@ -68,4 +68,5 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: scmmmh/museum-map:${{ steps.branch_name.outputs.SOURCE_TAG }}
