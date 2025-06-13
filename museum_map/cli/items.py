@@ -6,7 +6,7 @@ import os
 import click
 import requests
 import spacy
-from gensim import corpora, models
+# from gensim import corpora, models
 from lxml import etree
 from sqlalchemy import func
 from sqlalchemy.future import select
