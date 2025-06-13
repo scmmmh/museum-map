@@ -3,7 +3,7 @@ import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Query
-from meilisearch_python_async import Client
+from meilisearch_python_sdk import AsyncClient
 
 from museum_map.settings import settings
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/search")
 logger = logging.getLogger(__name__)
 
 
-client = Client(str(settings.search.url), settings.search.key)
+client = AsyncClient(str(settings.search.url), settings.search.key)
 index = None
 
 
