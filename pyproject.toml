@@ -20,9 +20,7 @@ classifiers = [
 ]
 dependencies = [
   "asyncpg>=0.28.0,<1",
-  "click>8.0.0,<9",
   "fastapi[all]",
-  # "gensim>=4.3.3,<5",
   "inflection>=0.5.1,<1",
   "lxml>=5.4.0,<6",
   "meilisearch-python-sdk>=4.7.0,<5",
@@ -34,6 +32,7 @@ dependencies = [
   "spacy>=3.8.7,<3.9",
   "SQLAlchemy>=2.0.41,<3",
   "sqlalchemy_json>=0.7.0,<1",
+  "typer",
   "uvicorn[standard]",
 ]
 
