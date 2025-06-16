@@ -1,4 +1,5 @@
 """Data model for the floors and floor-topics."""
+
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import Column, ForeignKey, Index, Integer, Table, Unicode
 from sqlalchemy.orm import relationship
@@ -18,7 +19,7 @@ class Floor(Base):
 
     __tablename__ = "floors"
 
-    id = Column(Integer, primary_key=True)  # noqa: A003
+    id = Column(Integer, primary_key=True)
     label = Column(Unicode(255))
     level = Column(Integer)
 
@@ -30,7 +31,7 @@ class Floor(Base):
 class FloorModel(BaseModel):
     """Pydantic model for validating a floor."""
 
-    id: int  # noqa: A003
+    id: int
     label: str
     level: int
     rooms: list[int]
@@ -51,7 +52,7 @@ class FloorTopic(Base):
 
     __tablename__ = "floor_topics"
 
-    id = Column(Integer, primary_key=True)  # noqa: A003
+    id = Column(Integer, primary_key=True)
     group_id = Column(Integer, ForeignKey("groups.id"))
     floor_id = Column(Integer, ForeignKey("floors.id"))
     label = Column(Unicode(255))
@@ -68,7 +69,7 @@ Index(FloorTopic.floor_id)
 class FloorTopicModel(BaseModel):
     """Pydantic model for validating a floor-topic."""
 
-    id: int  # noqa: A003
+    id: int
     group: int
     floor: int
     label: str

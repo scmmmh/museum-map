@@ -1,4 +1,5 @@
 """Group generation CLI commands."""
+
 import asyncio
 import math
 from collections import Counter
@@ -54,7 +55,9 @@ async def generate_groups_impl():
                         categories.append(category.lower())
                 old_counts = len(counts)
                 counts = [
-                    (cat, count) for cat, count in Counter(categories).most_common() if count >= 15  # noqa: PLR2004
+                    (cat, count)
+                    for cat, count in Counter(categories).most_common()
+                    if count >= 15  # noqa: PLR2004
                 ]
                 counts.sort(key=lambda c: c[1])
                 progress.update(old_counts - len(counts))
@@ -111,10 +114,12 @@ def split_by_attribute(dbsession, group, attr):
     """Split the group by the values of a given attribute."""
     values = []
     for item in group.items:
-        if attr in item.attributes and item.attributes[attr]:
+        if item.attributes.get(attr):
             values.extend(item.attributes[attr])
     categories = [
-        (v, c) for v, c in Counter(values).most_common() if c < len(group.items) * 0.6666 and c >= 15  # noqa: PLR2004
+        (v, c)
+        for v, c in Counter(values).most_common()
+        if c < len(group.items) * 0.6666 and c >= 15  # noqa: PLR2004
     ]
     if categories:
         category_values = [v for v, _ in categories]

@@ -1,4 +1,5 @@
 """Models for the user."""
+
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Column, Index, Integer, Unicode
 
@@ -10,7 +11,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)  # noqa: A003
+    id = Column(Integer, primary_key=True)
     public_id = Column(Unicode(255), unique=True)
 
 
@@ -20,6 +21,6 @@ Index(User.public_id)
 class UserModel(BaseModel):
     """Pydantic model representing a room."""
 
-    id: str = Field(validation_alias="public_id")  # noqa: A003
+    id: str = Field(validation_alias="public_id")
 
     model_config = ConfigDict(from_attributes=True)

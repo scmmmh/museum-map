@@ -1,4 +1,5 @@
 """Models for the rooms."""
+
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import Column, ForeignKey, Index, Integer, Unicode
 from sqlalchemy.orm import relationship
@@ -12,7 +13,7 @@ class Room(Base):
 
     __tablename__ = "rooms"
 
-    id = Column(Integer, primary_key=True)  # noqa: A003
+    id = Column(Integer, primary_key=True)
     floor_id = Column(Integer, ForeignKey("floors.id"))
     group_id = Column(Integer, ForeignKey("groups.id"))
     item_id = Column(Integer, ForeignKey("items.id"))
@@ -34,7 +35,7 @@ Index(Room.item_id)
 class RoomModel(BaseModel):
     """Pydantic model representing a room."""
 
-    id: int  # noqa: A003
+    id: int
     number: str
     label: str
     position: dict

@@ -1,4 +1,5 @@
 """Item processing CLI commands."""
+
 import asyncio
 import json
 import os
@@ -6,12 +7,13 @@ import os
 import click
 import requests
 import spacy
+
 # from gensim import corpora, models
 from lxml import etree
 from sqlalchemy import func
 from sqlalchemy.future import select
 
-from museum_map.cli.util import ClickIndeterminate
+# from museum_map.cli.util import ClickIndeterminate
 from museum_map.models import Item, async_sessionmaker
 
 
@@ -230,40 +232,40 @@ def expand_categories(ctx):
 
 async def generate_topic_vectors_impl():
     """Generate topic vectors for all items."""
-    async with async_sessionmaker() as dbsession:
+    # async with async_sessionmaker() as dbsession:
 
-        async def texts(dictionary=None, label=""):
-            count = await dbsession.execute(select(func.count(Item.id)))
-            result = await dbsession.execute(select(Item))
-            with click.progressbar(result.scalars(), length=count.scalar_one(), label=label) as progress:
-                for item in progress:
-                    if "_tokens" in item.attributes:
-                        if dictionary:
-                            yield dictionary.doc2bow(item.attributes["_tokens"])
-                        else:
-                            yield item.attributes["_tokens"]
+    #     async def texts(dictionary=None, label=""):
+    #         count = await dbsession.execute(select(func.count(Item.id)))
+    #         result = await dbsession.execute(select(Item))
+    #         with click.progressbar(result.scalars(), length=count.scalar_one(), label=label) as progress:
+    #             for item in progress:
+    #                 if "_tokens" in item.attributes:
+    #                     if dictionary:
+    #                         yield dictionary.doc2bow(item.attributes["_tokens"])
+    #                     else:
+    #                         yield item.attributes["_tokens"]
 
-        dictionary = corpora.Dictionary()
-        async for tokens in texts(label="Generating dictionary"):
-            dictionary.add_documents([tokens])
-        dictionary.filter_extremes(keep_n=None)
-        corpus = []
-        async for bow in texts(dictionary=dictionary, label="Generating corpus"):
-            corpus.append(bow)
-        waiting = ClickIndeterminate("Generating model")
-        waiting.start()
-        model = models.LdaModel(corpus, num_topics=300, id2word=dictionary, update_every=0)
-        waiting.stop()
-        count = await dbsession.execute(select(func.count(Item.id)))
-        result = await dbsession.execute(select(Item))
-        with click.progressbar(
-            result.scalars(), length=count.scalar_one(), label="Generating topic vectors"
-        ) as progress:
-            for item in progress:
-                if "_tokens" in item.attributes:
-                    vec = model[dictionary.doc2bow(item.attributes["_tokens"])]
-                    item.attributes["lda_vector"] = [(wid, float(prob)) for wid, prob in vec]
-        await dbsession.commit()
+    #     dictionary = corpora.Dictionary()
+    #     async for tokens in texts(label="Generating dictionary"):
+    #         dictionary.add_documents([tokens])
+    #     dictionary.filter_extremes(keep_n=None)
+    #     corpus = []
+    #     async for bow in texts(dictionary=dictionary, label="Generating corpus"):
+    #         corpus.append(bow)
+    #     waiting = ClickIndeterminate("Generating model")
+    #     waiting.start()
+    #     model = models.LdaModel(corpus, num_topics=300, id2word=dictionary, update_every=0)
+    #     waiting.stop()
+    #     count = await dbsession.execute(select(func.count(Item.id)))
+    #     result = await dbsession.execute(select(Item))
+    #     with click.progressbar(
+    #         result.scalars(), length=count.scalar_one(), label="Generating topic vectors"
+    #     ) as progress:
+    #         for item in progress:
+    #             if "_tokens" in item.attributes:
+    #                 vec = model[dictionary.doc2bow(item.attributes["_tokens"])]
+    #                 item.attributes["lda_vector"] = [(wid, float(prob)) for wid, prob in vec]
+    #     await dbsession.commit()
 
 
 @click.command()

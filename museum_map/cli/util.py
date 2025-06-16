@@ -1,4 +1,5 @@
 """Utility functionality for the cli."""
+
 from threading import Thread
 from time import sleep
 
@@ -9,6 +10,7 @@ class ClickIndeterminate(Thread):
     """A thread that shows a indeterminate busy animation using the cli."""
 
     def __init__(self, label):
+        """Initialise the indeterminate busy animation."""
         super().__init__()
         self._label = label
         self._active = False

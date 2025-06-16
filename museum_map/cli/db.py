@@ -1,4 +1,5 @@
 """Database manipulation CLI commands."""
+
 import asyncio
 import json
 import os
@@ -62,8 +63,8 @@ def load_images(source, target):
                 image_source = os.path.join(basepath, filename)
                 image_target = os.path.join(target, *image_id, filename)
                 shutil.copy(image_source, image_target)
-                subprocess.run(
-                    [  # noqa: S603 S607
+                subprocess.run(  # noqa:S603
+                    [  # noqa: S607
                         "gm",
                         "convert",
                         image_source,
@@ -73,8 +74,8 @@ def load_images(source, target):
                     ],
                     check=True,
                 )
-                subprocess.run(
-                    [  # noqa: S603 S607
+                subprocess.run(  # noqa:S603
+                    [  # noqa: S607
                         "gm",
                         "convert",
                         image_source,

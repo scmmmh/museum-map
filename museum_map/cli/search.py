@@ -14,7 +14,7 @@ import click
 # from museum_map.models import Room, async_sessionmaker
 
 
-async def index_impl(config):  # noqa: ARG001
+async def index_impl(config):
     """Index the full collection."""
     # async with async_sessionmaker() as dbsession:
     #     async with AsyncClient(config["search"]["url"], config["search"]["key"]) as client:
