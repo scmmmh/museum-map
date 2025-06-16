@@ -1,4 +1,5 @@
 """Routes for searching the index."""
+
 import logging
 from typing import Annotated
 

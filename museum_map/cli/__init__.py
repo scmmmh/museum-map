@@ -1,4 +1,5 @@
 """Museum Map CLI application."""
+
 import asyncio
 import logging
 

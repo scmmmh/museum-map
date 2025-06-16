@@ -1,4 +1,5 @@
 """Application configuration settings."""
+
 import logging
 import logging.config
 import os

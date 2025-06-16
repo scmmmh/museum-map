@@ -1,4 +1,5 @@
 """Layout generation CLI commands."""
+
 import asyncio
 import math
 from copy import deepcopy
@@ -55,10 +56,10 @@ def pluralize_label(label):
             label = " - ".join(parts)
         elif " of " in label:
             part = label[: label.find(" of ")]
-            label = f'{pluralize_label(part)}{label[label.find(" of "):]}'
+            label = f"{pluralize_label(part)}{label[label.find(' of ') :]}"
         elif " for " in label:
             part = label[: label.find(" for ")]
-            label = f'{pluralize_label(part)}{label[label.find(" for "):]}'
+            label = f"{pluralize_label(part)}{label[label.find(' for ') :]}"
         elif " and " in label:
             part1 = label[: label.find(" and ")]
             part2 = label[label.find(" and ") + 5 :]

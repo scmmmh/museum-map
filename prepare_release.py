@@ -22,7 +22,7 @@ def update_version(filename: str, pattern: str, version: str) -> None:
 
     def replace_version(line: str) -> str:
         if re.match(pattern, line):
-            return re.sub(pattern, fr"\g<1>{version}\g<2>", line)
+            return re.sub(pattern, rf"\g<1>{version}\g<2>", line)
         else:
             return line
 

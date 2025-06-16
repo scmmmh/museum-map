@@ -1,4 +1,5 @@
 """Routes for accessing the room data."""
+
 import logging
 from typing import Annotated
 from uuid import uuid4
