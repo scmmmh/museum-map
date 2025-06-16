@@ -74,8 +74,12 @@ test-cov = "coverage run -m pytest {args:tests}"
 cov-report = ["- coverage combine", "coverage report"]
 cov = ["test-cov", "cov-report"]
 style = [
-  "ruff check --fix --exit-non-zero-on-fix {args:.}",
+  "ruff check --exit-non-zero-on-fix {args:.}",
   "ruff format --check {args:.}",
+]
+style-fix = [
+  "ruff check --fix --exit-non-zero-on-fix {args:.}",
+  "ruff format {args:.}",
 ]
 
 [tool.ruff]
