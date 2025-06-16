@@ -1,16 +1,11 @@
-"""Image manipulation CLI commands"""
+"""Image manipulation CLI commands."""
 
-import asyncio
-import json
 import os
 import shutil
 import subprocess
 
 from rich.progress import Progress
 from typer import Typer
-
-from museum_map.cli.util import ClickIndeterminate
-from museum_map.models import Base, Item, async_engine, async_sessionmaker
 
 group = Typer(help="Image commands")
 
@@ -21,7 +16,7 @@ def load_images(source, target):
     with Progress() as progress:
         task = progress.add_task("Scanning files", total=None)
         total = 0
-        for basepath, _, filenames in os.walk(source):
+        for _basepath, _, filenames in os.walk(source):
             for filename in filenames:
                 if filename.endswith(".jpg"):
                     total = total + 1

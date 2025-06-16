@@ -1,6 +1,5 @@
 """Museum Map CLI application."""
 
-import asyncio
 import logging
 
 from rich import print as output
@@ -9,6 +8,7 @@ from typer import Typer
 from museum_map.__about__ import __version__
 from museum_map.cli.db import group as db_group
 from museum_map.cli.images import group as images_group
+
 # from museum_map.cli.groups import groups
 # from museum_map.cli.groups import pipeline_impl as groups_pipeline
 # from museum_map.cli.items import items
@@ -23,6 +23,7 @@ logger = logging.getLogger("scr")
 cli = Typer()
 cli.add_typer(db_group, name="db")
 cli.add_typer(images_group, name="images")
+
 
 @cli.command()
 def version():

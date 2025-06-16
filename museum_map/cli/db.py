@@ -3,16 +3,14 @@
 import asyncio
 import json
 import os
-import shutil
-import subprocess
 
 from rich.progress import Progress
 from typer import Typer
 
-from museum_map.cli.util import ClickIndeterminate
 from museum_map.models import Base, Item, async_engine, async_sessionmaker
 
 group = Typer(help="Database commands")
+
 
 async def init_impl(drop_existing: bool):  # noqa: FBT001
     """Initialise the database."""
@@ -23,7 +21,7 @@ async def init_impl(drop_existing: bool):  # noqa: FBT001
 
 
 @group.command()
-def init(drop_existing: bool = False):  # noqa: FBT001
+def init(drop_existing: bool = False):  # noqa: FBT001, FBT002
     """Initialise the database."""
     asyncio.run(init_impl(drop_existing))
 
@@ -33,7 +31,7 @@ async def load_impl(source: str):
     with Progress() as progress:
         task = progress.add_task("Scanning files", total=None)
         total = 0
-        for basepath, _, filenames in os.walk(source):
+        for _basepath, _, filenames in os.walk(source):
             for filename in filenames:
                 if filename.endswith(".json"):
                     total = total + 1
@@ -47,7 +45,6 @@ async def load_impl(source: str):
                             dbsession.add(Item(attributes=json.load(in_f)))
                             progress.update(task, advance=1)
                 await dbsession.commit()
-
 
 
 @group.command()
