@@ -61,6 +61,19 @@ class AppSettings(BaseModel):
     item: AppItems
 
 
+class DataHierarchySettings(BaseModel):
+    """The data hierarchy settings."""
+
+    field: str
+    expansions: list[str]
+
+
+class DataSettings(BaseModel):
+    """The data settings."""
+
+    hierarchy: DataHierarchySettings
+
+
 class SearchSettings(BaseModel):
     """The search index settings."""
 
@@ -72,6 +85,7 @@ class Settings(BaseModel):
     """Application settings."""
 
     app: AppSettings
+    data: DataSettings
     db: DatabaseSettings
     search: SearchSettings
 

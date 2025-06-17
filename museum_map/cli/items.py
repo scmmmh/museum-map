@@ -4,42 +4,17 @@ import asyncio
 import json
 import os
 
-import click
 import requests
-import spacy
-
-# from gensim import corpora, models
 from lxml import etree
+from rich.progress import Progress
 from sqlalchemy import func
 from sqlalchemy.future import select
+from typer import Typer
 
-# from museum_map.cli.util import ClickIndeterminate
 from museum_map.models import Item, async_sessionmaker
+from museum_map.settings import settings
 
-
-async def tokenise_impl(config):
-    """Generate token lists for each item."""
-    nlp = spacy.load("en_core_web_sm")
-    async with async_sessionmaker() as dbsession:
-        count = await dbsession.execute(select(func.count(Item.id)))
-        result = await dbsession.execute(select(Item))
-        with click.progressbar(result.scalars(), length=count.scalar_one(), label="Tokenising items") as progress:
-            for item in progress:
-                text = ""
-                for field in config["data"]["topic_fields"]:
-                    if field in item.attributes and item.attributes[field].strip():
-                        if item.attributes[field].strip().endswith("."):
-                            text = f"{text} {item.attributes[field].strip()}"
-                        else:
-                            text = f"{text} {item.attributes[field].strip()}."
-                item.attributes["_tokens"] = [t.lemma_ for t in nlp(text) if t.pos_ not in ["PUNCT", "SPACE"]]
-        await dbsession.commit()
-
-
-@click.command()
-def tokenise():
-    """Generate token lists for each item."""
-    asyncio.run(tokenise_impl())
+group = Typer(help="Item processing commands")
 
 
 def strip_article(text):
@@ -205,29 +180,30 @@ def apply_aat(category, merge=True):  # noqa: FBT002
         return cache[category]
 
 
-async def expand_categories_impl(config):
+async def expand_categories_impl():
     """Expand the object categories."""
     async with async_sessionmaker() as dbsession:
         count = await dbsession.execute(select(func.count(Item.id)))
         result = await dbsession.execute(select(Item))
-        with click.progressbar(result.scalars(), length=count.scalar_one(), label="Expanding categories") as progress:
-            for item in progress:
-                categories = [c.lower() for c in item.attributes[config["data"]["hierarchy"]["field"]]]
-                if "nlp" in config["data"]["hierarchy"]["expansions"]:
-                    for category in item.attributes[config["data"]["hierarchy"]["field"]]:
+        with Progress() as progress:
+            task = progress.add_task("Expanding categories", total=count.scalar_one())
+            for item in result.scalars():
+                categories = [c.lower() for c in item.attributes[settings.data.hierarchy.field]]
+                if "nlp" in settings.data.hierarchy.expansions:
+                    for category in item.attributes[settings.data.hierarchy.field]:
                         categories = categories + apply_nlp(category.lower())
-                if "aat" in config["data"]["hierarchy"]["expansions"]:
+                if "aat" in settings.data.hierarchy.expansions:
                     for category in list(categories):
                         categories = categories + apply_aat(category)
                 item.attributes["_categories"] = categories
+                progress.update(task, advance=1)
         await dbsession.commit()
 
 
-@click.command()
-@click.pass_context
-def expand_categories(ctx):
+@group.command()
+def expand_categories():
     """Expand the object categories."""
-    asyncio.run(expand_categories_impl(ctx.obj["config"]))
+    asyncio.run(expand_categories_impl())
 
 
 async def generate_topic_vectors_impl():
@@ -268,7 +244,6 @@ async def generate_topic_vectors_impl():
     #     await dbsession.commit()
 
 
-@click.command()
 def generate_topic_vectors():
     """Generate topic vectors for all items."""
     asyncio.run(generate_topic_vectors_impl())
@@ -277,23 +252,9 @@ def generate_topic_vectors():
 async def pipeline_impl():
     """Run the items processing pipeline."""
     await expand_categories_impl()
-    await tokenise_impl()
     await generate_topic_vectors_impl()
 
 
-@click.command()
 def pipeline():
     """Run the items processing pipeline."""
     asyncio.run(pipeline_impl())
-
-
-@click.group()
-def items():
-    """Process the loaded items."""
-    pass
-
-
-items.add_command(tokenise)
-items.add_command(expand_categories)
-items.add_command(generate_topic_vectors)
-items.add_command(pipeline)
