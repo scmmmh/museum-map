@@ -265,6 +265,7 @@ async def pipeline_impl():
     await generate_topic_vectors_impl()
 
 
+@group.command()
 def pipeline():
     """Run the items processing pipeline."""
     asyncio.run(pipeline_impl())
