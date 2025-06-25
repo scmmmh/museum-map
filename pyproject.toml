@@ -20,6 +20,7 @@ classifiers = [
 ]
 dependencies = [
   "asyncpg>=0.28.0,<1",
+  "bertopic<1",
   "fastapi[all]",
   "inflection>=0.5.1,<1",
   "lxml>=5.4.0,<6",
@@ -28,8 +29,7 @@ dependencies = [
   "pydantic-settings>=2,<3",
   "PyYAML>=6.0,<7",
   "requests>=2.32.4,<3",
-  "scipy>=1.15.3,<2",
-  "spacy>=3.8.7,<3.9",
+  "scipy<=2",
   "SQLAlchemy>=2.0.41,<3",
   "sqlalchemy_json>=0.7.0,<1",
   "typer",
@@ -65,7 +65,7 @@ artifacts = ["museum_map/server/frontend/dist/**/*.*"]
 
 [tool.hatch.envs.default]
 dependencies = ["coverage[toml]>=6.5", "pytest", "ruff==0.11.13"]
-post-install-commands = ["python -m spacy download en_core_web_sm"]
+# post-install-commands = ["python -m spacy download en_core_web_sm"]
 
 [tool.hatch.envs.default.scripts]
 server = "cd dev && uvicorn --host 0.0.0.0 --reload --reload-dir ../museum_map --log-level debug museum_map.server:app"

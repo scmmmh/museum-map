@@ -5,6 +5,7 @@ import json
 import os
 
 import requests
+from bertopic import BERTopic
 from lxml import etree
 from rich.progress import Progress
 from sqlalchemy import func
@@ -208,42 +209,51 @@ def expand_categories():
 
 async def generate_topic_vectors_impl():
     """Generate topic vectors for all items."""
-    # async with async_sessionmaker() as dbsession:
+    topic_model = BERTopic()
+    documents = []
+    with Progress() as progress:
+        async with async_sessionmaker() as dbsession:
+            count = (await dbsession.execute(select(func.count(Item.id)))).scalar_one()
+            result = await dbsession.execute(select(Item))
+            task = progress.add_task("Loading items", total=count)
+            for item in result.scalars():
+                text = []
+                for field in settings.data.topic_fields:
+                    if field in item.attributes and item.attributes[field].strip() != "":
+                        if item.attributes[field].endswith("."):
+                            text.append(item.attributes[field])
+                        else:
+                            text.append(f"{item.attributes[field]}.")
+                documents.append(" ".join(text))
+                progress.update(task, advance=1)
+        task = progress.add_task("Generating topic model", total=None)
+        topic_model.fit(documents)
+        progress.update(task, total=1, completed=1)
+        topics = topic_model.get_topics()
+        progress.update(task, total=1, completed=1)
+        async with async_sessionmaker() as dbsession:
+            count = (await dbsession.execute(select(func.count(Item.id)))).scalar_one()
+            result = await dbsession.execute(select(Item))
+            task = progress.add_task("Calculating topic vectors", total=count)
+            for item in result.scalars():
+                text = []
+                for field in settings.data.topic_fields:
+                    if field in item.attributes and item.attributes[field].strip() != "":
+                        if item.attributes[field].endswith("."):
+                            text.append(item.attributes[field])
+                        else:
+                            text.append(f"{item.attributes[field]}.")
+                topic_ids, probabilities = topic_model.transform([" ".join(text)])
+                topic_vector = [0.0 for _ in range(0, len(topics))]
+                for topic_id, probability in zip(topic_ids, probabilities):
+                    if topic_id >= 0 and topic_id < len(topic_vector):
+                        topic_vector[int(topic_id)] = float(probability)
+                item.attributes["lda_vector"] = topic_vector
+                progress.update(task, advance=1)
+            await dbsession.commit()
 
-    #     async def texts(dictionary=None, label=""):
-    #         count = await dbsession.execute(select(func.count(Item.id)))
-    #         result = await dbsession.execute(select(Item))
-    #         with click.progressbar(result.scalars(), length=count.scalar_one(), label=label) as progress:
-    #             for item in progress:
-    #                 if "_tokens" in item.attributes:
-    #                     if dictionary:
-    #                         yield dictionary.doc2bow(item.attributes["_tokens"])
-    #                     else:
-    #                         yield item.attributes["_tokens"]
 
-    #     dictionary = corpora.Dictionary()
-    #     async for tokens in texts(label="Generating dictionary"):
-    #         dictionary.add_documents([tokens])
-    #     dictionary.filter_extremes(keep_n=None)
-    #     corpus = []
-    #     async for bow in texts(dictionary=dictionary, label="Generating corpus"):
-    #         corpus.append(bow)
-    #     waiting = ClickIndeterminate("Generating model")
-    #     waiting.start()
-    #     model = models.LdaModel(corpus, num_topics=300, id2word=dictionary, update_every=0)
-    #     waiting.stop()
-    #     count = await dbsession.execute(select(func.count(Item.id)))
-    #     result = await dbsession.execute(select(Item))
-    #     with click.progressbar(
-    #         result.scalars(), length=count.scalar_one(), label="Generating topic vectors"
-    #     ) as progress:
-    #         for item in progress:
-    #             if "_tokens" in item.attributes:
-    #                 vec = model[dictionary.doc2bow(item.attributes["_tokens"])]
-    #                 item.attributes["lda_vector"] = [(wid, float(prob)) for wid, prob in vec]
-    #     await dbsession.commit()
-
-
+@group.command()
 def generate_topic_vectors():
     """Generate topic vectors for all items."""
     asyncio.run(generate_topic_vectors_impl())

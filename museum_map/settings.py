@@ -71,6 +71,7 @@ class DataHierarchySettings(BaseModel):
 class DataSettings(BaseModel):
     """The data settings."""
 
+    topic_fields: list[str]
     hierarchy: DataHierarchySettings
 
 
