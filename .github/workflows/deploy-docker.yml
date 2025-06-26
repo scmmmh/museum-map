@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
+
       - name: Setup Path
         run: |
           echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
