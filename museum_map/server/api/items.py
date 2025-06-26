@@ -1,4 +1,5 @@
 """Routes for accessing the item data."""
+
 import logging
 from typing import Annotated
 

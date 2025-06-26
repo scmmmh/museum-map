@@ -1,4 +1,5 @@
 """Models for the user."""
+
 from sqlalchemy import Column, Float, ForeignKey, Index, Integer, Unicode
 from sqlalchemy_json import NestedMutableJson
 
@@ -10,7 +11,7 @@ class LogEntry(Base):
 
     __tablename__ = "log_entries"
 
-    id = Column(Integer, primary_key=True)  # noqa: A003
+    id = Column(Integer, primary_key=True)
     user_id = Column(ForeignKey("users.id"))
     action = Column(Unicode(255))
     timestamp = Column(Float)

@@ -1,4 +1,5 @@
 """Routes for accessing the picks data."""
+
 import logging
 import math
 from datetime import UTC, datetime

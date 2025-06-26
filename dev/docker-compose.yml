@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   postgres:
-    image: postgres:latest
+    image: docker.io/postgres:latest
     environment:
       - POSTGRES_PASSWORD=devPWD
     volumes:
@@ -9,7 +9,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
   meilisearch:
-    image: getmeili/meilisearch:v1.3
+    image: docker.io/getmeili/meilisearch:v1.15.1
     environment:
       - MEILI_ENV=development
       - MEILI_MASTER_KEY=ff2e87a28b482fd787091a5824e05af3

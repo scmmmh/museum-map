@@ -1,4 +1,5 @@
 """Models for the item."""
+
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import Column, ForeignKey, Index, Integer
 from sqlalchemy.orm import relationship
@@ -12,7 +13,7 @@ class Item(Base):
 
     __tablename__ = "items"
 
-    id = Column(Integer, primary_key=True)  # noqa: A003
+    id = Column(Integer, primary_key=True)
     group_id = Column(Integer, ForeignKey("groups.id"))
     room_id = Column(Integer, ForeignKey("rooms.id"))
     attributes = Column(NestedMutableJson)
@@ -29,7 +30,7 @@ Index(Item.room_id)
 class ItemModel(BaseModel):
     """Pydantic model for validating items."""
 
-    id: int  # noqa: A003
+    id: int
     group: int
     room: int
     attributes: dict

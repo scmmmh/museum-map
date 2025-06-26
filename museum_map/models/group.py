@@ -1,3 +1,5 @@
+"""Models for groups of items."""
+
 from sqlalchemy import Column, ForeignKey, Index, Integer, Unicode
 from sqlalchemy.orm import relationship
 
@@ -5,9 +7,11 @@ from museum_map.models.base import Base
 
 
 class Group(Base):
+    """The Group represents a cohesive grouping of items."""
+
     __tablename__ = "groups"
 
-    id = Column(Integer, primary_key=True)  # noqa: A003
+    id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey("groups.id"))
     value = Column(Unicode(255))
     label = Column(Unicode(255))
@@ -19,6 +23,7 @@ class Group(Base):
     room = relationship("Room", back_populates="group", uselist=False)
 
     def as_jsonapi(self):
+        """Format the object as JSONAPI."""
         return {
             "type": "groups",
             "id": str(self.id),

@@ -1,4 +1,5 @@
 """Routes for accessing the picks data."""
+
 import logging
 
 from fastapi import APIRouter

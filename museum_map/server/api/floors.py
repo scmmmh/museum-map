@@ -1,4 +1,5 @@
 """Routes for accessing the floor data."""
+
 import logging
 from typing import Annotated
 
