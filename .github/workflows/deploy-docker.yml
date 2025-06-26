@@ -53,8 +53,9 @@ jobs:
         with:
             image: scmmmh/museum-map
             tags: ${{ steps.get-version.outputs.result }}
+            context: .
             containerfiles: |
-              ./Containerfile
+              ./docker/Containerfile
             platforms: linux/arm64/v8,linux/amd64
 
       - name: Push the container image to ghcr.io
