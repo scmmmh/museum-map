@@ -73,6 +73,7 @@ class DataSettings(BaseModel):
 
     topic_fields: list[str]
     hierarchy: DataHierarchySettings
+    year_field: str
 
 
 class SearchSettings(BaseModel):

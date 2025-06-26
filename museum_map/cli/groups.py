@@ -4,17 +4,20 @@ import asyncio
 import math
 from collections import Counter
 
-import click
 import inflection
 from numpy import array
+from rich.progress import Progress, track
 from scipy.spatial.distance import cosine
 from sqlalchemy import and_, func, or_
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+from typer import Typer
 
 from museum_map.cli.items import apply_aat, apply_nlp
-from museum_map.cli.util import ClickIndeterminate
 from museum_map.models import Group, Item, async_sessionmaker
+from museum_map.settings import settings
+
+group = Typer(help="Generate group commands")
 
 
 async def generate_groups_impl():
@@ -25,16 +28,14 @@ async def generate_groups_impl():
         count = await dbsession.execute(count_stmt)
         result = await dbsession.execute(item_stmt)
         categories = []
-        with click.progressbar(
-            result.scalars(), length=count.scalar_one(), label="Generating potential groups"
-        ) as progress:
-            for item in progress:
-                for category in item.attributes["_categories"]:
-                    categories.append(category.lower())
+        for item in track(result.scalars(), total=count.scalar_one(), description="Generating potential groups"):
+            for category in item.attributes["_categories"]:
+                categories.append(category.lower())
         counts = [(cat, count) for cat, count in Counter(categories).most_common() if count >= 15]  # noqa: PLR2004
         counts.sort(key=lambda c: c[1])
         max_groups = len(counts)
-        with click.progressbar(length=max_groups, label="Generating groups") as progress:
+        with Progress() as progress:
+            task = progress.add_task("Generating groups", total=max_groups)
             while counts:
                 category = counts[0][0]
                 group_stmt = select(Group).filter(Group.value == category)
@@ -60,11 +61,11 @@ async def generate_groups_impl():
                     if count >= 15  # noqa: PLR2004
                 ]
                 counts.sort(key=lambda c: c[1])
-                progress.update(old_counts - len(counts))
+                progress.update(task, advance=old_counts - len(counts))
         await dbsession.commit()
 
 
-@click.command()
+@group.command()
 def generate_groups():
     """Generate the basic groups."""
     asyncio.run(generate_groups_impl())
@@ -72,10 +73,11 @@ def generate_groups():
 
 def fill_vector(group):
     """Create a full vector from a sparse vector in the database."""
-    vec = array([0 for _ in range(0, 300)], dtype=float)
-    for dim, value in group.attributes["lda_vector"]:
-        vec[dim] = value
-    return vec
+    return array(group.attributes["lda_vector"])
+    # vec = array([0 for _ in range(0, 300)], dtype=float)
+    # for dim, value in group.attributes["lda_vector"]:
+    #     vec[dim] = value
+    # return vec
 
 
 def split_by_similarity(dbsession, group):
@@ -150,15 +152,15 @@ def split_by_attribute(dbsession, group, attr):
     return False
 
 
-def split_by_year(config, dbsession, group):
+def split_by_year(dbsession, group):
     """Split the group by year."""
     years = []
     decades = []
     centuries = []
     with_year = 0
     for item in group.items:
-        if config["data"]["year_field"] in item.attributes and item.attributes[config["data"]["year_field"]]:
-            years.append(item.attributes[config["data"]["year_field"]])
+        if item.attributes.get(settings.data.year_field):
+            years.append(item.attributes[settings.data.year_field])
             with_year = with_year + 1
     if with_year / len(group.items) > 0.95:  # noqa: PLR2004
         common = [(int(v), c) for v, c in Counter(years).most_common()]
@@ -171,13 +173,10 @@ def split_by_year(config, dbsession, group):
                 decades = []
                 for start_year in range(start_decade * 10, (end_decade + 1) * 10, 10):
                     for item in list(group.items):
-                        if (
-                            config["data"]["year_field"] in item.attributes
-                            and item.attributes[config["data"]["year_field"]]
-                        ):
+                        if item.attributes.get(settings.data.year_field):
                             if (
-                                start_year <= int(item.attributes[config["data"]["year_field"]])
-                                and int(item.attributes[config["data"]["year_field"]]) < start_year + 10
+                                start_year <= int(item.attributes[settings.data.year_field])
+                                and int(item.attributes[settings.data.year_field]) < start_year + 10
                             ):
                                 if len(decades) == 0 or decades[-1][0][0] != start_year:
                                     decades.append([[start_year], 1])
@@ -194,13 +193,10 @@ def split_by_year(config, dbsession, group):
                 for years, _ in decades:
                     new_group = None
                     for item in list(group.items):
-                        if (
-                            config["data"]["year_field"] in item.attributes
-                            and item.attributes[config["data"]["year_field"]]
-                        ):
+                        if item.attributes.get(settings.data.year_field):
                             if (
-                                years[0] <= int(item.attributes[config["data"]["year_field"]])
-                                and int(item.attributes[config["data"]["year_field"]]) < years[-1] + 10
+                                years[0] <= int(item.attributes[settings.data.year_field])
+                                and int(item.attributes[settings.data.year_field]) < years[-1] + 10
                             ):
                                 if new_group is None:
                                     if len(years) == 1:
@@ -227,13 +223,10 @@ def split_by_year(config, dbsession, group):
                 centuries = []
                 for start_year in range(start_century * 100, (end_century + 1) * 100, 100):
                     for item in list(group.items):
-                        if (
-                            config["data"]["year_field"] in item.attributes
-                            and item.attributes[config["data"]["year_field"]]
-                        ):
+                        if item.attributes.get(settings.data.year_field):
                             if (
-                                start_year <= int(item.attributes[config["data"]["year_field"]])
-                                and int(item.attributes[config["data"]["year_field"]]) < start_year + 100
+                                start_year <= int(item.attributes[settings.data.year_field])
+                                and int(item.attributes[settings.data.year_field]) < start_year + 100
                             ):
                                 if len(centuries) == 0 or centuries[-1][0][0] != start_year:
                                     centuries.append([[start_year], 1])
@@ -250,13 +243,10 @@ def split_by_year(config, dbsession, group):
                 for years, _ in centuries:
                     new_group = None
                     for item in list(group.items):
-                        if (
-                            config["data"]["year_field"] in item.attributes
-                            and item.attributes[config["data"]["year_field"]]
-                        ):
+                        if item.attributes.get(settings.data.year_field):
                             if (
-                                years[0] <= int(item.attributes[config["data"]["year_field"]])
-                                and int(item.attributes[config["data"]["year_field"]]) < years[-1] + 100
+                                years[0] <= int(item.attributes[settings.data.year_field])
+                                and int(item.attributes[settings.data.year_field]) < years[-1] + 100
                             ):
                                 if new_group is None:
                                     if len(years) == 1:
@@ -306,184 +296,179 @@ def split_by_year(config, dbsession, group):
     return False
 
 
-async def split_large_groups_impl(config):
+async def split_large_groups_impl():
     """Split large groups into smaller ones."""
-    async with async_sessionmaker() as dbsession:
-        progress = ClickIndeterminate("Splitting large groups")
-        progress.start()
-        splitting = True
-        stmt = select(Group).options(selectinload(Group.items), selectinload(Group.children))
-        while splitting:
-            splitting = False
-            result = await dbsession.execute(stmt)
-            for group in result.scalars():
-                if len(group.children) == 0:
-                    if len(group.items) > 120 and len(group.items) < 300:  # noqa: PLR2004
-                        if split_by_year(config, dbsession, group):
-                            splitting = True
-                        else:
-                            split_by_similarity(dbsession, group)
-                            splitting = True
-                    elif len(group.items) >= 300:  # noqa: PLR2004
-                        if split_by_attribute(dbsession, group, "concepts"):
-                            splitting = True
-                        elif split_by_attribute(dbsession, group, "subjects"):
-                            splitting = True
-                        elif split_by_attribute(dbsession, group, "materials"):
-                            splitting = True
-                        elif split_by_attribute(dbsession, group, "techniques"):
-                            splitting = True
-                        elif split_by_year(config, dbsession, group):
-                            splitting = True
-                        else:
-                            split_by_similarity(dbsession, group)
-                            splitting = True
-            await dbsession.commit()
-        progress.stop()
+    with Progress() as progress:
+        task = progress.add_task("Splitting large groups", total=None)
+        async with async_sessionmaker() as dbsession:
+            splitting = True
+            stmt = select(Group).options(selectinload(Group.items), selectinload(Group.children))
+            while splitting:
+                splitting = False
+                result = await dbsession.execute(stmt)
+                for group in result.scalars():
+                    if len(group.children) == 0:
+                        if len(group.items) > 120 and len(group.items) < 300:  # noqa: PLR2004
+                            if split_by_year(dbsession, group):
+                                splitting = True
+                            else:
+                                split_by_similarity(dbsession, group)
+                                splitting = True
+                        elif len(group.items) >= 300:  # noqa: PLR2004
+                            if split_by_attribute(dbsession, group, "concepts"):
+                                splitting = True
+                            elif split_by_attribute(dbsession, group, "subjects"):
+                                splitting = True
+                            elif split_by_attribute(dbsession, group, "materials"):
+                                splitting = True
+                            elif split_by_attribute(dbsession, group, "techniques"):
+                                splitting = True
+                            elif split_by_year(dbsession, group):
+                                splitting = True
+                            else:
+                                split_by_similarity(dbsession, group)
+                                splitting = True
+                await dbsession.commit()
+        progress.update(task, total=1, completed=1)
 
 
-@click.command()
-@click.pass_context
-def split_large_groups(ctx):
+@group.command()
+def split_large_groups():
     """Split large groups into smaller ones."""
-    asyncio.run(split_large_groups_impl(ctx.obj["config"]))
+    asyncio.run(split_large_groups_impl())
 
 
 async def merge_singular_plural_impl():
     """Merge singular and plural groups."""
-    async with async_sessionmaker() as dbsession:
-        progress = ClickIndeterminate("Merging singular and plural")
-        progress.start()
-        modifying = True
-        while modifying:
-            modifying = False
-            stmt = select(Group)
-            result = await dbsession.execute(stmt)
-            for group in result.scalars():
-                stmt = (
-                    select(Group)
-                    .filter(and_(Group.value == inflection.singularize(group.value), Group.id != group.id))
-                    .options(selectinload(Group.items))
-                )
+    with Progress() as progress:
+        task = progress.add_task("Merging singular and plural", total=None)
+        async with async_sessionmaker() as dbsession:
+            modifying = True
+            while modifying:
+                modifying = False
+                stmt = select(Group)
                 result = await dbsession.execute(stmt)
-                other = result.scalars().first()
-                if other:
-                    for item in list(other.items):
-                        item.group = group
-                        dbsession.add(item)
-                    await dbsession.delete(other)
-                    await dbsession.commit()
-                    modifying = True
-                    break
-        progress.stop()
+                for group in result.scalars():
+                    stmt = (
+                        select(Group)
+                        .filter(and_(Group.value == inflection.singularize(group.value), Group.id != group.id))
+                        .options(selectinload(Group.items))
+                    )
+                    result = await dbsession.execute(stmt)
+                    other = result.scalars().first()
+                    if other:
+                        for item in list(other.items):
+                            item.group = group
+                            dbsession.add(item)
+                        await dbsession.delete(other)
+                        await dbsession.commit()
+                        modifying = True
+                        break
+        progress.update(task, total=1, completed=1)
 
 
-@click.command()
+@group.command()
 def merge_singular_plural():
     """Merge singular and plural groups."""
     asyncio.run(merge_singular_plural_impl())
 
 
-async def add_parent_groups_impl(config):
+async def add_parent_groups_impl():
     """Add any required parent groups."""
     async with async_sessionmaker() as dbsession:
         stmt = select(Group).filter(Group.parent_id == None).options(selectinload(Group.parent))  # noqa: E711
         result = await dbsession.execute(stmt)
         stmt = select(func.count(Group.id)).filter(Group.parent_id == None)  # noqa: E711
         result_count = await dbsession.execute(stmt)
-        with click.progressbar(
-            result.scalars(), length=result_count.scalar_one(), label="Adding parent groups"
-        ) as progress:
-            for group in progress:
-                if "aat" in config["data"]["hierarchy"]["expansions"]:
-                    categories = apply_aat(group.value, merge=False)
-                    if categories:
-                        for category_list in categories:
-                            mapped = False
-                            for category in category_list:
-                                stmt = select(Group).filter(Group.value == category)
-                                result = await dbsession.execute(stmt)
-                                parent_group = result.scalars().first()
-                                if not parent_group:
-                                    parent_group = Group(
-                                        value=category, label=category[0].upper() + category[1:], split="parent"
-                                    )
-                                    dbsession.add(group)
-                                group.parent = parent_group
-                                mapped = True
-                                group = parent_group  # noqa: PLW2901
-                                if group.parent_id:
-                                    break
-                            if mapped:
-                                break
-                    else:
+        for group in track(result.scalars(), total=result_count.scalar_one(), description="Adding parent groups"):
+            if "aat" in settings.data.hierarchy.expansions:
+                categories = apply_aat(group.value, merge=False)
+                if categories:
+                    for category_list in categories:
                         mapped = False
-                        for category in apply_nlp(group.value):
-                            stmt = select(Group).filter(
-                                or_(Group.value == category, Group.value == inflection.pluralize(category))
-                            )
+                        for category in category_list:
+                            stmt = select(Group).filter(Group.value == category)
                             result = await dbsession.execute(stmt)
                             parent_group = result.scalars().first()
-                            if parent_group:
-                                group.parent = parent_group
-                                await dbsession.commit()
-                                mapped = True
+                            if not parent_group:
+                                parent_group = Group(
+                                    value=category, label=category[0].upper() + category[1:], split="parent"
+                                )
+                                dbsession.add(group)
+                            group.parent = parent_group
+                            mapped = True
+                            group = parent_group  # noqa: PLW2901
+                            if group.parent_id:
                                 break
-                        if not mapped:
-                            if group.value not in ["styles and periods"]:
-                                for category in apply_nlp(group.value):
-                                    hierarchies = apply_aat(category, merge=False)
-                                    groups = []
-                                    for hierarchy in hierarchies:
-                                        if group.value not in hierarchy:
-                                            stmt = (
-                                                select(Group)
-                                                .filter(Group.value.in_(hierarchy))
-                                                .options(selectinload(Group.items))
-                                            )
-                                            result = await dbsession.execute(stmt)
-                                            for potential_group in result.scalars():
-                                                depth = 0
-                                                tmp = potential_group
-                                                while tmp:
-                                                    depth = depth + 1
-                                                    tmp = tmp.parent
-                                                groups.append((potential_group, depth, len(potential_group.items)))
-                                    if groups:
-                                        groups.sort(key=lambda g: (g[1], g[2]), reverse=True)
-                                        group.parent = groups[0][0]
-                                        break
+                        if mapped:
+                            break
+                else:
+                    mapped = False
+                    for category in apply_nlp(group.value):
+                        stmt = select(Group).filter(
+                            or_(Group.value == category, Group.value == inflection.pluralize(category))
+                        )
+                        result = await dbsession.execute(stmt)
+                        parent_group = result.scalars().first()
+                        if parent_group:
+                            group.parent = parent_group
+                            await dbsession.commit()
+                            mapped = True
+                            break
+                    if not mapped:
+                        if group.value not in ["styles and periods"]:
+                            for category in apply_nlp(group.value):
+                                hierarchies = apply_aat(category, merge=False)
+                                groups = []
+                                for hierarchy in hierarchies:
+                                    if group.value not in hierarchy:
+                                        stmt = (
+                                            select(Group)
+                                            .filter(Group.value.in_(hierarchy))
+                                            .options(selectinload(Group.items))
+                                        )
+                                        result = await dbsession.execute(stmt)
+                                        for potential_group in result.scalars():
+                                            depth = 0
+                                            tmp = potential_group
+                                            while tmp:
+                                                depth = depth + 1
+                                                tmp = tmp.parent
+                                            groups.append((potential_group, depth, len(potential_group.items)))
+                                if groups:
+                                    groups.sort(key=lambda g: (g[1], g[2]), reverse=True)
+                                    group.parent = groups[0][0]
+                                    break
         await dbsession.commit()
 
 
-@click.command()
-@click.pass_context
-def add_parent_groups(ctx):
+@group.command()
+def add_parent_groups():
     """Add any required parent groups."""
-    asyncio.run(add_parent_groups_impl(ctx.obj["config"]))
+    asyncio.run(add_parent_groups_impl())
 
 
 async def prune_single_groups_impl():
     """Remove groups that have a single child and no items."""
-    async with async_sessionmaker() as dbsession:
-        progress = ClickIndeterminate("Pruning single groups")
-        progress.start()
-        pruning = True
-        stmt = select(Group).options(selectinload(Group.children), selectinload(Group.items))
-        while pruning:
-            pruning = False
-            result = await dbsession.execute(stmt)
-            for group in result.scalars():
-                if len(group.items) == 0 and len(group.children) == 1:
-                    group.children[0].parent = group.parent
-                    await dbsession.delete(group)
-                    await dbsession.commit()
-                    pruning = True
-                    break
-        progress.stop()
+    with Progress() as progress:
+        task = progress.add_task("Pruning single groups", total=None)
+        async with async_sessionmaker() as dbsession:
+            pruning = True
+            stmt = select(Group).options(selectinload(Group.children), selectinload(Group.items))
+            while pruning:
+                pruning = False
+                result = await dbsession.execute(stmt)
+                for group in result.scalars():
+                    if len(group.items) == 0 and len(group.children) == 1:
+                        group.children[0].parent = group.parent
+                        await dbsession.delete(group)
+                        await dbsession.commit()
+                        pruning = True
+                        break
+        progress.update(task, total=1, completed=1)
 
 
-@click.command()
+@group.command()
 def prune_single_groups():
     """Remove groups that have a single child and no items."""
     asyncio.run(prune_single_groups_impl())
@@ -491,30 +476,30 @@ def prune_single_groups():
 
 async def move_inner_items_impl():
     """Move items from non-leaf groups into extra leaf groups."""
-    async with async_sessionmaker() as dbsession:
-        progress = ClickIndeterminate("Moving inner items")
-        progress.start()
-        moving = True
-        stmt = select(Group).options(selectinload(Group.children), selectinload(Group.items))
-        while moving:
-            moving = False
-            result = await dbsession.execute(stmt)
-            for group in result.scalars():
-                if len(group.items) > 0 and len(group.children) > 0:
-                    sub_group = Group(value=group.value, label=group.label, split="inner")
-                    dbsession.add(sub_group)
-                    sub_group.parent = group
-                    for item in list(group.items):
-                        item.group = sub_group
-                        dbsession.add(item)
-                    await dbsession.commit()
-                    moving = True
-                    break
-        await dbsession.commit()
-        progress.stop()
+    with Progress() as progress:
+        task = progress.add_task("Moving inner items", total=None)
+        async with async_sessionmaker() as dbsession:
+            moving = True
+            stmt = select(Group).options(selectinload(Group.children), selectinload(Group.items))
+            while moving:
+                moving = False
+                result = await dbsession.execute(stmt)
+                for group in result.scalars():
+                    if len(group.items) > 0 and len(group.children) > 0:
+                        sub_group = Group(value=group.value, label=group.label, split="inner")
+                        dbsession.add(sub_group)
+                        sub_group.parent = group
+                        for item in list(group.items):
+                            item.group = sub_group
+                            dbsession.add(item)
+                        await dbsession.commit()
+                        moving = True
+                        break
+            await dbsession.commit()
+        progress.update(task, total=1, completed=1)
 
 
-@click.command()
+@group.command()
 def move_inner_items():
     """Move items from non-leaf groups into extra leaf groups."""
     asyncio.run(move_inner_items_impl())
@@ -530,22 +515,7 @@ async def pipeline_impl():
     await split_large_groups_impl()
 
 
-@click.command()
+@group.command()
 def pipeline():
     """Run the group processing pipeline."""
     asyncio.run(pipeline_impl())
-
-
-@click.group()
-def groups():
-    """Group generation."""
-    pass
-
-
-groups.add_command(generate_groups)
-groups.add_command(split_large_groups)
-groups.add_command(add_parent_groups)
-groups.add_command(merge_singular_plural)
-groups.add_command(prune_single_groups)
-groups.add_command(move_inner_items)
-groups.add_command(pipeline)

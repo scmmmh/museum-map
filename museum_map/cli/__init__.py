@@ -7,6 +7,7 @@ from typer import Typer
 
 from museum_map.__about__ import __version__
 from museum_map.cli.db import group as db_group
+from museum_map.cli.groups import group as groups_group
 from museum_map.cli.images import group as images_group
 from museum_map.cli.items import group as items_group
 
@@ -25,6 +26,7 @@ cli = Typer()
 cli.add_typer(db_group, name="db")
 cli.add_typer(images_group, name="images")
 cli.add_typer(items_group, name="items")
+cli.add_typer(groups_group, name="groups")
 
 
 @cli.command()
