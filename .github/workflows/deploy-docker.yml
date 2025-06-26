@@ -17,12 +17,6 @@ jobs:
           echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
           echo "PIPX_BIN_DIR=$HOME/.local/bin" >> $GITHUB_ENV
 
-      - name: Get application version
-        id: get-version
-        run: |
-          VERSION=`hatch version`
-          echo "result=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -38,6 +32,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install python3-venv pipx
           pipx install hatch
+
+      - name: Get application version
+        id: get-version
+        run: |
+          VERSION=`hatch version`
+          echo "result=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build Application
         run: |
