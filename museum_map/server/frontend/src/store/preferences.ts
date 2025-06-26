@@ -14,13 +14,15 @@ function storeValue(storage: Storage, path: string, value: null | string | numbe
     let current = obj;
     for (let idx = 0; idx < pathElements.length; idx++) {
         const element = pathElements[idx];
-        if (idx === pathElements.length - 1) {
-            current[element] = value;
-        } else {
-            if (!current[element]) {
-                current[element] = {};
+        if (element !== "__proto__" && element !== "constructor") {
+            if (idx === pathElements.length - 1) {
+                current[element] = value;
+            } else {
+                if (!current[element]) {
+                    current[element] = {};
+                }
+                current = current[element] as NestedStorage;
             }
-            current = current[element] as NestedStorage;
         }
     }
     storage.setItem('mmap:storage', JSON.stringify(obj));
