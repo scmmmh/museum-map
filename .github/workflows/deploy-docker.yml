@@ -30,7 +30,7 @@ jobs:
       - name: Install Base Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install python3-venv pipx
+          sudo apt-get install python3-venv pipx qemu-user-static
           pipx install hatch
 
       - name: Get application version
