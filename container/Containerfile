@@ -17,8 +17,8 @@ RUN apt-get update && \
 COPY dist/*.whl /tmp/
 
 # Install the application
-RUN python -m pip install /tmp/*.whl && \
-    python -m spacy download en_core_web_sm
+RUN python -m pip install /tmp/*.whl
+
 RUN mkdir /var/lib/museum-map && \
     mkdir /etc/museum-map && \
     chmod 0755 /var/lib/museum-map && \

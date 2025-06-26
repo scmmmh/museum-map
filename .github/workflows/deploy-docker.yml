@@ -55,7 +55,7 @@ jobs:
             tags: ${{ steps.get-version.outputs.result }}
             context: .
             containerfiles: |
-              ./docker/Containerfile
+              ./container/Containerfile
             platforms: linux/arm64/v8,linux/amd64
 
       - name: Push the container image to ghcr.io
