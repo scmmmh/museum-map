@@ -7,7 +7,7 @@ on:
 permissions: read-all
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
