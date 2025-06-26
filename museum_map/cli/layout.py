@@ -5,15 +5,19 @@ import math
 from copy import deepcopy
 from random import choice
 
-import click
 from inflection import pluralize
+from rich.progress import Progress, track
 from scipy.spatial.distance import cosine
 from sqlalchemy import delete, func
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+from typer import Typer
 
 from museum_map.cli.groups import fill_vector
 from museum_map.models import Floor, FloorTopic, Group, Item, Room, async_sessionmaker
+from museum_map.settings import settings
+
+group = Typer(help="Layout commands")
 
 
 async def count_items(dbsession, group):
@@ -83,7 +87,7 @@ async def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
         rid = room_ids.pop()
         room = rooms[rid]
         splits_left = 1  # room['max_splits']
-        items_left = room["items"]
+        items_left = room.items
         for group in await get_assignable_groups(dbsession, assigned):
             if items_left >= len(group.items) and splits_left > 0:
                 label = pluralize_label(group.label)
@@ -94,7 +98,7 @@ async def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
                         group=group,
                         floor=floor,
                         items=group.items,
-                        position=room["position"],
+                        position=room.position.dict(),
                     )
                 )
                 items_left = items_left - len(group.items)
@@ -105,35 +109,34 @@ async def generate_rooms(dbsession, floor, nr, room_ids, rooms, assigned):
                 break
 
 
-async def generate_structure_impl(config):
+async def generate_structure_impl():
     """Generate the floors and rooms structure."""
     async with async_sessionmaker() as dbsession:
-        room_ids = [room["id"] for room in config["layout"]["rooms"]]
+        room_ids = [room.id for room in settings.layout.rooms]
         room_ids.reverse()
 
-        rooms = {room["id"]: room for room in config["layout"]["rooms"]}
+        rooms = {room.id: room for room in settings.layout.rooms}
         assigned = []
         assignable = await get_assignable_groups(dbsession, assigned)
         old_len = len(assignable)
         floor_nr = -1
-        progress = click.progressbar(length=len(assignable), label="Generating layout")
-        progress.update(0)
-        while assignable:
-            floor_nr = floor_nr + 1
-            floor = Floor(label=f"Floor {floor_nr}", level=floor_nr)
-            dbsession.add(floor)
-            await generate_rooms(dbsession, floor, 1, deepcopy(room_ids), rooms, assigned)
-            assignable = await get_assignable_groups(dbsession, assigned)
-            progress.update(old_len - len(assignable))
-            old_len = len(assignable)
-        await dbsession.commit()
+        with Progress() as progress:
+            task = progress.add_task("Generating layout", total=len(assignable))
+            while assignable:
+                floor_nr = floor_nr + 1
+                floor = Floor(label=f"Floor {floor_nr}", level=floor_nr)
+                dbsession.add(floor)
+                await generate_rooms(dbsession, floor, 1, deepcopy(room_ids), rooms, assigned)
+                assignable = await get_assignable_groups(dbsession, assigned)
+                progress.update(task, advance=old_len - len(assignable))
+                old_len = len(assignable)
+                await dbsession.commit()
 
 
-@click.command()
-@click.pass_context
-def generate_structure(ctx):
+@group.command()
+def generate_structure():
     """Generate the floors and rooms structure."""
-    asyncio.run(generate_structure_impl(ctx.obj["config"]))
+    asyncio.run(generate_structure_impl())
 
 
 def get_basic_group(group):
@@ -164,12 +167,9 @@ async def summarise_rooms(dbsession):
     """Generate the room summaries."""
     rooms = await dbsession.execute(select(Room).options(selectinload(Room.items)))
     rooms_count = await dbsession.execute(select(func.count(Room.id)))
-    with click.progressbar(
-        rooms.scalars(), length=rooms_count.scalar_one(), label="Generating room summaries"
-    ) as progress:
-        for room in progress:
-            room.sample = choice(room.items)  # noqa: S311
-            dbsession.add(room)
+    for room in track(rooms.scalars(), total=rooms_count.scalar_one(), description="Generating room summaries"):
+        room.sample = choice(room.items)  # noqa: S311
+        dbsession.add(room)
     await dbsession.commit()
 
 
@@ -179,39 +179,34 @@ async def summarise_floors(dbsession):
         select(Floor).options(selectinload(Floor.topics), selectinload(Floor.rooms), selectinload(Floor.samples))
     )
     floors_count = await dbsession.execute(select(func.count(Floor.id)))
-    with click.progressbar(
-        floors.scalars(), length=floors_count.scalar_one(), label="Generating floor summaries"
-    ) as progress:
-        for floor in progress:
-            floor_groups = {}
-            if len(floor.topics) == 0:
-                groups = await dbsession.execute(
-                    select(Group).join(Group.room).filter(Room.floor_id == floor.id).options(selectinload(Group.items))
-                )
-                for group in groups.scalars():
-                    size = await count_items(dbsession, group)
-                    while group.split in ["time", "similar", "attribute", "inner"]:
-                        parent_result = await dbsession.execute(select(Group).filter(Group.id == group.parent_id))
-                        group = parent_result.scalar_one()  # noqa: PLW2901
-                    if group in floor_groups:
-                        floor_groups[group] = floor_groups[group] + size
-                    else:
-                        floor_groups[group] = size
-                group_sizes = list(floor_groups.items())
-                group_sizes.sort(key=lambda g: g[1], reverse=True)
-                total = sum(floor_groups.values())
-                sub_total = 0
-                for group, size in group_sizes:
-                    sub_total = sub_total + size
-                    dbsession.add(FloorTopic(label=pluralize_label(group.label), group=group, floor=floor, size=size))
-                    if sub_total / total > 0.66666:  # noqa: PLR2004
-                        break
-            items_result = await dbsession.execute(
-                select(Item).filter(Item.room_id.in_([room.id for room in floor.rooms]))
+    for floor in track(floors.scalars(), total=floors_count.scalar_one(), description="Generating floor summaries"):
+        floor_groups = {}
+        if len(floor.topics) == 0:
+            groups = await dbsession.execute(
+                select(Group).join(Group.room).filter(Room.floor_id == floor.id).options(selectinload(Group.items))
             )
-            items = list(items_result.scalars())
-            floor.samples = [items[idx] for idx in range(0, len(items), math.floor(len(items) / 15))]
-            await dbsession.commit()
+            for group in groups.scalars():
+                size = await count_items(dbsession, group)
+                while group.split in ["time", "similar", "attribute", "inner"]:
+                    parent_result = await dbsession.execute(select(Group).filter(Group.id == group.parent_id))
+                    group = parent_result.scalar_one()  # noqa: PLW2901
+                if group in floor_groups:
+                    floor_groups[group] = floor_groups[group] + size
+                else:
+                    floor_groups[group] = size
+            group_sizes = list(floor_groups.items())
+            group_sizes.sort(key=lambda g: g[1], reverse=True)
+            total = sum(floor_groups.values())
+            sub_total = 0
+            for group, size in group_sizes:
+                sub_total = sub_total + size
+                dbsession.add(FloorTopic(label=pluralize_label(group.label), group=group, floor=floor, size=size))
+                if sub_total / total > 0.66666:  # noqa: PLR2004
+                    break
+        items_result = await dbsession.execute(select(Item).filter(Item.room_id.in_([room.id for room in floor.rooms])))
+        items = list(items_result.scalars())
+        floor.samples = [items[idx] for idx in range(0, len(items), math.floor(len(items) / 15))]
+        await dbsession.commit()
 
 
 async def generate_summaries_impl():
@@ -223,7 +218,7 @@ async def generate_summaries_impl():
         await summarise_floors(dbsession)
 
 
-@click.command()
+@group.command()
 def generate_summaries():
     """Generate the floor and room summaries."""
     asyncio.run(generate_summaries_impl())
@@ -236,34 +231,31 @@ async def order_items_impl():
         result = await dbsession.execute(stmt)
         stmt_count = select(func.count(Room.id))
         result_count = await dbsession.execute(stmt_count)
-        with click.progressbar(
-            result.scalars(), length=result_count.scalar_one(), label="Ordering items in rooms"
-        ) as progress:
-            for room in progress:
-                vectors = {}
-                sorted_items = []
-                current = room.items[0]
-                vectors[current.id] = fill_vector(current)
-                while len(sorted_items) < len(room.items):
-                    next_item = None
-                    next_sim = None
-                    for item in room.items:
-                        if item in sorted_items:
-                            continue
-                        if item.id not in vectors:
-                            vectors[item.id] = fill_vector(item)
-                        if not next_item or cosine(vectors[current.id], vectors[item.id]) > next_sim:
-                            next_item = item
-                            next_sim = cosine(vectors[current.id], vectors[item.id])
-                    if next_item:
-                        sorted_items.append(next_item)
-                for idx, item in enumerate(sorted_items):
-                    item.sequence = idx
-                    dbsession.add(item)
+        for room in track(result.scalars(), total=result_count.scalar_one(), description="Ordering items in rooms"):
+            vectors = {}
+            sorted_items = []
+            current = room.items[0]
+            vectors[current.id] = fill_vector(current)
+            while len(sorted_items) < len(room.items):
+                next_item = None
+                next_sim = None
+                for item in room.items:
+                    if item in sorted_items:
+                        continue
+                    if item.id not in vectors:
+                        vectors[item.id] = fill_vector(item)
+                    if not next_item or cosine(vectors[current.id], vectors[item.id]) > next_sim:
+                        next_item = item
+                        next_sim = cosine(vectors[current.id], vectors[item.id])
+                if next_item:
+                    sorted_items.append(next_item)
+            for idx, item in enumerate(sorted_items):
+                item.sequence = idx
+                dbsession.add(item)
         await dbsession.commit()
 
 
-@click.command()
+@group.command()
 def order_items():
     """Order the items in each room."""
     asyncio.run(order_items_impl())
@@ -276,19 +268,7 @@ async def pipeline_impl():
     await order_items_impl()
 
 
-@click.command()
+@group.command()
 def pipeline():
     """Run the layout pipeline."""
     asyncio.run(pipeline_impl())
-
-
-@click.group()
-def layout():
-    """Layout generation commands."""
-    pass
-
-
-layout.add_command(generate_structure)
-layout.add_command(generate_summaries)
-layout.add_command(order_items)
-layout.add_command(pipeline)
