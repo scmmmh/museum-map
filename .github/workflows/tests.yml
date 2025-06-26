@@ -4,8 +4,10 @@ on:
   push:
   pull_request:
 
+permissions: read-all
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,15 +18,15 @@ jobs:
           echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
           echo "PIPX_BIN_DIR=$HOME/.local/bin" >> $GITHUB_ENV
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.13
 
-      - name: Set up Node 18.x
+      - name: Set up Node 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: "22.x"
 
       - name: Install Base Dependencies
         run: |

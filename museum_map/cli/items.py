@@ -245,7 +245,7 @@ async def generate_topic_vectors_impl():
                             text.append(f"{item.attributes[field]}.")
                 topic_ids, probabilities = topic_model.transform([" ".join(text)])
                 topic_vector = [0.0 for _ in range(0, len(topics))]
-                for topic_id, probability in zip(topic_ids, probabilities):
+                for topic_id, probability in zip(topic_ids, probabilities, strict=True):
                     if topic_id >= 0 and topic_id < len(topic_vector):
                         topic_vector[int(topic_id)] = float(probability)
                 item.attributes["lda_vector"] = topic_vector
