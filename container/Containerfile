@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.13
 
 ARG MM_USER="museum-map"
 ARG MM_UID="10000"
