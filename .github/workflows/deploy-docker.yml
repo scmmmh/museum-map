@@ -5,6 +5,22 @@ on:
     tags:
       - "v*"
 
+permissions:
+  actions: read
+  attestations: none
+  checks: read
+  contents: read
+  deployments: none
+  id-token: none
+  issues: none
+  models: none
+  discussions: none
+  packages: write
+  pages: none
+  pull-requests: none
+  security-events: none
+  statuses: none
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
