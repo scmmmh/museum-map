@@ -1,5 +1,7 @@
 """The main Museum Map server entry-point."""
 
+import os
+
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -11,7 +13,8 @@ app = FastAPI()
 
 app.mount("/app", StaticFiles(packages=[("museum_map.server", "frontend/dist")], html=True), name="static")
 app.include_router(api.router)
-app.mount("/images", StaticFiles(directory=init_settings.images_path))
+if os.path.isdir(init_settings.images_path):
+    app.mount("/images", StaticFiles(directory=init_settings.images_path))
 
 
 @app.get("/")
