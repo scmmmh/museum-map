@@ -3,10 +3,11 @@ FROM python:3.13
 ARG MM_USER="museum-map"
 ARG MM_UID="10000"
 ARG MM_GID="10000"
+ENV HOME=/var/lib/museum-map
 
 # Create the user
 RUN groupadd --gid $MM_GID $MM_USER && \
-    useradd --gid $MM_GID --no-log-init --shell /bin/bash --uid $MM_UID $MM_USER
+    useradd --gid $MM_GID --no-log-init --shell /bin/bash --uid $MM_UID -d /var/lib/museum-map $MM_USER
 
 # Install base dependencies
 RUN apt-get update && \
