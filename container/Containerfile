@@ -20,7 +20,7 @@ COPY dist/*.whl /tmp/
 # Install the application
 RUN python -m pip install /tmp/*.whl
 
-RUN mkdir /var/lib/museum-map && \
+RUN mkdir -p /var/lib/museum-map && \
     mkdir /etc/museum-map && \
     chmod 0755 /var/lib/museum-map && \
     chown -R ${MM_USER}:${MM_USER} /etc/museum-map && \
