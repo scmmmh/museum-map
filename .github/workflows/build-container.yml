@@ -75,7 +75,7 @@ jobs:
             context: .
             containerfiles: |
               ./container/Containerfile
-            platforms: linux/arm64/v8,linux/amd64
+            platforms: linux/amd64
 
       - name: Push the container image to ghcr.io
         uses: redhat-actions/push-to-registry@v2
