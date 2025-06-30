@@ -1,4 +1,4 @@
 """About this package."""
 
-__version__ = "1.2.0b9"
+__version__ = "1.2.0b10"
 __tables__ = {"groups", "users", "floors_items", "floor_topics", "rooms", "floors", "log_entries", "items"}
