@@ -6,7 +6,7 @@ ARG MM_GID="10000"
 
 # Create the user
 RUN groupadd --gid $MM_GID $MM_USER && \
-    useradd --gid $MM_GID --no-log-init --shell /bin/bash --uid $MM_UID $MM_USER
+    useradd --gid $MM_GID --no-log-init --shell /bin/bash --uid $MM_UID $MM_USER -d /var/lib/museum-map
 
 # Install base dependencies
 RUN apt-get update && \
@@ -19,8 +19,7 @@ COPY dist/*.whl /tmp/
 # Install the application
 RUN python -m pip install /tmp/*.whl
 
-RUN mkdir /var/lib/museum-map && \
-    mkdir /etc/museum-map && \
+RUN mkdir /etc/museum-map && \
     chmod 0755 /var/lib/museum-map && \
     chown -R ${MM_USER}:${MM_USER} /etc/museum-map && \
     chown -R ${MM_USER}:${MM_USER} /var/lib/museum-map
