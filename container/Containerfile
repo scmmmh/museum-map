@@ -3,6 +3,7 @@ FROM python:3.13
 ARG MM_USER="museum-map"
 ARG MM_UID="10000"
 ARG MM_GID="10000"
+ENV HOME=/var/lib/museum-map
 
 # Create the user
 RUN groupadd --gid $MM_GID $MM_USER && \
