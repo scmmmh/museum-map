@@ -39,7 +39,7 @@
         <NotFoundRoute><Lobby /></NotFoundRoute>
       </main>
       <Research />
-      {#if $apiStatus.data.version !== "1.1.0"}
+      {#if $apiStatus.data.version !== "1.2.0"}
         <Reload />
       {/if}
     {:else}
