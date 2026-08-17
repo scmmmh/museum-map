@@ -68,7 +68,7 @@ jobs:
 
       - name: Build the container image
         id: build-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
             image: scmmmh/museum-map
             tags: ${{ steps.get-version.outputs.result }}
